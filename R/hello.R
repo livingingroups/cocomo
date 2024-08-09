@@ -15,10 +15,11 @@
 
 #' Title
 #'
+#' @param example_param
 #' @return stuff
 #' @export
 #'
-hello <- function() {
+hello <- function(example_param) {
   print("Hello, world!")
   print('Hello again!')
 }

@@ -4,7 +4,7 @@
 \alias{hello}
 \title{Title}
 \usage{
-hello()
+hello(example_param)
 }
 \value{
 stuff
