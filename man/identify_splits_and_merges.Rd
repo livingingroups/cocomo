@@ -7,9 +7,9 @@
 identify_splits_and_merges(
   R_inner,
   R_outer,
-  xs,
-  ys,
-  ts,
+  xs = xs,
+  ys = ys,
+  ts = ts,
   breaks = c(1, length(ts) + 1),
   names = NULL,
   break_by_day = F,

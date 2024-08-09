@@ -125,7 +125,7 @@
 #' @importFrom lubridate date
 #' @importFrom dbscan dbscan
 #' @export
-identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(1, length(ts)+1), names = NULL, break_by_day = F, verbose = T){
+identify_splits_and_merges <- function(R_inner, R_outer, xs = xs, ys = ys, ts = ts, breaks = c(1, length(ts)+1), names = NULL, break_by_day = F, verbose = T){
 
   #----Identify subgroups at each point
   if(verbose){print('Identifying subgroups at each point using sticky DBSCAN')}
@@ -135,7 +135,7 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
 
   #day start indexes
   if(break_by_day){
-    days <- lubridate::date(ts)
+    days <- date(ts)
     day_start_idxs <- c(1, which(diff(days)==1)+1)
     day_start_idxs <- c(day_start_idxs, length(ts)+1)
     if(!exists('breaks')){
@@ -143,7 +143,7 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
     }
   }
 
-  #Get dyadic distances for each pair, then use double threhsold method to determine if htey are otgether at any moment
+  #Get dyadic distances for each pair, then use double threshold method to determine if they are together at any moment
   dyad_dists <- together <- array(NA, dim = c(n_inds, n_inds, n_times))
   for(i in 1:(n_inds-1)){
     for(j in (i+1):n_inds){
@@ -154,7 +154,7 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
       dyad_dists[i,j,] <- sqrt(dx^2 + dy^2)
 
       #together or not
-      #loop over days. for each day...
+      #loop over days (if breaking by day) or treat whole dataset as one "day". for each day...
       for(d in 1:(length(breaks)-1)){
 
         #get times for that day
@@ -175,13 +175,14 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
 
         together_ij <- together_inner
 
+        #if they are never together, store that and skip to next individual
         if(sum(together_inner,na.rm=T)==0){
           together[i,j,t_day] <- together[j,i,t_day] <- together_ij
           next
         }
 
         #go backwards from crossing points into inner radius to find the 'starts' when crossed the outer radius
-        inner_starts <- which(diff(together_inner)==1)+1
+        inner_starts <- which(diff(together_inner)==1)+1  ## Add 1 to make indices of differences line up with indices of together_inner
         if(length(inner_starts)==0){
           together[i,j,t_day] <- together[j,i,t_day] <- together_ij
           next
@@ -190,14 +191,17 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
           crossing <- inner_starts[k]
           curr_time <- crossing
           for(curr_time in seq(crossing,1,-1)){
+            ## If NA, treat as though they are outside of together_outer
             if(is.na(together_outer[curr_time])){
               start <- curr_time + 1
               break
             }
+            ## If time index 1 is reached, they started together so start of event = start of study
             if(curr_time == 1){
               start <- curr_time
               break
             }
+            ## If together_outer switches to F, mark the last T as the start of the event
             if(together_outer[curr_time]==F){
               start <- curr_time + 1
               break
@@ -217,14 +221,17 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
           crossing <- inner_ends[k]
           curr_time <- crossing
           for(curr_time in seq(crossing,length(together_ij),1)){
+            ## If NA, treat as though they are outside of together_outer
             if(is.na(together_outer[curr_time])){
               end <- curr_time - 1
               break
             }
+            ## If the last time index is reached, end of event = end of day
             if(curr_time == length(together_outer)){
               end <- curr_time
               break
             }
+            ## If together_outer switches to F, mark the last T as the end of the event
             if(together_outer[curr_time]==F){
               end <- curr_time - 1
               break
@@ -240,20 +247,22 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
     }
   }
 
-  #Identify groups from together matrices
+  #Identify groups from together matrices and store in group matrix
   groups <- matrix(NA, nrow = n_inds, ncol = n_times)
   for(t in 1:n_times){
+    ## Work only with individuals who have a location for this timepoint
     non.nas <- which(colSums(!is.na(together[,,t]))>0)
     if(length(non.nas)<=1){
       next
     }
     non.nas.together <- together[non.nas,non.nas,t]
     diag(non.nas.together) <- 1
-    grps.non.nas <- dbscan::dbscan(x = as.dist(1 - non.nas.together), eps = .1,minPts=1)$cluster
+    ## Use DBSCAN to pull out groups (i.e. connected subcomponents of together matrix)
+    grps.non.nas <- dbscan(x = as.dist(1 - non.nas.together), eps = .1,minPts=1)$cluster
     groups[non.nas, t] <- grps.non.nas
   }
 
-  #store groups as lists of lists
+  #also store groups as lists of lists
   groups_list <- list()
   for(t in 1:n_times){
 
@@ -271,32 +280,17 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
   }
 
   #Identifying changes in group membership in consecutive time steps
-
   if(verbose){print('Identifying changes in group membership')}
   event_times <- c()
   for(d in 1:(length(breaks)-1)){
     t_day <- breaks[d]:(breaks[d+1]-1)
     for(t in t_day[1:(length(t_day)-1)]){
-      groups_curr <- groups_list[[t]]
-      groups_next <- groups_list[[t+1]]
-      if(sum(!is.na(groups_curr))==0 | sum(!is.na(groups_next))==0){
+
+      if(length(groups_list[[t]])==0 | length(groups_list[[t+1]])==0){
         next
       }
-      n_groups_curr <- length(groups_curr)
-      n_groups_next <- length(groups_next)
-      matches <- rep(F, n_groups_curr)
-      for(i in 1:n_groups_curr){
-        group_curr <- groups_curr[[i]]
-        matched <- F
-        for(j in 1:n_groups_next){
-          group_next <- groups_next[[j]]
-          if(setequal(group_curr,group_next)){
-            matched <- T
-          }
-        }
-        matches[i] <- matched
-      }
-      if(sum(matches)<n_groups_curr){
+      ## If any groups arent present in next step, store this time as a time in which a change event occurred
+      if(!all(groups_list[[t]] %in% groups_list[[t+1]])){
         event_times <- c(event_times, t)
       }
     }
@@ -306,7 +300,7 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
   all_events_info <- list()
   event_idx <- 1
   for(tidx in 1:length(event_times)){
-    print(tidx)
+    #print(tidx)
     t <- event_times[tidx]
 
     #get groups before and after
@@ -316,17 +310,17 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
     #remove any individuals who are not present in one or the other timestep from both timesteps
     inds_present_curr <- unlist(groups_curr)
     inds_present_next <- unlist(groups_next)
-    inds_to_remove <- setdiff(inds_present_curr, inds_present_next)
+    inds_to_remove <- unique(c(setdiff(inds_present_curr, inds_present_next), setdiff(inds_present_next, inds_present_curr)))
     if(length(inds_to_remove)>0){
       for(g in 1:length(groups_curr)){
-        for(i in 1:length(groups_curr[[g]])){
+        for(i in seq(length(groups_curr[[g]]), 1, -1)){
           if(groups_curr[[g]][i] %in% inds_to_remove){
             groups_curr[[g]] <- groups_curr[[g]][-i]
           }
         }
       }
       for(g in 1:length(groups_next)){
-        for(i in 1:length(groups_next[[g]])){
+        for(i in seq(length(groups_next[[g]]), 1, -1)){
           if(groups_next[[g]][i] %in% inds_to_remove){
             groups_next[[g]] <- groups_next[[g]][-i]
           }
@@ -335,34 +329,21 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
     }
 
     #remove any now-empty groups from groups_curr and groups_next
-    g <- 1
-    gmax <- length(groups_curr)
-    while(g <= gmax){
-      if(length(groups_curr[[g]])==0){
-        groups_curr[[g]] <- NULL
-        g <- g - 1
-        gmax <- gmax - 1
-      }
-      g <- g + 1
-    }
-    g <- 1
-    gmax <- length(groups_next)
-    while(g <= gmax){
-      if(length(groups_next[[g]])==0){
-        groups_next[[g]] <- NULL
-        g <- g - 1
-        gmax <- gmax - 1
-      }
-      g <- g + 1
-    }
+    groups_curr[!unlist(lapply(groups_curr, length))] <- NULL
+    groups_next[!unlist(lapply(groups_next, length))] <- NULL
+
+    #if there are no more groups after removing individuals, go to the next time index
+    n_groups_curr <- length(groups_curr)
+    n_groups_next <- length(groups_next)
+    if(n_groups_curr == 0){next}
+    if(n_groups_next == 0){next}
 
     #find sets of connected groups across the current and future timestep
     #construct a directed network connection_net[i,j] where the rows represent groups in the
     #current timestep and the cols represent groups in the next timestep. Define
     #connection_net[i,j] = 1 if group i from the current timestep and group j from the next
     #timestep share a member, and 0 otherwise.
-    n_groups_curr <- length(groups_curr)
-    n_groups_next <- length(groups_next)
+
     connection_net <- matrix(F, nrow = n_groups_curr, ncol = n_groups_next)
     for(i in 1:n_groups_curr){
       for(j in 1:n_groups_next){
@@ -372,33 +353,59 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
       }
     }
 
-    #get connected components of the bipartite network
+    #get connected components of the bipartite network by iteratively selecting
+    #a "seed" group at time t, pulling it's connections at time t+1,
+    #saving that as a component, then removing it from remaining groups
+
+    ### initialize full set of remaining groups at each time point
+    ## we will go through and move groups from here to component_groups_A/B
     remaining_groups_A <- 1:nrow(connection_net)
     remaining_groups_B <- 1:ncol(connection_net)
+    #component id
     idx <- 1
     component_groups_A <- component_groups_B <- list()
+    ## iterate as long as there are remaining groups at the first time point to process
     while(length(remaining_groups_A) > 0){
+
+      #start with seed group from first time point (A)
       seed_A <- remaining_groups_A[1]
 
+      #initiatlize the object tracking which groups are connected
       grps_A <- c(seed_A)
       grps_B <- c()
-      grps_A_orig <- grps_A
-      grps_B_orig <- grps_B
 
-      while(setequal(grps_A_orig, grps_A) & setequal(grps_B_orig,grps_B)){
+      #make a duplicate to track whether it changes after the upcoming while loop
+      grps_A_orig <- c()
+      grps_B_orig <- c()
+
+      ##while loop terminates once the operations has an effect on grps_A and grps_B
+      while(!setequal(grps_A_orig, grps_A) | !setequal(grps_B_orig,grps_B)){
+
+        #set to same so that while loop stops if while loop has no effect
         grps_A_orig <- grps_A
         grps_B_orig <- grps_B
+
+        #for each identified group in A, add unique groups in B that are connected
+        #to that group in A
         for(i in 1:length(grps_A)){
           grps_B <- union(grps_B, which(connection_net[grps_A[i],]))
         }
+
+        #then do the same but in reverse (B->A) to catch rare cases where two groups in A
+        #might both be connected to the same group in B
         for(i in 1:length(grps_B)){
           grps_A <- union(grps_A, which(connection_net[,grps_B[i]]))
         }
       }
 
+      #Save A and B components, linked by shared component id
       component_groups_A[[idx]] <- c(grps_A)
       component_groups_B[[idx]] <- c(grps_B)
+
+      #iterate component id
       idx <- idx + 1
+
+      #remove processed groups from remaining groups and continue with remaining groups
       remaining_groups_A <- setdiff(remaining_groups_A, grps_A)
       remaining_groups_B <- setdiff(remaining_groups_B, grps_B)
 
@@ -422,16 +429,20 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
         component_groups_after <- component_groups_B[[i]]
         n_groups_before <- length(component_groups_before)
         n_groups_after <- length(component_groups_after)
+        #fission = 1 group becomes multiple
         if(n_groups_before == 1){
           event_type <- 'fission'
         } else{
+          #fusion = multiple groups become 1
           if(n_groups_after == 1){
             event_type <- 'fusion'
-            } else{
-              event_type <- 'shuffle'
+          } else{
+            #shuffle = multiple groups become multiple groups
+            event_type <- 'shuffle'
           }
         }
 
+        ## save information on the subgroups that change
         groups_before <- list()
         groups_after <- list()
         for(g in 1:n_groups_before){
@@ -451,13 +462,15 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
     }
   }
 
-  #get maximum number of subgroups during fissions or fusions
+  #get maximum number of subgroups during fissions or fusions, used subsequently for storing data
   n_subgroups <- rep(NA, length(all_events_info))
   for(i in 1:length(all_events_info)){
     n_subgroups[i] <- max(all_events_info[[i]]$n_groups_before, all_events_info[[i]]$n_groups_after)
   }
   max_n_subgroups <- max(n_subgroups, na.rm=T)
 
+
+  ##store data in dataframe
   events_detected <- data.frame()
   for(i in 1:length(all_events_info)){
     event_type <- all_events_info[[i]]$event_type
@@ -468,8 +481,11 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
                       event_type = all_events_info[[i]]$event_type,
                       n_groups_before = n_groups_before,
                       n_groups_after = n_groups_after)
+
+    #initialize columns for storing data
     row$big_group_idxs <- list(c(NA))
     row$big_group <- list(c(NA))
+    ## create columns based on maximum number subgroups during events in data
     for(j in 1:max_n_subgroups){
       row[paste('group',LETTERS[j],'idxs',sep='_')] <- list(c(NA))
     }
@@ -481,6 +497,7 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
     }
     row$n_big_group <- NA
 
+    #if event is a fission, the large group is from the first time step
     if(event_type == 'fission'){
       row$big_group_idxs <- all_events_info[[i]]$groups_before[[1]]
       row$big_group <- list(names[unlist(all_events_info[[i]]$groups_before[[1]])])
@@ -492,6 +509,7 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
       row$n_big_group <- length(row$big_group_idxs[[1]])
     }
 
+    #if event is a fusion, the large group is from the second time step
     if(event_type == 'fusion'){
       row$big_group_idxs <- all_events_info[[i]]$groups_after[[1]]
       row$big_group <- list(names[unlist(all_events_info[[i]]$groups_after[[1]])])
@@ -509,7 +527,7 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(
   }
 
   #return things
-  out <- list(events_detected = events_detected, all_events_info = all_events_info, groups_list = groups_list, together = together, R_inner = R_inner, R_outer = R_outer)
+  out <- list(events_detected = events_detected, all_events_info = all_events_info, groups_list = groups_list, groups = groups, together = together, R_inner = R_inner, R_outer = R_outer)
   return(out)
 
 }
