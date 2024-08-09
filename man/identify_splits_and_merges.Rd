@@ -116,5 +116,7 @@ After events are identified, various event features are computed and saved in a 
 See list of outputs for more details.
 }
 \author{
-Ariana Strandburg-Peshkin
+Ariana Strandburg-Peshkin (primary author)
+
+Eli Strauss (code reviewer, May 2024)
 }
