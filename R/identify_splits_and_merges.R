@@ -30,14 +30,21 @@
 #' groups due to missing data (but these are later ignored). Store in `changes`
 #' data frame.
 #'
-#'In a last step, find all changes where the individuals were preserved
-#'(i.e. individuals did not disappear) and where the number of subgroups either
-#'increased (a fission) or decreased (a fusion). Store these in a data frame
-#'called `events_detected`.
+#'In a last step, identify all splits ('fission'), merges ('fusion'), and things that
+#'cannot be classified as either fissions or fusions because they contain elements
+#'of both ('shuffle'). This is done by constructing a bipartite network at each time
+#'step t, where groups at time t are connected to groups at time t + 1 if they share
+#'at least 1 member. Then, we identify the connected components of this bipartite
+#'network. Components where a single group (node) at time t is connected to multiple
+#'groups (nodes) at time t + 1 get identified and classified as `event_type = 'fission'`.
+#'Components where multiple nodes at time t are connected to a single node at time t + 1
+#'are classified as `event_type = 'fusion'`. Components where a single node at time t
+#'is connected to a single node at time t + 1 are skipped (they are not fissions, fusions,
+#'or shuffles). All other events where more complex things happen are classified as
+#'`event_type = 'shuffle'`.
 #'
-#'TODO: Add explanation of linking events across time including fissions,
-#'fusions, and shuffles
-#'
+#'After events are identified, various event features are computed and saved in a data frame.
+#'See list of outputs for more details.
 
 #' @param R_inner inner distance threshold to identify periods of connectedness (numeric)
 #' @param R_outer outer distance threshold to identify periods of connectedness (numeric)
