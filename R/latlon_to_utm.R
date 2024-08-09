@@ -15,7 +15,7 @@
 #' @importFrom sf st_as_sf st_transform st_coordinates
 #' @export
 
-latlon_to_utm <- function(lons_lats, utm_zone, southern_hemisphere){
+latlon_to_utm <- function(lons_lats, utm_zone, hemisphere){
 
   warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
 

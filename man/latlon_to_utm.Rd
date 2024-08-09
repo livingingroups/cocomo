@@ -4,7 +4,7 @@
 \alias{latlon_to_utm}
 \title{Latitude / longitude to UTM conversion}
 \usage{
-latlon_to_utm(lons_lats, utm_zone, southern_hemisphere)
+latlon_to_utm(lons_lats, utm_zone, hemisphere)
 }
 \arguments{
 \item{lons_lats}{N x 2 matrix of longitudes (col 1) and latitudes (col2)}
