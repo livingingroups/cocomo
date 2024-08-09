@@ -64,7 +64,7 @@ you can get more detailed info for shuffles from \code{all_events_info} object))
 \code{groups_list[[t]]} gives a list of the subgroups
 \code{groups_list[[t]][[1]]} gives the vector of the first subgroup, etc.
 
-\code{together}: \link{n_inds x n_inds x n_times array} of whether dyads are
+\code{together}: n_inds x n_inds x n_times array of whether dyads are
 connected (1) or not (0) or unknown (NA)
 
 \code{R_inner}: inner radius used in the computations (same as \code{R_inner} above)
@@ -74,4 +74,47 @@ connected (1) or not (0) or unknown (NA)
 \description{
 Detects splits and merges (a.k.a. fissions and fusions) using "sticky-DBSCAN"
 method from Libera et al. 2023.
+}
+\details{
+Start by defining an adjacency matrix (\code{together} in the code) of which dyads
+are "connected" at any moment in time. Dyads are considered to be connected if
+they go within a distance \code{R_inner} of one another, and they continue to be
+connected until they leave a distance \code{R_outer} of one another on both ends
+(before and after) of the period where their distance dropped below \code{R_inner}.
+This double threshold makes periods of connectedness more stable by removing
+the "flicker" that would result from having a single threshold.
+
+NAs are handled by ending a period of connectedness if an individual has an NA
+at the point immediately before / after (if the were connected after / before
+that NA). Individuals with NAs are not included in the together matrix and will
+not be included in the groups.
+Once connectedness of dyads is determined, merge dyads together into groups by
+using DBSCAN on 1 - \code{together} as the distance matrix, with \code{eps} equal to
+something small (.01 in the code).
+Store these groups in \code{groups_list}, a list of lists whose length is equal to
+\code{n_times}.
+Stepping through the \code{groups_list}, identify all changes in group membership,
+i.e. consecutive time points when the groups do not match. The algorithm flags
+any change, including instances where individuals disappear or reappear in
+groups due to missing data (but these are later ignored). Store in \code{changes}
+data frame.
+
+In a last step, identify all splits ('fission'), merges ('fusion'), and things that
+cannot be classified as either fissions or fusions because they contain elements
+of both ('shuffle'). This is done by constructing a bipartite network at each time
+step t, where groups at time t are connected to groups at time t + 1 if they share
+at least 1 member. Then, we identify the connected components of this bipartite
+network. Components where a single group (node) at time t is connected to multiple
+groups (nodes) at time t + 1 get identified and classified as \code{event_type = 'fission'}.
+Components where multiple nodes at time t are connected to a single node at time t + 1
+are classified as \code{event_type = 'fusion'}. Components where a single node at time t
+is connected to a single node at time t + 1 are skipped (they are not fissions, fusions,
+or shuffles). All other events where more complex things happen are classified as
+\code{event_type = 'shuffle'}.
+
+After events are identified, various event features are computed and saved in a data frame.
+See list of outputs for more details.
+}
+\author{
+Ariana Strandburg-Peshkin
 }

@@ -3,9 +3,6 @@
 #'Detects splits and merges (a.k.a. fissions and fusions) using "sticky-DBSCAN"
 #'method from Libera et al. 2023.
 #'
-#' @importFrom lubridate date
-#' @importFrom dbscan dbscan
-#'
 #'Start by defining an adjacency matrix (`together` in the code) of which dyads
 #'are "connected" at any moment in time. Dyads are considered to be connected if
 #'they go within a distance `R_inner` of one another, and they continue to be
@@ -45,7 +42,8 @@
 #'
 #'After events are identified, various event features are computed and saved in a data frame.
 #'See list of outputs for more details.
-
+#'
+#' @author Ariana Strandburg-Peshkin
 #' @param R_inner inner distance threshold to identify periods of connectedness (numeric)
 #' @param R_outer outer distance threshold to identify periods of connectedness (numeric)
 #' @param xs UTM eastings matrix (`n_ninds` x `n_times` matrix where xs[i,t] gives the easting of individual i at time step t)
@@ -86,12 +84,15 @@
 #'`groups_list[[t]]` gives a list of the subgroups
 #'`groups_list[[t]][[1]]` gives the vector of the first subgroup, etc.
 #'
-#'`together`: [n_inds x n_inds x n_times array] of whether dyads are
+#'`together`: n_inds x n_inds x n_times array of whether dyads are
 #'connected (1) or not (0) or unknown (NA)
 #'
 #'`R_inner`: inner radius used in the computations (same as `R_inner` above)
 #'
 #'`R_outer`: outer radius used in the computations (same as `R_outer` above)
+#'
+#' @importFrom lubridate date
+#' @importFrom dbscan dbscan
 identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(1, length(ts)+1), names = NULL, break_by_day = F, verbose = T){
 
   #----Identify subgroups at each point
