@@ -56,35 +56,12 @@
 
 #' @return a list containing:
 #'
-#'`events_detected`: data frame with info on detected fissions and fusions, and limited info for shuffles, including columns...
-#'`events_detected$event_idx`: unique id number of the event
-#'`events_detected$tidx`: (initial) time index of the event
-#'`events_detected$event_type`: "fission" or "fusion" or "shuffle
-#'`events_detected$n_groups_before`: number of groups prior to the event
-#'`events_detected$n_groups_after`: number of groups after the event
-#'`events_detected$big_group_idxs`: indexes of all the individuals involved in the event
-#'`events_detected$big_group`: names of all the individuals involved in the event
-#'`events_detected$group_A_idxs`, $group_B_idxs, $group_C_idxs, etc.: individual idxs of subgroup members
-#'`events_detected$group_A`, `$group_B`, `$group_C`, etc.: names of subgroup members
-#'`events_detected$n_A`, `$n_B`, `$n_C` etc.: number of individuals in each subgroup
-#'`events_detected$n_big_group`: number of individuals in the big group (original group for fissions, subseq group for fusions)
-#'
-#'(NOTE: `big_group_idxs`, `big_group`, `group_A_idxs` etc.,
-#'`group_A` etc. `n_A` etc. and `n_big_group` are set to NA for shuffles...
-#'you can get more detailed info for shuffles from `all_events_info` object))
+#'`events_detected`: data frame with info on detected fissions and fusions, and limited info for shuffles
 #'
 #'`all_events_info`: list of information about all fission-fusion (or shuffle)
-#'`events. all_events_info[[i]]` contains the following info for event i:
-#'`all_events_info[[i]]$t`: time index of the event
-#'`all_events_info[[i]]$groups_before`: (list of lists) list of groups before the event (at time t)
-#'`all_events_info[[i]]$groups_after`: (list of lists) list of groups after the event (at time t + 1)
-#'`all_events_info[[i]]event_type`: 'fission', 'fusion', or 'shuffle' (character string)
-#'`all_events_info[[i]]$n_groups_before`: number of groups before the event
-#'`all_events_info[[i]]$n_groups_after`: number of groups after the event
+#'events.
 #'
 #'`groups_list`: list of subgroups in each timestep
-#'`groups_list[[t]]` gives a list of the subgroups
-#'`groups_list[[t]][[1]]` gives the vector of the first subgroup, etc.
 #'
 #'`together`: n_inds x n_inds x n_times array of whether dyads are
 #'connected (1) or not (0) or unknown (NA)
@@ -92,6 +69,58 @@
 #'`R_inner`: inner radius used in the computations (same as `R_inner` above)
 #'
 #'`R_outer`: outer radius used in the computations (same as `R_outer` above)
+#'
+#'@section Additional information about returned objects:
+#'
+#'`events_detected` data frame:
+#'
+#'`events_detected$event_idx`: unique id number of the event
+#'
+#'`events_detected$tidx`: (initial) time index of the event
+#'
+#'`events_detected$event_type`: "fission" or "fusion" or "shuffle
+#'
+#'`events_detected$n_groups_before`: number of groups prior to the event
+#'
+#'`events_detected$n_groups_after`: number of groups after the event
+#'
+#'`events_detected$big_group_idxs`: indexes of all the individuals involved in the event
+#'
+#'`events_detected$big_group`: names of all the individuals involved in the event
+#'
+#'`events_detected$group_A_idxs`, $group_B_idxs, $group_C_idxs, etc.: individual idxs of subgroup members
+#'
+#'`events_detected$group_A`, `$group_B`, `$group_C`, etc.: names of subgroup members
+#'
+#'`events_detected$n_A`, `$n_B`, `$n_C` etc.: number of individuals in each subgroup
+#'
+#'`events_detected$n_big_group`: number of individuals in the big group (original group for fissions, subseq group for fusions)
+#'
+#'(NOTE: `big_group_idxs`, `big_group`, `group_A_idxs` etc.,
+#'`group_A` etc. `n_A` etc. and `n_big_group` are set to NA for shuffles...
+#'you can get more detailed info for shuffles from `all_events_info` object))
+#'
+#'`all_events_info` list:
+#'
+#'`all_events_info[[i]]` contains the following info for event i:
+#'
+#'`all_events_info[[i]]$t`: time index of the event
+#'
+#'`all_events_info[[i]]$groups_before`: (list of lists) list of groups before the event (at time t)
+#'
+#'`all_events_info[[i]]$groups_after`: (list of lists) list of groups after the event (at time t + 1)
+#'
+#'`all_events_info[[i]]event_type`: 'fission', 'fusion', or 'shuffle' (character string)
+#'
+#'`all_events_info[[i]]$n_groups_before`: number of groups before the event
+#'
+#'`all_events_info[[i]]$n_groups_after`: number of groups after the event
+#'
+#'`groups_list` list:
+#'
+#'`groups_list[[t]]` gives a list of the subgroups
+#'
+#'`groups_list[[t]][[1]]` gives the vector of the first subgroup, etc.
 #'
 #' @importFrom lubridate date
 #' @importFrom dbscan dbscan

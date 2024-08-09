@@ -34,35 +34,12 @@ identify_splits_and_merges(
 \value{
 a list containing:
 
-\code{events_detected}: data frame with info on detected fissions and fusions, and limited info for shuffles, including columns...
-\code{events_detected$event_idx}: unique id number of the event
-\code{events_detected$tidx}: (initial) time index of the event
-\code{events_detected$event_type}: "fission" or "fusion" or "shuffle
-\code{events_detected$n_groups_before}: number of groups prior to the event
-\code{events_detected$n_groups_after}: number of groups after the event
-\code{events_detected$big_group_idxs}: indexes of all the individuals involved in the event
-\code{events_detected$big_group}: names of all the individuals involved in the event
-\code{events_detected$group_A_idxs}, $group_B_idxs, $group_C_idxs, etc.: individual idxs of subgroup members
-\code{events_detected$group_A}, \verb{$group_B}, \verb{$group_C}, etc.: names of subgroup members
-\code{events_detected$n_A}, \verb{$n_B}, \verb{$n_C} etc.: number of individuals in each subgroup
-\code{events_detected$n_big_group}: number of individuals in the big group (original group for fissions, subseq group for fusions)
-
-(NOTE: \code{big_group_idxs}, \code{big_group}, \code{group_A_idxs} etc.,
-\code{group_A} etc. \code{n_A} etc. and \code{n_big_group} are set to NA for shuffles...
-you can get more detailed info for shuffles from \code{all_events_info} object))
+\code{events_detected}: data frame with info on detected fissions and fusions, and limited info for shuffles
 
 \code{all_events_info}: list of information about all fission-fusion (or shuffle)
-\verb{events. all_events_info[[i]]} contains the following info for event i:
-\code{all_events_info[[i]]$t}: time index of the event
-\code{all_events_info[[i]]$groups_before}: (list of lists) list of groups before the event (at time t)
-\code{all_events_info[[i]]$groups_after}: (list of lists) list of groups after the event (at time t + 1)
-\verb{all_events_info[[i]]event_type}: 'fission', 'fusion', or 'shuffle' (character string)
-\code{all_events_info[[i]]$n_groups_before}: number of groups before the event
-\code{all_events_info[[i]]$n_groups_after}: number of groups after the event
+events.
 
 \code{groups_list}: list of subgroups in each timestep
-\code{groups_list[[t]]} gives a list of the subgroups
-\code{groups_list[[t]][[1]]} gives the vector of the first subgroup, etc.
 
 \code{together}: n_inds x n_inds x n_times array of whether dyads are
 connected (1) or not (0) or unknown (NA)
@@ -115,6 +92,60 @@ or shuffles). All other events where more complex things happen are classified a
 After events are identified, various event features are computed and saved in a data frame.
 See list of outputs for more details.
 }
+\section{Additional information about returned objects}{
+
+
+\code{events_detected} data frame:
+
+\code{events_detected$event_idx}: unique id number of the event
+
+\code{events_detected$tidx}: (initial) time index of the event
+
+\code{events_detected$event_type}: "fission" or "fusion" or "shuffle
+
+\code{events_detected$n_groups_before}: number of groups prior to the event
+
+\code{events_detected$n_groups_after}: number of groups after the event
+
+\code{events_detected$big_group_idxs}: indexes of all the individuals involved in the event
+
+\code{events_detected$big_group}: names of all the individuals involved in the event
+
+\code{events_detected$group_A_idxs}, $group_B_idxs, $group_C_idxs, etc.: individual idxs of subgroup members
+
+\code{events_detected$group_A}, \verb{$group_B}, \verb{$group_C}, etc.: names of subgroup members
+
+\code{events_detected$n_A}, \verb{$n_B}, \verb{$n_C} etc.: number of individuals in each subgroup
+
+\code{events_detected$n_big_group}: number of individuals in the big group (original group for fissions, subseq group for fusions)
+
+(NOTE: \code{big_group_idxs}, \code{big_group}, \code{group_A_idxs} etc.,
+\code{group_A} etc. \code{n_A} etc. and \code{n_big_group} are set to NA for shuffles...
+you can get more detailed info for shuffles from \code{all_events_info} object))
+
+\code{all_events_info} list:
+
+\code{all_events_info[[i]]} contains the following info for event i:
+
+\code{all_events_info[[i]]$t}: time index of the event
+
+\code{all_events_info[[i]]$groups_before}: (list of lists) list of groups before the event (at time t)
+
+\code{all_events_info[[i]]$groups_after}: (list of lists) list of groups after the event (at time t + 1)
+
+\verb{all_events_info[[i]]event_type}: 'fission', 'fusion', or 'shuffle' (character string)
+
+\code{all_events_info[[i]]$n_groups_before}: number of groups before the event
+
+\code{all_events_info[[i]]$n_groups_after}: number of groups after the event
+
+\code{groups_list} list:
+
+\code{groups_list[[t]]} gives a list of the subgroups
+
+\code{groups_list[[t]][[1]]} gives the vector of the first subgroup, etc.
+}
+
 \author{
 Ariana Strandburg-Peshkin (primary author)
 
