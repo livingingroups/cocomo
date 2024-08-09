@@ -43,7 +43,9 @@
 #'After events are identified, various event features are computed and saved in a data frame.
 #'See list of outputs for more details.
 #'
-#' @author Ariana Strandburg-Peshkin
+#' @author Ariana Strandburg-Peshkin (primary author)
+#' @author Eli Strauss (code reviewer, May 2024)
+#'
 #' @param R_inner inner distance threshold to identify periods of connectedness (numeric)
 #' @param R_outer outer distance threshold to identify periods of connectedness (numeric)
 #' @param xs UTM eastings matrix (`n_ninds` x `n_times` matrix where xs[i,t] gives the easting of individual i at time step t)
