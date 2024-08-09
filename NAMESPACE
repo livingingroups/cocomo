@@ -2,5 +2,10 @@
 
 export(hello)
 export(identify_splits_and_merges)
+export(latlon_to_utm)
+export(utm_to_latlon)
 importFrom(dbscan,dbscan)
 importFrom(lubridate,date)
+importFrom(sf,st_as_sf)
+importFrom(sf,st_coordinates)
+importFrom(sf,st_transform)
