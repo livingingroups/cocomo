@@ -95,6 +95,7 @@
 #'
 #' @importFrom lubridate date
 #' @importFrom dbscan dbscan
+#' @export
 identify_splits_and_merges <- function(R_inner, R_outer, xs, ys, ts, breaks = c(1, length(ts)+1), names = NULL, break_by_day = F, verbose = T){
 
   #----Identify subgroups at each point
