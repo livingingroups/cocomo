@@ -23,19 +23,33 @@ get_speed_over_time <- function(x_i, y_i, time_res, step = 1, forward = T){
   #throw warning about lack of code review
   warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
 
-  #get the change in x and y coordinates for each time step
-  dx <- diff(x_i)
-  dy <- diff(y_i)
-
-  #append an NA to the end or beginning of the distance vectors to keep them the same length as the input data
-
-  if(forward){
-    dx <- c(dx,NA)
-    dy <- c(dy,NA)
-  } else{
-    dx <- c(NA, dx)
-    dy <- c(NA, dy)
+  #check that x_i and y_i are the same length
+  if(length(x_i) != length(y_i)){
+    stop('x_i and y_i must be vectors of the same length')
   }
+
+  #get length of x_i and y_i
+  len <- length(x_i)
+
+  #get x and y locations at time t and t + step (if going forward)
+  #or at time t and t - step (if going backward)
+  #pad ends with NAs to make lengths match up
+  if(forward){
+    x1 <- c(x_i[1:(len - step)], rep(NA, step))
+    x2 <- c(x_i[(step + 1):len], rep(NA, step))
+    y1 <- c(y_i[1:(len - step)], rep(NA, step))
+    y2 <- c(y_i[(step + 1):len], rep(NA, step))
+
+  } else{
+    x1 <- c(rep(NA, step), x_i[1:(len - step)])
+    x2 <- c(rep(NA, step), x_i[(step + 1):len])
+    y1 <- c(rep(NA, step), y_i[1:(len - step)])
+    y2 <- c(rep(NA, step), y_i[(step + 1):len])
+  }
+
+  #get change in x and y
+  dx <- x2 - x1
+  dy <- y2 - y1
 
   #get change in time for each step
   dt <- time_res * step
