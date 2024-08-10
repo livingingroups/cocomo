@@ -4,7 +4,7 @@
 \alias{get_speed_over_time}
 \title{Get speed over time}
 \usage{
-get_speed_over_time(x_i, y_i, time_res, step = 1, forward = T)
+get_speed_over_time(x_i, y_i, time_res, t_window = 1, forward = T)
 }
 \arguments{
 \item{x_i}{x coordinates of the individual (a vector whose length is the number of timesteps) or of a group centroid}
@@ -13,7 +13,7 @@ get_speed_over_time(x_i, y_i, time_res, step = 1, forward = T)
 
 \item{time_res}{the number of seconds between timestamps (e.g. for data recorded at 1 Hz, the value would be 1, for data recorded every 30 sec, the value would be 30)}
 
-\item{step}{the time step over which to compute speed (number of time steps)}
+\item{t_window}{the time window over which to compute speed (number of time steps into the future or past)}
 
 \item{forward}{a boolean value (defaults to T) indicating whether to compute speeds forward in time (if T) or backward in time (if F)}
 }
@@ -24,10 +24,10 @@ Returns \code{speeds}: a time series of the speed of individual (a vector of the
 Gets an individual's instantaneous speed over time, using a specified time step to compute the speed
 }
 \details{
-The speed is computed as \code{speeds[t] = sqrt ( (x_i[t+step] - x_i[t] )^2 + ( y_i[t+step] - y_i[t] )^2 ) / (time_res * step)}
-Note that by default \code{speeds[t]} gives the instantaneous speed between time \code{t} and time \code{t + step}, i.e. the speeds are computed
+The speed is computed as \code{speeds[t] = sqrt ( (x_i[t+t_window] - x_i[t] )^2 + ( y_i[t+t_window] - y_i[t] )^2 ) / (time_res * t_window)}
+Note that by default \code{speeds[t]} gives the instantaneous speed between time \code{t} and time \code{t + t_window}, i.e. the speeds are computed
 based on the future not on the past. If \code{forward} is set to \code{F}, the speeds will be computed based on the past, as:
-\code{speeds[t] = sqrt ( (x_i[t] - x_i[t-step] )^2 + ( y_i[t] - y_i[t-step] )^2 ) / (time_res * step)}
+\code{speeds[t] = sqrt ( (x_i[t] - x_i[t-t_window] )^2 + ( y_i[t] - y_i[t-t_window] )^2 ) / (time_res * t_window)}
 }
 \author{
 Ariana Strandburg-Peshkin
