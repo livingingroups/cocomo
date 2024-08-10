@@ -7,17 +7,17 @@
 get_nearest_neighbor_distance(xs, ys, i)
 }
 \arguments{
-\item{xs}{\verb{N x n.times} matrix giving x positions (or UTM eastings) of all \code{N} individuals over \code{n_times} timesteps}
+\item{xs}{\verb{N x n_times} matrix giving x positions (or UTM eastings) of all \code{N} individuals over \code{n_times} timesteps}
 
-\item{ys}{\verb{N x n.times} matrix giving y positions (or UTM northings) of all \code{N} individuals over \code{n_times} timesteps}
+\item{ys}{\verb{N x n_times} matrix giving y positions (or UTM northings) of all \code{N} individuals over \code{n_times} timesteps}
 
-\item{i}{the focal individual (whose nearest neighbor distance will be computed)}
+\item{i}{index of the focal individual (whose nearest neighbor distance will be computed)}
 }
 \value{
-Returns a vector of nearest neighbor distances at each time point (length \code{n_times})
+Returns a vector of nearest neighbor distances at each time point (length \verb{= n_times})
 }
 \description{
-Gets the distance to an individual i's nearest neighbor over time
+Gets the distance to an individual \code{i}'s nearest neighbor over time
 }
 \author{
 Ariana Strandburg-Peshkin

@@ -21,7 +21,7 @@ get_speed_over_time(x_i, y_i, time_res, step = 1, forward = T)
 Returns \code{speeds}: a time series of the speed of individual (a vector of the same length as x_i and y_i)
 }
 \description{
-Gets an individual's instantaneous speed over time, using a specified time window to compute the speed
+Gets an individual's instantaneous speed over time, using a specified time step to compute the speed
 }
 \details{
 The speed is computed as \code{speeds[t] = sqrt ( (x_i[t+step] - x_i[t] )^2 + ( y_i[t+step] - y_i[t] )^2 ) / (time_res * step)}
