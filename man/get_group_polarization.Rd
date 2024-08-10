@@ -4,22 +4,40 @@
 \alias{get_group_polarization}
 \title{Get group polarization}
 \usage{
-get_group_polarization(xs, ys)
+get_group_polarization(
+  xs,
+  ys,
+  heading_type,
+  spatial_R = NULL,
+  t_window = NULL,
+  forward = T,
+  min_inds_tracked = NULL
+)
 }
 \arguments{
 \item{xs}{\verb{N x n_times} matrix giving x coordinates of each individual over time}
 
 \item{ys}{\verb{N x n_times} matrix giving y coordinates of each individual over time}
+
+\item{heading_type}{character string specifying heading type - \code{'spatial'} or \code{'temporal'}}
+
+\item{spatial_R}{radius to use for spatial headings (if \code{heading_type = 'spatial'})}
+
+\item{t_window}{temporal window to use for temporal headings (if \code{heading_type = 'temporal'})}
+
+\item{forward}{whether to compute headings into the future (\code{forward = T}) or the past (\code{forward = F})}
+
+\item{min_inds_tracked}{if specified, sets a minimum number of individuals that must be tracked at any moment in time to compute headings (otherwise the polarization will be NA at that time point}
 }
 \value{
 Returns a vector of length \code{n_times} giving the polarization of the group over time
-(where the heading is undefined, returns NA)
 }
 \description{
 Computes the polarization of the group at each time step \code{t}.
 The polarization is a measure of how aligned the group is, ranging from 0 (completely unaligned) to 1 (completely aligned)
 The polarization is defined by adding up (vector addition) all of the heading vectors of all individuals at a given moment in time,
 taking the length of the resultant vector, and dividing this by the number of individuals.
+Either spatial or temporal headings can be used.
 }
 \author{
 Ariana Strandburg-Peshkin (primary author)
