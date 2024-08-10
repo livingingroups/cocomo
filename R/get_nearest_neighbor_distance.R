@@ -38,8 +38,15 @@ get_nearest_neighbor_distance <- function(xs, ys, i){
   #distance between a focal individual and itself will be 0, so set this to NA
   dists_mat[i,] <- NA
 
+  #get indexes of columns that are not all NAs
+  idxs_non_na_cols <- which(colSums(!is.na(dists_mat))>0)
+
+  #create matrix to hold output
+  nn_dists <- rep(NA, ncol(dists_mat))
+
   #find the minimum distance at each time (column) - this is the nearest neighbor distance
-  nn_dists <- apply(dists_mat,MARGIN=2,FUN=min,na.rm=T)
+  #if there are no tracked individuals, return NA for that time point
+  nn_dists[idxs_non_na_cols] <- apply(dists_mat[,idxs_non_na_cols],MARGIN=2,FUN=min,na.rm=T)
 
   return(nn_dists)
 
