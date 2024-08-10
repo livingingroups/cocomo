@@ -1,6 +1,6 @@
-#' Get speed over time
+#' Get speed
 #'
-#' Gets an individual's instantaneous speed over time, using a specified time step to compute the speed
+#' Gets an individual's speed over time, using a specified time step to compute the speed
 #'
 #'The speed is computed as `speeds[t] = sqrt ( (x_i[t+t_window] - x_i[t] )^2 + ( y_i[t+t_window] - y_i[t] )^2 ) / (time_res * t_window)`
 #'Note that by default `speeds[t]` gives the instantaneous speed between time `t` and time `t + t_window`, i.e. the speeds are computed
@@ -18,7 +18,7 @@
 #' @return Returns `speeds`: a time series of the speed of individual (a vector of the same length as x_i and y_i)
 #'
 #' @export
-get_speed_over_time <- function(x_i, y_i, time_res, t_window = 1, forward = T){
+get_speed <- function(x_i, y_i, time_res, t_window = 1, forward = T){
 
   #throw warning about lack of code review
   warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
