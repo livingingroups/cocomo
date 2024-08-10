@@ -1,6 +1,6 @@
 #' Get speed over time
 #'
-#' Gets an individual's instantaneous speed over time, using a specified time window to compute the speed
+#' Gets an individual's instantaneous speed over time, using a specified time step to compute the speed
 #'
 #'The speed is computed as `speeds[t] = sqrt ( (x_i[t+step] - x_i[t] )^2 + ( y_i[t+step] - y_i[t] )^2 ) / (time_res * step)`
 #'Note that by default `speeds[t]` gives the instantaneous speed between time `t` and time `t + step`, i.e. the speeds are computed
