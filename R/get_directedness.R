@@ -38,7 +38,7 @@ get_directedness <- function(x_i, y_i,t_window){
   directedness <- rep(NA,n_times)
 
   #loop over time and get directedness at each time step
-  for(t in seq(t_window/2+1, n.times - t_window/2, 1)){
+  for(t in seq(t_window/2+1, n_times - t_window/2, 1)){
 
     #get values of x and y positions for the individual within the current time window
     x_curr <- x_i[seq(t-t_window/2+1, t+t_window/2, 1)]
