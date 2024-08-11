@@ -16,6 +16,8 @@
 #'
 #' @returns Returns the group heading over time, a vector of length `n_times`
 #' @export
+#'
+#' #TODO: Think about what to do if number of tracked individuals changes - should probably have heading = NA at those times
 get_group_heading <- function(xs, ys, heading_type, spatial_R = NULL, t_window = NULL, forward = T, min_inds_tracked = NULL){
 
   #check matrix dimensions
