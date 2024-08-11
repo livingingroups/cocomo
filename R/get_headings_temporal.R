@@ -19,9 +19,6 @@
 #' @export
 get_headings_temporal <- function(x_i, y_i, t_window = 1, forward = T){
 
-  #throw warning about lack of code review
-  warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
-
   #check that x_i and y_i are the same length
   if(length(x_i) != length(y_i)){
     stop('x_i and y_i must be vectors of the same length')

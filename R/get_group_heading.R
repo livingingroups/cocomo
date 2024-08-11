@@ -18,9 +18,6 @@
 #' @export
 get_group_heading <- function(xs, ys, heading_type, spatial_R = NULL, t_window = NULL, forward = T, min_inds_tracked = NULL){
 
-  #throw warning about lack of code review
-  warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
-
   #check matrix dimensions
   if(nrow(xs) != nrow(ys) || ncol(xs) != ncol(ys)){
     stop('xs and ys matrices must have same dimensions')

@@ -13,9 +13,6 @@
 #' @export
 get_nearest_neighbor_distance <- function(xs, ys, i){
 
-  #throw warning about lack of code review
-  warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
-
   #get the position of individual i over time
   xs_i <- xs[i,]
   ys_i <- ys[i,]

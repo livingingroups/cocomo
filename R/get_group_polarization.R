@@ -21,9 +21,6 @@
 #' @export
 get_group_polarization <- function(xs, ys, heading_type, spatial_R = NULL, t_window = NULL, forward = T, min_inds_tracked = NULL){
 
-  #throw warning about lack of code review
-  warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
-
   #check that the required variable exist
   if(heading_type %in% c('spatial','temporal')){
     if(heading_type == 'spatial'){

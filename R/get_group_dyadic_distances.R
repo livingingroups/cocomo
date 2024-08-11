@@ -10,9 +10,6 @@
 #' @export
 get_group_dyadic_distances <- function(xs, ys){
 
-  #throw warning about lack of code review
-  warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
-
   #get the number of time points
   n_times <- ncol(xs)
   n_inds <- nrow(xs)

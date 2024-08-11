@@ -13,9 +13,6 @@
 #' @export
 get_local_density <- function(xs, ys, i, R){
 
-  #throw warning about lack of code review
-  warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
-
   #get the position of individual i over time
   xs_i <- xs[i,]
   ys_i <- ys[i,]

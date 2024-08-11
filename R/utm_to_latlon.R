@@ -18,8 +18,6 @@
 #'
 utm_to_latlon <- function(easts_norths, utm_zone, hemisphere){
 
-  warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
-
   #error checking - hemisphere
   if(!(hemisphere %in% c('S','s','south','South','N','n','north','North'))){
     stop('Need to specify hemisphere (s or n)')
