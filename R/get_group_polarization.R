@@ -53,10 +53,10 @@ get_group_polarization <- function(xs, ys, heading_type, spatial_R = NULL, t_win
   heads <- matrix(NA, nrow = n_inds, ncol = n_times)
   for(i in 1:n_inds){
     if(heading_type == 'temporal'){
-      heads[i,] <- get_headings_temporal(x_i = xs[i,], y_i = ys[i,], t_window = t_window, forward = forward)
+      heads[i,] <- cocomo::get_headings_temporal(x_i = xs[i,], y_i = ys[i,], t_window = t_window, forward = forward)
     }
     if(heading_type == 'spatial'){
-      heads[i,] <- get_headings_spatial(x_i = xs[i,], y_i = ys[i,], R = spatial_R, forward = forward)
+      heads[i,] <- cocomo::get_headings_spatial(x_i = xs[i,], y_i = ys[i,], R = spatial_R, forward = forward)
     }
   }
 

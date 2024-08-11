@@ -18,12 +18,8 @@ get_group_centroid <- function(xs, ys, min_inds_tracked = NULL){
   #throw warning about lack of code review
   warning('This function has not yet been code reviewed - if you would like to review it, contact Ari!')
 
-  #get number of individuals
-  n_inds <- nrow(xs)
-  n_times <- ncol(xs)
-
   #check matrix dimensions
-  if(nrow(ys) != n_inds || ncol(ys) != n_times){
+  if(nrow(xs) != nrow(ys) || ncol(xs) != ncol(ys)){
     stop('xs and ys matrices must have same dimensions')
   }
 
