@@ -14,7 +14,7 @@ get_group_centroid(xs, ys, min_inds_tracked = NULL)
 \item{min_inds_tracked}{if specified, sets a minimum number of individuals that must be tracked at any moment in time to compute centroid (otherwise the centroid will be NA at that time point}
 }
 \value{
-Returns coordinates of the group centroid over time, an \verb{n_times x 2} matrix of x (col 1) and y (col 2) coordinates
+Returns a list containing coordinates of the group centroid over time, \code{x_centr} and \code{y_centr} (both vectors of length \code{n_times})
 }
 \description{
 Get the group's centroid (mean x and y position) over time.

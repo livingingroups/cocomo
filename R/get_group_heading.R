@@ -44,12 +44,14 @@ get_group_heading <- function(xs, ys, heading_type, spatial_R = NULL, t_window =
 
   #get centroid trajectory
   centr_xy <- cocomo::get_group_centroid(xs = xs, ys = ys, min_inds_tracked = min_inds_tracked)
+  x_centr <- centr_xy$x_centr
+  y_centr <- centr_xy$y_centr
 
   #get heading
   if(heading_type == 'temporal'){
-    heads <- cocomo::get_headings_temporal(x_i = centr_xy[,1], y_i = centr_xy[,2], t_window = t_window, forward = forward)
+    heads <- cocomo::get_headings_temporal(x_i = x_centr, y_i = y_centr, t_window = t_window, forward = forward)
   } else{
-    heads <- cocomo::get_headings_spatial(x_i = centr_xy[,1], y_i = centr_xy[,2], R = spatial_R, forward = forward )
+    heads <- cocomo::get_headings_spatial(x_i = x_centr, y_i = y_centr, R = spatial_R, forward = forward )
   }
 
   return(heads)

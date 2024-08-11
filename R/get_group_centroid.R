@@ -10,7 +10,7 @@
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time
 #' @param min_inds_tracked if specified, sets a minimum number of individuals that must be tracked at any moment in time to compute centroid (otherwise the centroid will be NA at that time point
-#' @returns Returns coordinates of the group centroid over time, an `n_times x 2` matrix of x (col 1) and y (col 2) coordinates
+#' @returns Returns a list containing coordinates of the group centroid over time, `x_centr` and `y_centr` (both vectors of length `n_times`)
 #' @export
 #'
 get_group_centroid <- function(xs, ys, min_inds_tracked = NULL){
@@ -35,6 +35,11 @@ get_group_centroid <- function(xs, ys, min_inds_tracked = NULL){
     y_centr[not_enough_inds] <- NA
   }
 
-  return(cbind(x_centr, y_centr))
+  #prepare output
+  out <- list()
+  out$x_centr <- x_centr
+  out$y_centr <- y_centr
+
+  return(out)
 
 }
