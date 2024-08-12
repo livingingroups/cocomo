@@ -8,17 +8,21 @@ get_simplified_turn_and_speed_influence(
   xs,
   ys,
   heading_type,
-  influence_type,
   idx_breaks = NULL,
   spatial_R = NULL,
   t_window = NULL,
-  min_percentile = NULL,
-  min_left_dist = NULL,
-  min_right_dist = NULL,
+  min_percentile = 0.5,
+  seconds_per_time_step = 1,
   min_left_speed = NULL,
   min_right_speed = NULL,
-  seconds_per_time_step = 1,
-  verbose = T
+  min_left_pos = NULL,
+  min_right_pos = NULL,
+  min_faster_speed_diff = NULL,
+  min_slower_speed_diff = NULL,
+  min_front_pos = NULL,
+  min_back_pos = NULL,
+  verbose = T,
+  output_details = T
 )
 }
 \arguments{
@@ -38,11 +42,27 @@ get_simplified_turn_and_speed_influence(
 
 \item{seconds_per_time_step}{number of seconds corresponding to each time step}
 
+\item{min_left_speed}{minimum speed when i moving to the left to include data (positive value)}
+
+\item{min_right_speed}{minimum speed when i moving to the right to include data (positive value)}
+
+\item{min_left_pos}{minimum distance of i to the left of j to include data (positive value)}
+
+\item{min_right_pos}{minimum distance of i to the right to j include data (positive value)}
+
+\item{min_faster_speed_diff}{minimum speed difference between i and j when i is going faster to include data (positive value)}
+
+\item{min_slower_speed_diff}{minimum speed difference between i and j when i is going slower to include data (positive value)}
+
+\item{min_front_pos}{minimum position toward the front when i is in front of j to include data (positive value)}
+
+\item{min_back_pos}{minimum position toward the back when i is in back of j to include data (positive value)}
+
+\item{verbose}{whether the print progress (if \code{T})}
+
 \item{centroid}{whether to use the group centroid (if \code{centroid = T}) instead of computing influence for each dyad (if \code{centroid = F})}
 
 \item{symmetrize_lr}{whether to symmetrize the thresholds for right and left movement + position (default \code{T})}
-
-\item{min_back_pos}{}
 }
 \value{
 Returns an \verb{N x N} matrix of the turn influence of individual \code{i} (row) on individual \code{j} (column).

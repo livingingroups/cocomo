@@ -42,24 +42,28 @@
 #' @param centroid whether to use the group centroid (if `centroid = T`) instead of computing influence for each dyad (if `centroid = F`)
 #' @param seconds_per_time_step number of seconds corresponding to each time step
 #' @param symmetrize_lr whether to symmetrize the thresholds for right and left movement + position (default `T`)
-#' @param min_left_speed
-#' @param min_right_speed
-#' @param min_left_pos
-#' @param min_right_pos
-#' @param min_faster_speed_diff
-#' @param min_slower_speed_diff
-#' @param min_front_pos
-#' @param min_back_pos
-#'
+#' @param min_left_speed minimum speed when i moving to the left to include data (positive value)
+#' @param min_right_speed minimum speed when i moving to the right to include data (positive value)
+#' @param min_left_pos minimum distance of i to the left of j to include data (positive value)
+#' @param min_right_pos minimum distance of i to the right to j include data (positive value)
+#' @param min_faster_speed_diff minimum speed difference between i and j when i is going faster to include data (positive value)
+#' @param min_slower_speed_diff minimum speed difference between i and j when i is going slower to include data (positive value)
+#' @param min_front_pos minimum position toward the front when i is in front of j to include data (positive value)
+#' @param min_back_pos minimum position toward the back when i is in back of j to include data (positive value)
+#' @param verbose whether the print progress (if `T`)
 #'
 #' @returns Returns an `N x N` matrix of the turn influence of individual `i` (row) on individual `j` (column).
 #'
 #' @export
 #'
-get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influence_type, idx_breaks = NULL, spatial_R = NULL, t_window = NULL,
-                                          min_percentile = NULL, min_left_dist = NULL, min_right_dist = NULL, min_left_speed = NULL, min_right_speed = NULL,
-                                          seconds_per_time_step = 1,
-                                          verbose = T){
+get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type,
+                                                    idx_breaks = NULL, spatial_R = NULL, t_window = NULL,
+                                                    min_percentile = 0.5, seconds_per_time_step = 1,
+                                                    min_left_speed = NULL, min_right_speed = NULL,
+                                                    min_left_pos = NULL, min_right_pos = NULL,
+                                                    min_faster_speed_diff = NULL, min_slower_speed_diff = NULL,
+                                                    min_front_pos = NULL, min_back_pos = NULL,
+                                                    verbose = T, output_details = T){
 
   #check matrix dimensions
   if(nrow(xs) != nrow(ys) || ncol(xs) != ncol(ys)){
@@ -71,11 +75,6 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
     stop('must specify heading_type as spatial or temporal')
   }
 
-  #check influence type
-  if(!(influence_type %in% c('movement','position'))){
-    stop('must specify influence_type as either movement or position')
-  }
-
   #number of inds and number of times
   n_inds <- nrow(xs)
   n_times <- ncol(xs)
@@ -84,7 +83,7 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
   heads_speeds_fut <- list()
   heads_speeds_past <- list()
 
-  if(verbose){print('getting individual heads and speeds')}
+  if(verbose){print('getting individual headings and speeds')}
   for(i in 1:n_inds){
     if(verbose){print(paste0('ind ',i,'/',n_inds))}
     if(heading_type == 'spatial'){
@@ -101,6 +100,7 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
   # speed_up[i,t] = speed difference of individual i along its past direction of movement between future and past
   # turn_angle[i,t] = turning angle of individual i between future and past
   speed_up <- turn_angle <- matrix(NA, nrow = n_inds, ncol = n_times)
+  if(verbose){print('getting speed differences and turning angles for all individuals')}
   for(i in 1:n_inds){
 
     heads_i_fut <- heads_speeds_fut[[i]]$heads
@@ -131,6 +131,7 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
     turn_angle[i,] <- turn_angles_i
   }
 
+  #i is the leader and j is the follower
   #for each pair (i,j), get...
   # lr_speed[i,j,t] = left-right speed of individual i relative to j's past heading (right = positive)
   # fb_speed_diff[i,j,t] = front-back speed difference of individual i relative to j's past heading and speed (faster = positive)
@@ -138,8 +139,8 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
   # fb_pos[i,j,t] = front-back position of individual i relative to j's current position and past heading (front = positive)
   lr_speed <- fb_speed_diff <- array(NA, dim = c(n_inds, n_inds, n_times))
   lr_pos <- fb_pos <- array(NA, dim = c(n_inds, n_inds, n_times))
+  if(verbose){print('getting left-right speeds / positions, and front-back speeds / positions for all dyads')}
   for(i in 1:n_inds){
-    print(i)
     for(j in 1:n_inds){
 
       #don't compute individual's influence on themselves
@@ -161,7 +162,7 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
       x_j <- xs[j,]
       y_j <- ys[j,]
 
-      #----Movement-based turn and speed influence
+      #----Movement-based metrics (left-right speed and front-back speed difference)
 
       #get unit vector of j's past heading in original reference frame
       dx_j_past_unit <- cos(heads_j_past)
@@ -179,7 +180,7 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
       dx_i_past_rot <- dx_i_past * cos(theta) - dy_i_past * sin(theta)
       dy_i_past_rot <- dx_i_past * sin(theta) + dy_i_past * cos(theta)
       lr_speed[i,j,] <- -dy_i_past_rot #negative because the positive y axis is going left, so now positive values mean going to right
-      fb_speed_diff[i,j,] <- dx_i_past_rot - speeds_j_past #speed difference along j's past trajectory heading
+      fb_speed_diff[i,j,] <- dx_i_past_rot - speeds_j_past #speed difference between i and j along j's past trajectory heading
 
       #---Position-based turn and speed influence
 
@@ -199,6 +200,8 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
 
 
   #----Minimum thresholds
+
+  if(verbose){print('getting thresholds from percentiles (if min_percentile=T)')}
 
   #get minimum left and right speed thresholds based on min_percentile
   if(!is.null(min_percentile)){
@@ -242,6 +245,7 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
   }
 
   #----Turn and speed influence for all pairs
+  if(verbose){print('getting turn and speed influence for all dyads')}
   turn_influence_movement <- turn_influence_position <- matrix(NA, nrow = n_inds, ncol = n_inds)
   speed_influence_movement <- speed_influence_position <- matrix(NA, nrow = n_inds, ncol = n_inds)
   for(i in 1:n_inds){
@@ -262,8 +266,8 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
       #turn influence - movement
       num <- sum(((lr_speed[i,j,] > min_right_speed) & (turn_angle[j,] < 0)) |
                    ((lr_speed[i,j,] < -min_left_speed) & (turn_angle[j,] > 0)), na.rm=T)
-      denom <- sum(((lr_pos[i,j,] > min_right_speed) & (turn_angle[j,] != 0)) |
-                     ((lr_pos[i,j,] < -min_left_speed) & (turn_angle[j,] != 0)), na.rm=T)
+      denom <- sum(((lr_speed[i,j,] > min_right_speed) & (turn_angle[j,] != 0)) |
+                     ((lr_speed[i,j,] < -min_left_speed) & (turn_angle[j,] != 0)), na.rm=T)
       turn_influence_movement[i,j] <- num / denom
 
       #speed influence - position
@@ -283,14 +287,27 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
     }
   }
 
-
-
-  #return outputs
+  #-----Outputs---
+  if(verbose){print('constructing output list')}
   out <- list()
-  out$influence_type <- influence_type
+  out$heading_type <- heading_type
+  out$spatial_R <- spatial_R
+  out$t_window <- t_window
+  out$min_percentile <- min_percentile
+  out$turn_influence_movement <- turn_influence_movement
+  out$turn_influence_position <- turn_influence_position
+  out$speed_influence_movement <- speed_influence_movement
+  out$speed_influence_position <- speed_influence_position
+
+  if(output_details){
+    out$lr_speed <- lr_speed
+    out$lr_pos <- lr_pos
+    out$fb_speed_diff <- fb_speed_diff
+    out$fb_pos <- fb_pos
+    out$turn_angle <- turn_angle
+    out$speed_up <- speed_up
+  }
 
   return(out)
-
-
 
 }
