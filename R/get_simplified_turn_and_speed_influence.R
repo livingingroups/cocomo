@@ -246,18 +246,39 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
   speed_influence_movement <- speed_influence_position <- matrix(NA, nrow = n_inds, ncol = n_inds)
   for(i in 1:n_inds){
     for(j in 1:n_inds){
-
+      print(paste(i,j))
       #don't compute for i = j
       if(i==j){
         next
       }
 
-      #turn - position
-      num <- sum(((lr_pos[i,j,] > min_right_pos) & (turn_angle[i,] < 0)) |
-        ((lr_pos[i,j,] < -min_left_pos) & (turn_angle[i,] > 0)), na.rm=T)
-      denom <- sum(((lr_pos[i,j,] > min_right_pos) & (turn_angle[i,] != 0)) |
-                     ((lr_pos[i,j,] < -min_left_pos) & (turn_angle[i,] != 0)), na.rm=T)
+      #turn influence - position
+      num <- sum(((lr_pos[i,j,] > min_right_pos) & (turn_angle[j,] < 0)) |
+        ((lr_pos[i,j,] < -min_left_pos) & (turn_angle[j,] > 0)), na.rm=T)
+      denom <- sum(((lr_pos[i,j,] > min_right_pos) & (turn_angle[j,] != 0)) |
+                     ((lr_pos[i,j,] < -min_left_pos) & (turn_angle[j,] != 0)), na.rm=T)
+      turn_influence_position[i,j] <- num / denom
 
+      #turn influence - movement
+      num <- sum(((lr_speed[i,j,] > min_right_speed) & (turn_angle[j,] < 0)) |
+                   ((lr_speed[i,j,] < -min_left_speed) & (turn_angle[j,] > 0)), na.rm=T)
+      denom <- sum(((lr_pos[i,j,] > min_right_speed) & (turn_angle[j,] != 0)) |
+                     ((lr_pos[i,j,] < -min_left_speed) & (turn_angle[j,] != 0)), na.rm=T)
+      turn_influence_movement[i,j] <- num / denom
+
+      #speed influence - position
+      num <- sum(((fb_pos[i,j,] > min_front_pos) & (speed_up[j,] > 0)) |
+                   ((fb_pos[i,j,] < -min_back_pos) & (speed_up[j,] < 0)), na.rm=T)
+      denom <- sum(((fb_pos[i,j,] > min_front_pos) & (speed_up[j,] != 0)) |
+                   ((fb_pos[i,j,] < -min_back_pos) & (speed_up[j,] != 0)), na.rm=T)
+      speed_influence_position[i,j] <- num / denom
+
+      #speed influence - movement
+      num <- sum(((fb_speed_diff[i,j,] > min_faster_speed_diff) & (speed_up[j,] > 0)) |
+                   ((fb_speed_diff[i,j,] < -min_slower_speed_diff) & (speed_up[j,] < 0)), na.rm=T)
+      denom <- sum(((fb_speed_diff[i,j,] > min_faster_speed_diff) & (speed_up[j,] != 0)) |
+                     ((fb_speed_diff[i,j,] < -min_slower_speed_diff) & (speed_up[j,] != 0)), na.rm=T)
+      speed_influence_movement[i,j] <- num / denom
 
     }
   }
