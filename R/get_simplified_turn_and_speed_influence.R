@@ -1,6 +1,7 @@
 #' Get simplified turn and speed influence
 #'
 #' Get the simplified turn influence between all pairs of individuals
+#' TODO: Update documentation to incorporate speed influence stuff
 #' `i` and `j`, or, if `centroid = T` for all indiividuals `i` on the group centroid.
 #' The `simplified movement turn influence` of individual `i` on individual `j`
 #' is defined as the probability that `j` turns right in the future given that `i` moved
@@ -22,7 +23,7 @@
 #' The minimum speeds (or distances) are computed as follows. First, split the distribution of relative left-right
 #' speeds (or distances) across all dyads into those greater than and those less than 0. Then, compute the quantile
 #' `min_percentile` for each distribution separately. Finally, set `min_left_speed` and `min_right_speed` at the computed
-#' values. If `symmetrize = T`, take instead the mean absolute value of the quantiles for both distributions and use it
+#' values. If `symmetrize_lr = T`, take instead the mean absolute value of the quantiles for both distributions and use it
 #' for both thresholds (this will result in using the same relative speed when going right or left as a threshold - otherwise these could be different if `symmetrize = F`)
 #'
 #' The same can be done for the relative left and right distance distributions to set
@@ -40,6 +41,16 @@
 #' @param min_percentile minimum percentile to use for left / right relative speed or distance
 #' @param centroid whether to use the group centroid (if `centroid = T`) instead of computing influence for each dyad (if `centroid = F`)
 #' @param seconds_per_time_step number of seconds corresponding to each time step
+#' @param symmetrize_lr whether to symmetrize the thresholds for right and left movement + position (default `T`)
+#' @param min_left_speed
+#' @param min_right_speed
+#' @param min_left_pos
+#' @param min_right_pos
+#' @param min_faster_speed_diff
+#' @param min_slower_speed_diff
+#' @param min_front_pos
+#' @param min_back_pos
+#'
 #'
 #' @returns Returns an `N x N` matrix of the turn influence of individual `i` (row) on individual `j` (column).
 #'
@@ -186,14 +197,18 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
 
   }
 
+
+  #----Minimum thresholds
+
   #get minimum left and right speed thresholds based on min_percentile
   if(!is.null(min_percentile)){
     right_speeds <- lr_speed[which(lr_speed > 0)]
     left_speeds <- lr_speed[which(lr_speed < 0)]
     min_right_speed <- quantile(right_speeds, min_percentile, na.rm=T)
     min_left_speed <- quantile(-left_speeds, min_percentile, na.rm=T)
-    if(symmetrize){
+    if(symmetrize_lr){
       min_lr_speed <- (min_right_speed + min_left_speed) / 2
+      min_right_speed <- min_left_speed <- min_lr_speed
     }
   }
 
@@ -204,6 +219,47 @@ get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type, influe
     min_faster_speed_diff <- quantile(faster_speed_diffs, min_percentile, na.rm=T)
     min_slower_speed_diff <- quantile(-slower_speed_diffs, min_percentile, na.rm=T)
     #we don't symmetric the front-back speed diffs as this isn't expected to be symmetrical
+  }
+
+  #get minimum left and right position thresholds based on min_percentile
+  if(!is.null(min_percentile)){
+    right_pos <- lr_pos[which(lr_pos > 0)]
+    left_pos <- lr_pos[which(lr_pos < 0)]
+    min_right_pos <- quantile(right_pos, min_percentile, na.rm=T)
+    min_left_pos <- quantile(-left_pos, min_percentile, na.rm=T)
+    if(symmetrize_lr){
+      min_lr_pos <- (min_right_pos + min_left_pos) / 2
+      min_right_pos <- min_left_pos <- min_lr_pos
+    }
+  }
+
+  #get minimum front and back position thresholds based on min_percentile
+  if(!is.null(min_percentile)){
+    front_pos <- fb_pos[which(fb_pos > 0)]
+    back_pos <- fb_pos[which(fb_pos < 0)]
+    min_front_pos <- quantile(front_pos, min_percentile, na.rm=T)
+    min_back_pos <- quantile(-back_pos, min_percentile, na.rm=T)
+  }
+
+  #----Turn and speed influence for all pairs
+  turn_influence_movement <- turn_influence_position <- matrix(NA, nrow = n_inds, ncol = n_inds)
+  speed_influence_movement <- speed_influence_position <- matrix(NA, nrow = n_inds, ncol = n_inds)
+  for(i in 1:n_inds){
+    for(j in 1:n_inds){
+
+      #don't compute for i = j
+      if(i==j){
+        next
+      }
+
+      #turn - position
+      num <- sum(((lr_pos[i,j,] > min_right_pos) & (turn_angle[i,] < 0)) |
+        ((lr_pos[i,j,] < -min_left_pos) & (turn_angle[i,] > 0)), na.rm=T)
+      denom <- sum(((lr_pos[i,j,] > min_right_pos) & (turn_angle[i,] != 0)) |
+                     ((lr_pos[i,j,] < -min_left_pos) & (turn_angle[i,] != 0)), na.rm=T)
+
+
+    }
   }
 
 
