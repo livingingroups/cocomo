@@ -46,9 +46,9 @@ get_positions_relative_to_group <- function(xs, ys, heading_type, spatial_R = NU
 
   #get centroid headings
   if(heading_type == 'temporal'){
-    heads_speeds_centr <- cocomo::get_headings_and_speeds_temporal(x_i = x_centr, y_i = y_centr, t_window = t_window, forward = forward)
+    heads_speeds_centr <- cocomo::get_heading_and_speed_temporal(x_i = x_centr, y_i = y_centr, t_window = t_window, forward = forward)
   } else{
-    heads_speeds_centr <- cocomo::get_headings_and_speeds_spatial(x_i = x_centr, y_i = y_centr, R = spatial_R, forward = forward )
+    heads_speeds_centr <- cocomo::get_heading_and_speed_spatial(x_i = x_centr, y_i = y_centr, R = spatial_R, forward = forward )
   }
   heads_centr <- heads_speeds_centr$heads
 

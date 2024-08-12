@@ -1,4 +1,4 @@
-#'Get spatially discretized headings
+#'Get spatially discretized heading and speed over time
 #'
 #'Gets spatially discretized heading for a given individual trajectory
 #'This is defined as the unit vector pointing from the individual's current location at time `t` to
@@ -21,7 +21,7 @@
 #'
 #' vector of spatially discretized headings, computed at all times or at times t_idxs if specified (other times are then filled in with NAs)
 #' @export
-get_headings_and_speeds_spatial <- function(x_i, y_i, R, t_idxs=1:length(x_i), forward=T, seconds_per_time_step = 1){
+get_heading_and_speed_spatial <- function(x_i, y_i, R, t_idxs=1:length(x_i), forward=T, seconds_per_time_step = 1){
 
   #check that x_i and y_i are the same length
   if(length(x_i) != length(y_i)){

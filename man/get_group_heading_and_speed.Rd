@@ -11,7 +11,7 @@ get_group_heading_and_speed(
   spatial_R = NULL,
   t_window = NULL,
   forward = T,
-  min_inds_tracked = NUL,
+  min_inds_tracked = NULL,
   seconds_per_time_step = 1
 )
 }

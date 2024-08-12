@@ -62,5 +62,5 @@ dts <- seconds(diff(timestamps))
 idx_breaks <- which(dts > dt) + 1
 
 test <- cocomo::get_headings_and_speeds_spatial(xs[1,],ys[1,],R=10, forward=T)
-
-
+test2 <- cocomo::get_group_heading_and_speed(xs, ys, heading_type = 'spatial', spatial_R = 10, forward = T, seconds_per_time_step = 1)
+test3 <- cocomo::get_headings_and_speeds_spatial(colMeans(xs,na.rm=T), colMeans(ys,na.rm=T), forward = T, R = 10)

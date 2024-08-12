@@ -1,4 +1,5 @@
-#' Get headings and speeds (temporal)
+#' Get heading and speed over time (temporal)
+#'
 #' Gets the headings and speeds of an individual over time given a trajectory.
 #' Uses a temporal window `t_window` (in units of timesteps) to compute the headings and speeds,
 #' and can compute them based on future movement (`forward = T`) or past movement (`forward = F`).
@@ -21,7 +22,7 @@
 #' `$dts`: time differences between each point (will be all the same value, but given as a vector for compatibility with spatial headings function)
 #'
 #' @export
-get_headings_and_speeds_temporal <- function(x_i, y_i, t_window = 1, forward = T, seconds_per_time_step = 1){
+get_heading_and_speed_temporal <- function(x_i, y_i, t_window = 1, forward = T, seconds_per_time_step = 1){
 
   #check that x_i and y_i are the same length
   if(length(x_i) != length(y_i)){

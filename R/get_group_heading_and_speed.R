@@ -18,7 +18,7 @@
 #' @returns Returns the group heading over time, a vector of length `n_times`
 #' @export
 #'
-get_group_heading_and_speed <- function(xs, ys, heading_type, spatial_R = NULL, t_window = NULL, forward = T, min_inds_tracked = NUL, seconds_per_time_step = 1){
+get_group_heading_and_speed <- function(xs, ys, heading_type, spatial_R = NULL, t_window = NULL, forward = T, min_inds_tracked = NULL, seconds_per_time_step = 1){
 
   #TODO: Think about what to do if number of tracked individuals changes - should probably have heading = NA at those times
 
@@ -50,9 +50,9 @@ get_group_heading_and_speed <- function(xs, ys, heading_type, spatial_R = NULL, 
 
   #get heading
   if(heading_type == 'temporal'){
-    heads_speeds <- cocomo::get_headings_and_speeds_temporal(x_i = x_centr, y_i = y_centr, t_window = t_window, forward = forward, seconds_per_time_step = seconds_per_time_step)
+    heads_speeds <- cocomo::get_heading_and_speed_temporal(x_i = x_centr, y_i = y_centr, t_window = t_window, forward = forward, seconds_per_time_step = seconds_per_time_step)
   } else{
-    heads_speeds <- cocomo::get_headings_and_speeds_spatial(x_i = x_centr, y_i = y_centr, R = spatial_R, forward = forward, seconds_per_time_step = seconds_per_time_step )
+    heads_speeds <- cocomo::get_heading_and_speed_spatial(x_i = x_centr, y_i = y_centr, R = spatial_R, forward = forward, seconds_per_time_step = seconds_per_time_step )
   }
 
   return(heads_speeds)
