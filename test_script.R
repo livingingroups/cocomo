@@ -56,6 +56,13 @@ points(xs[,t0+2*t_window], ys[,t0+2*t_window], col = 'red', cex = .5, pch = 19)
 
 
 #turn influence
+
+#TODO: test turn and speed influence code with visualizations
+#add day_breaks functionality
+#break into chunks to allow recomputing turn and speed influence from heads etc.
+#add centroid functionality
+#update documentation
+
 dt <- 1
 timestamps <- as.POSIXct(timestamps, tz = 'UTC')
 dts <- seconds(diff(timestamps))

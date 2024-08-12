@@ -56,7 +56,7 @@
 #'
 #' @export
 #'
-get_simplified_turn_and_speed_influence <- function(xs, ys, heading_type,
+get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
                                                     idx_breaks = NULL, spatial_R = NULL, t_window = NULL,
                                                     min_percentile = 0.5, seconds_per_time_step = 1,
                                                     min_left_speed = NULL, min_right_speed = NULL,
