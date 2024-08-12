@@ -50,11 +50,12 @@ get_group_polarization <- function(xs, ys, heading_type, spatial_R = NULL, t_win
   heads <- matrix(NA, nrow = n_inds, ncol = n_times)
   for(i in 1:n_inds){
     if(heading_type == 'temporal'){
-      heads[i,] <- cocomo::get_headings_temporal(x_i = xs[i,], y_i = ys[i,], t_window = t_window, forward = forward)
+      heads_speeds_i <- cocomo::get_headings_and_speeds_temporal(x_i = xs[i,], y_i = ys[i,], t_window = t_window, forward = forward)
     }
     if(heading_type == 'spatial'){
-      heads[i,] <- cocomo::get_headings_spatial(x_i = xs[i,], y_i = ys[i,], R = spatial_R, forward = forward)
+      head_speeds_i <- cocomo::get_headings_and_speeds_spatial(x_i = xs[i,], y_i = ys[i,], R = spatial_R, forward = forward)
     }
+    heads[i,] <- heads_speeds_i$heads
   }
 
   #get x and y components of headings

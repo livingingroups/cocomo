@@ -3,7 +3,7 @@
 export(get_directedness)
 export(get_group_centroid)
 export(get_group_dyadic_distances)
-export(get_group_heading)
+export(get_group_heading_and_speed)
 export(get_group_polarization)
 export(get_headings_and_speeds_spatial)
 export(get_headings_and_speeds_temporal)
