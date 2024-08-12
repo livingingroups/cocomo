@@ -2,6 +2,7 @@
 
 library(cocomo)
 library(plotrix)
+library(lubridate)
 
 load('~/Dropbox/meerkats/processed_data/HM2019_COORDINATES_all_sessions_with_scans.RData')
 
@@ -52,4 +53,14 @@ plotrix::draw.circle(x_centr[t0+t_window], y_centr[t0+t_window], radius = spatia
 points(xs[,t0+t_window],ys[,t0+t_window],col='blue',cex = .5, pch = 19)
 plotrix::draw.circle(x_centr[t0+t_window*2], y_centr[t0+t_window*2], radius = spatial_R, border = 'red')
 points(xs[,t0+2*t_window], ys[,t0+2*t_window], col = 'red', cex = .5, pch = 19)
+
+
+#turn influence
+dt <- 1
+timestamps <- as.POSIXct(timestamps, tz = 'UTC')
+dts <- seconds(diff(timestamps))
+idx_breaks <- which(dts > dt) + 1
+
+test <- cocomo::get_headings_and_speeds_spatial(xs[1,],ys[1,],R=10, forward=T)
+
 

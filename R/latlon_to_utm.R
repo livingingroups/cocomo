@@ -7,8 +7,8 @@
 #' @author NOT YET CODE REVIEWED
 #'
 #' @param lons_lats N x 2 matrix of longitudes (col 1) and latitudes (col2)
-#' @utm_zone numeric or string value of UTM zone
-#' @hemisphere northern or southern hemisphere - specify 'N' or 'S' (not case sensitive)
+#' @param utm_zone numeric or string value of UTM zone
+#' @param hemisphere northern or southern hemisphere - specify 'N' or 'S' (not case sensitive)
 
 #'@return easts_norths, an N x 2 matrix of eastings (col 1) and northings (col 2)
 

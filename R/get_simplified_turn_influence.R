@@ -33,18 +33,51 @@
 #'
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time
+#' @param idx_breaks vector of indexes to breaks in the data (e.g. breaks between days)
 #' @param heading_type character string specifying heading type - `'spatial'` or `'temporal'`
 #' @param influence_type character string specifying what type of turn influence to compute - `'position` or `'movement'`
 #' @param spatial_R radius to use for spatial headings (if `heading_type = 'spatial'`)
 #' @param t_window temporal window to use for temporal headings (if `heading_type = 'temporal'`)
-#' @param min_percentile
+#' @param min_percentile minimum percentile to use for left / right relative speed or distance
+#' @param centroid whether to use the group centroid (if `centroid = T`) instead of computing influence for each dyad (if `centroid = F`)
 #'
 #' @returns Returns an `N x N` matrix of the turn influence of individual `i` (row) on individual `j` (column).
 #'
 #' @export
 #'
-get_simplified_turn_influence <- function(xs, ys, heading_type, influence_type, spatial_R = NULL, t_window = NULL,
+get_simplified_turn_influence <- function(xs, ys, idx_breaks, heading_type, influence_type, spatial_R = NULL, t_window = NULL,
                                           min_percentile = NULL, min_left_dist = NULL, min_right_dist = NULL, min_left_speed = NULL, min_right_speed = NULL){
+
+
+  i <- 1
+  j <- 2
+  d <- 1
+
+  #get indexes to breaks in the data - add the last timepoint + 1 to the end
+  idx_breaks <- c(idx_breaks, ncol(xs)+1)
+  for(d in 1:(length(idx_breaks)-1)){
+
+    #get times associated with that chunk
+    t_idxs <- idx_breaks[d]:idx_breaks[d+1]
+
+    #get trajectory data of i and j for that chunk of time
+    x_i <- xs[i,t_idxs]
+    y_i <- ys[i,t_idxs]
+    x_j <- xs[j,t_idxs]
+    y_j <- ys[j,t_idxs]
+
+    #get past and future headings for i and j
+    if(heading_type == 'temporal'){
+      heads_i_fut <- get_headings_temporal(x_i, y_i, t_window = t_window, forward = T)
+      heads_j_fut <- get_headings_temporal(x_j, y_j, t_window = t_window, forward = T)
+      heads_i_past <- get_headings_temporal(x_i, y_i, t_window = t_window, forward = F)
+      heads_j_past <- get_headings_temporal(x_j, y_j, t_window = t_window, forward = F)
+    }
+
+  }
+
+
+
 
 
 

@@ -8,6 +8,10 @@ utm_to_latlon(easts_norths, utm_zone, hemisphere)
 }
 \arguments{
 \item{easts_norths}{N x 2 matrix of eastings (col 1) and northings (col2)}
+
+\item{utm_zone}{numeric or string value of UTM zone}
+
+\item{hemisphere}{northern or southern hemisphere - specify 'N' or 'S' (not case sensitive)}
 }
 \value{
 lons_lats, an N x 2 matrix of longitudes (col 1) and latitudes (col 2)
