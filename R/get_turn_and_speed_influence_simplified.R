@@ -5,14 +5,14 @@
 #'
 #' The simplified movement turn influence of individual `i` on individual `j` (`turn_influence_movement[i,j]`)
 #' is defined as the probability that `j` turns right in the future given that `i` moved
-#' right relative to `j`'s past heading at a speed above a threshold value
-#' `min_right_speed` or left relative to `j`'s past heading at a speed above a threshold
+#' right relative to `j`'s past heading at a speed above a threshold value `min_right_speed`,
+#' that `j` turns left in the future given that `i` moved left relative to `j`'s past heading at a speed above a threshold
 #' value `min_left_speed`.
 #'
 #' The simplified positional turn influence of individual `i` on individual `j` (`turn_influence_position[i,j]`)
 #' is defined as the probability that `j` turns right in the future given that `i` was located
 #' at least `min_right_dist` meters right of individual `j` relative to `j`'s current position
-#' and heading or the probability that `j` turns left in the future given that `i` was located
+#' and heading, or that `j` turns left in the future given that `i` was located
 #' at least `min_left_dist` meters left of individual `j` relative to `j`'s current position
 #' and heading.
 #'

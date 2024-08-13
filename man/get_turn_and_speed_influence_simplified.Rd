@@ -79,14 +79,14 @@ Get the simplified turn and speed influence (movement and positional) between al
 \details{
 The simplified movement turn influence of individual \code{i} on individual \code{j} (\code{turn_influence_movement[i,j]})
 is defined as the probability that \code{j} turns right in the future given that \code{i} moved
-right relative to \code{j}'s past heading at a speed above a threshold value
-\code{min_right_speed} or left relative to \code{j}'s past heading at a speed above a threshold
+right relative to \code{j}'s past heading at a speed above a threshold value \code{min_right_speed},
+that \code{j} turns left in the future given that \code{i} moved left relative to \code{j}'s past heading at a speed above a threshold
 value \code{min_left_speed}.
 
 The simplified positional turn influence of individual \code{i} on individual \code{j} (\code{turn_influence_position[i,j]})
 is defined as the probability that \code{j} turns right in the future given that \code{i} was located
 at least \code{min_right_dist} meters right of individual \code{j} relative to \code{j}'s current position
-and heading or the probability that \code{j} turns left in the future given that \code{i} was located
+and heading, or that \code{j} turns left in the future given that \code{i} was located
 at least \code{min_left_dist} meters left of individual \code{j} relative to \code{j}'s current position
 and heading.
 
