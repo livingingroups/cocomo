@@ -46,7 +46,7 @@
 #' The same procedure is done for left-right positions, front-back relative speeds, and front-back positions, using the same value of `min_percentile`. In the case of
 #' speeds, no symmetrization is done because speed differences and front-back distances are not expected to be symmetrical.
 #'
-#' If `idx_breaks` is set, headings that go across breaks in the data as specified by this vector are not included in the computations.
+#' If `breaks` is set, headings that go across breaks in the data as specified by this vector are not included in the computations.
 #'
 #' @author Ariana Strandburg-Peshkin
 #' @author NOT YET CODE REVIEWED
@@ -54,7 +54,7 @@
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time
 #' @param heading_type character string specifying heading type - `'spatial'` or `'temporal'`
-#' @param idx_breaks vector of indexes to breaks in the data (e.g. breaks between days)
+#' @param breaks vector of indexes to breaks in the data (e.g. breaks between days)
 #' @param spatial_R radius to use for spatial headings (if `heading_type = 'spatial'`)
 #' @param t_window temporal window to use for temporal headings (if `heading_type = 'temporal'`)
 #' @param min_percentile minimum percentile to use for left / right relative speed or distance
@@ -75,14 +75,18 @@
 #' @returns Returns a list containing matrices for the 4 different types of influence, as well as other computed metrics (if `output_details = T`).
 #' See "Additional information about returned objects" section below for a list of outputs.
 #'
-#' @section Additional information about returned objects
+#' @section Additional information about returned objects:
 #'
 #' The output list conatins the following objects:
 #'
 #' `params` list of parameters used in the calculation (see input variables for descriptions)
+#'
 #' `turn_influence_movement`: `i x j` matrix representing movement turn influence of individual `i` on individual `j`
+#'
 #' `turn_influence_position`: `i x j` matrix representing positional turn influence of individual `i` on individual `j`
+#'
 #' `speed_influence_movement`: `i x j` matrix representing movement speed influence of individual `i` on individual `j`
+#'
 #' `speed_influence_position`: `i x j` matrix representing positions speed influence of individual `i` on individual `j`
 #'
 #' If `centroid = T`, everything is instead computed at the centroid level (with the centroid as follower, replacing individual `j`).
@@ -91,11 +95,17 @@
 #' This parallel structure is for compatibility between dyadic and centroid-based analyses.
 #'
 #' If `output_details = T`, some additional parameters and the following computed matrices / arrays will also be outputted:
+#'
 #' `lr_speed`: `i x j x t` array of the past left-right speed of individual `i` relative to the past heading of individual `j` at time `t`
+#'
 #' `lr_pos`: `i x j x t` array of the past left-right position of individual `i` relative to the current position and past heading of individual `j` at time `t`
+#'
 #' `fb_speed`: `i x j x t` array of the past front-back speed difference between individual `i` and individual `j` along the vector of the past heading of individual `j` at time `t`
+#'
 #' `fb_pos`: `i x j x t` array of the past front-back position of individual `i` relative to the current position and past heading of individual `j` at time `t`
+#'
 #' `turn_angle`: `j x t` matrix of the turning angle of individual `j` between the past and future at time `t`
+#'
 #' `speed_up`: `j x t` matrix of the difference in speed of individual `j` between future and past at time `t`, project along `j`'s own past heading
 #'
 #' The output matrices `turn_angle[j,t]` and `speed_up[j,t]` then represent the centroid excluding individual `j`, rather than

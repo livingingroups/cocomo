@@ -36,6 +36,8 @@ get_turn_and_speed_influence_simplified(
 
 \item{centroid}{whether to use the group centroid (if \code{centroid = T}) instead of computing influence for each dyad (if \code{centroid = F})}
 
+\item{breaks}{vector of indexes to breaks in the data (e.g. breaks between days)}
+
 \item{spatial_R}{radius to use for spatial headings (if \code{heading_type = 'spatial'})}
 
 \item{t_window}{temporal window to use for temporal headings (if \code{heading_type = 'temporal'})}
@@ -65,8 +67,6 @@ get_turn_and_speed_influence_simplified(
 \item{verbose}{whether the print progress (if \code{T})}
 
 \item{output_details}{whether to output computed matrices and arrays used in influence computations (if \code{T})}
-
-\item{idx_breaks}{vector of indexes to breaks in the data (e.g. breaks between days)}
 }
 \value{
 Returns a list containing matrices for the 4 different types of influence, as well as other computed metrics (if \code{output_details = T}).
@@ -120,8 +120,48 @@ for both thresholds (this will result in using the same relative speed when goin
 The same procedure is done for left-right positions, front-back relative speeds, and front-back positions, using the same value of \code{min_percentile}. In the case of
 speeds, no symmetrization is done because speed differences and front-back distances are not expected to be symmetrical.
 
-If \code{idx_breaks} is set, headings that go across breaks in the data as specified by this vector are not included in the computations.
+If \code{breaks} is set, headings that go across breaks in the data as specified by this vector are not included in the computations.
 }
+\section{Additional information about returned objects}{
+
+
+The output list conatins the following objects:
+
+\code{params} list of parameters used in the calculation (see input variables for descriptions)
+
+\code{turn_influence_movement}: \verb{i x j} matrix representing movement turn influence of individual \code{i} on individual \code{j}
+
+\code{turn_influence_position}: \verb{i x j} matrix representing positional turn influence of individual \code{i} on individual \code{j}
+
+\code{speed_influence_movement}: \verb{i x j} matrix representing movement speed influence of individual \code{i} on individual \code{j}
+
+\code{speed_influence_position}: \verb{i x j} matrix representing positions speed influence of individual \code{i} on individual \code{j}
+
+If \code{centroid = T}, everything is instead computed at the centroid level (with the centroid as follower, replacing individual \code{j}).
+In this case, the output matrices will still be the same shape as those for the dyadic case, but they will have \code{NA}s for all columns
+except \code{j=1} (representing the influence of each individual \code{i} on the centroid excluding that individual).
+This parallel structure is for compatibility between dyadic and centroid-based analyses.
+
+If \code{output_details = T}, some additional parameters and the following computed matrices / arrays will also be outputted:
+
+\code{lr_speed}: \verb{i x j x t} array of the past left-right speed of individual \code{i} relative to the past heading of individual \code{j} at time \code{t}
+
+\code{lr_pos}: \verb{i x j x t} array of the past left-right position of individual \code{i} relative to the current position and past heading of individual \code{j} at time \code{t}
+
+\code{fb_speed}: \verb{i x j x t} array of the past front-back speed difference between individual \code{i} and individual \code{j} along the vector of the past heading of individual \code{j} at time \code{t}
+
+\code{fb_pos}: \verb{i x j x t} array of the past front-back position of individual \code{i} relative to the current position and past heading of individual \code{j} at time \code{t}
+
+\code{turn_angle}: \verb{j x t} matrix of the turning angle of individual \code{j} between the past and future at time \code{t}
+
+\code{speed_up}: \verb{j x t} matrix of the difference in speed of individual \code{j} between future and past at time \code{t}, project along \code{j}'s own past heading
+
+The output matrices \code{turn_angle[j,t]} and \code{speed_up[j,t]} then represent the centroid excluding individual \code{j}, rather than
+the data for individual \code{j} as in the dyadic case.
+Similarly, the output arrays with dimensions \verb{i x j x t} will have \code{NA}s for all values of \code{j > 1}, and the \code{j = 1}
+values represent the speeds / positions of individuals relative to the centroid (excluding \code{i})
+}
+
 \author{
 Ariana Strandburg-Peshkin
 
