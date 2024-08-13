@@ -1,7 +1,9 @@
-#'Get positions relative to group
+#' Get positions relative to group
 #'
-#'Get individual positions relative to the group centroid and heading.
-#'The group centroid is defined as the origin (0,0) and the heading points along the positive x axis.
+#' Get individual position relative to the group centroid and heading for all individuals.
+#'
+#' The group centroid is defined as the origin (0,0) and the heading points along the positive x axis.
+#' The heading can be computed either using a specified time window or using spatial discretization.
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED
@@ -12,7 +14,7 @@
 #' @param spatial_R radius to use for spatial headings (if `heading_type = 'spatial'`)
 #' @param t_window temporal window to use for temporal headings (if `heading_type = 'temporal'`)
 #' @param forward whether to compute headings into the future (`forward = T`) or the past (`forward = F`)
-#' @param min_inds_tracked if specified, sets a minimum number of individuals that must be tracked at any moment in time to compute heading (otherwise all positions will be NA at that time point
+#' @param min_inds_tracked if specified, sets a minimum number of individuals that must be tracked at any moment in time to compute heading (otherwise all positions will be NA at that time point)
 #'
 #' @returns Returns a list containing rel_xs and rel_ys matrices of each individual's position relative to the group centroid and heading
 #' @export
@@ -48,7 +50,7 @@ get_position_relative_to_group <- function(xs, ys, heading_type, spatial_R = NUL
   if(heading_type == 'temporal'){
     heads_speeds_centr <- cocomo::get_heading_and_speed_temporal(x_i = x_centr, y_i = y_centr, t_window = t_window, forward = forward)
   } else{
-    heads_speeds_centr <- cocomo::get_heading_and_speed_spatial(x_i = x_centr, y_i = y_centr, R = spatial_R, forward = forward )
+    heads_speeds_centr <- cocomo::get_heading_and_speed_spatial(x_i = x_centr, y_i = y_centr, R = spatial_R, forward = forward)
   }
   heads_centr <- heads_speeds_centr$heads
 
