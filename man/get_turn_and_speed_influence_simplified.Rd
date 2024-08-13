@@ -8,6 +8,7 @@ get_turn_and_speed_influence_simplified(
   xs,
   ys,
   heading_type,
+  centroid = F,
   breaks = NULL,
   spatial_R = NULL,
   t_window = NULL,
@@ -32,6 +33,8 @@ get_turn_and_speed_influence_simplified(
 \item{ys}{\verb{N x n_times} matrix giving y coordinates of each individual over time}
 
 \item{heading_type}{character string specifying heading type - \code{'spatial'} or \code{'temporal'}}
+
+\item{centroid}{whether to use the group centroid (if \code{centroid = T}) instead of computing influence for each dyad (if \code{centroid = F})}
 
 \item{spatial_R}{radius to use for spatial headings (if \code{heading_type = 'spatial'})}
 
@@ -61,12 +64,13 @@ get_turn_and_speed_influence_simplified(
 
 \item{verbose}{whether the print progress (if \code{T})}
 
-\item{idx_breaks}{vector of indexes to breaks in the data (e.g. breaks between days)}
+\item{output_details}{whether to output computed matrices and arrays used in influence computations (if \code{T})}
 
-\item{centroid}{whether to use the group centroid (if \code{centroid = T}) instead of computing influence for each dyad (if \code{centroid = F})}
+\item{idx_breaks}{vector of indexes to breaks in the data (e.g. breaks between days)}
 }
 \value{
-Returns an \verb{N x N} matrix of the turn influence of individual \code{i} (row) on individual \code{j} (column).
+Returns a list containing matrices for the 4 different types of influence, as well as other computed metrics (if \code{output_details = T}).
+See "Additional information about returned objects" section below for a list of outputs.
 }
 \description{
 Get the simplified turn and speed influence (movement and positional) between all pairs of individuals

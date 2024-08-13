@@ -70,12 +70,42 @@
 #' @param min_front_pos minimum position toward the front when i is in front of j to include data (positive value)
 #' @param min_back_pos minimum position toward the back when i is in back of j to include data (positive value)
 #' @param verbose whether the print progress (if `T`)
+#' @param output_details whether to output computed matrices and arrays used in influence computations (if `T`)
 #'
-#' @returns Returns an `N x N` matrix of the turn influence of individual `i` (row) on individual `j` (column).
+#' @returns Returns a list containing matrices for the 4 different types of influence, as well as other computed metrics (if `output_details = T`).
+#' See "Additional information about returned objects" section below for a list of outputs.
+#'
+#' @section Additional information about returned objects
+#'
+#' The output list conatins the following objects:
+#'
+#' `params` list of parameters used in the calculation (see input variables for descriptions)
+#' `turn_influence_movement`: `i x j` matrix representing movement turn influence of individual `i` on individual `j`
+#' `turn_influence_position`: `i x j` matrix representing positional turn influence of individual `i` on individual `j`
+#' `speed_influence_movement`: `i x j` matrix representing movement speed influence of individual `i` on individual `j`
+#' `speed_influence_position`: `i x j` matrix representing positions speed influence of individual `i` on individual `j`
+#'
+#' If `centroid = T`, everything is instead computed at the centroid level (with the centroid as follower, replacing individual `j`).
+#' In this case, the output matrices will still be the same shape as those for the dyadic case, but they will have `NA`s for all columns
+#' except `j=1` (representing the influence of each individual `i` on the centroid excluding that individual).
+#' This parallel structure is for compatibility between dyadic and centroid-based analyses.
+#'
+#' If `output_details = T`, some additional parameters and the following computed matrices / arrays will also be outputted:
+#' `lr_speed`: `i x j x t` array of the past left-right speed of individual `i` relative to the past heading of individual `j` at time `t`
+#' `lr_pos`: `i x j x t` array of the past left-right position of individual `i` relative to the current position and past heading of individual `j` at time `t`
+#' `fb_speed`: `i x j x t` array of the past front-back speed difference between individual `i` and individual `j` along the vector of the past heading of individual `j` at time `t`
+#' `fb_pos`: `i x j x t` array of the past front-back position of individual `i` relative to the current position and past heading of individual `j` at time `t`
+#' `turn_angle`: `j x t` matrix of the turning angle of individual `j` between the past and future at time `t`
+#' `speed_up`: `j x t` matrix of the difference in speed of individual `j` between future and past at time `t`, project along `j`'s own past heading
+#'
+#' The output matrices `turn_angle[j,t]` and `speed_up[j,t]` then represent the centroid excluding individual `j`, rather than
+#' the data for individual `j` as in the dyadic case.
+#' Similarly, the output arrays with dimensions `i x j x t` will have `NA`s for all values of `j > 1`, and the `j = 1`
+#' values represent the speeds / positions of individuals relative to the centroid (excluding `i`)
 #'
 #' @export
 #'
-get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
+get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type, centroid = F,
                                                     breaks = NULL, spatial_R = NULL, t_window = NULL,
                                                     min_percentile = 0.5, seconds_per_time_step = 1, symmetrize_lr = T,
                                                     min_left_speed = NULL, min_right_speed = NULL,
@@ -102,6 +132,11 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
   heads_speeds_fut <- list()
   heads_speeds_past <- list()
 
+  if(centroid){
+    centr_heads_speeds_fut <- list()
+    centr_heads_speeds_past <- list()
+  }
+
   #set idx_breaks, if not yet set
   if(is.null(breaks)){
     breaks <- seq(1, n_times + 1)
@@ -127,16 +162,39 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
     heads_speeds_fut[[i]] <- heads_speeds_init
     heads_speeds_past[[i]] <- heads_speeds_init
 
+    #if using the group centroid, have to get headings and speeds for that as well (excluding the focal individual)
+    #centr_heads_speeds_fut[[i]] will hold the heading and speed info for the centroid excluding individual i
+    if(centroid){
+      centr_heads_speeds_fut[[i]] <- heads_speeds_init
+      centr_heads_speeds_past[[i]] <- heads_speeds_init
+      centr_x_without_i <- colMeans(xs[-i,],na.rm=T)
+      centr_y_without_i <- colMeans(ys[-i,],na.rm=T)
+    }
+
     for(b in 1:(length(breaks)-1)){
       time_idxs <- seq(breaks[b], breaks[b+1]-1, 1)
 
       if(heading_type == 'spatial'){
         out_fut <- cocomo::get_heading_and_speed_spatial(x_i = xs[i,time_idxs], y_i = ys[i,time_idxs], R = spatial_R, forward = T, seconds_per_time_step = seconds_per_time_step)
         out_past <- cocomo::get_heading_and_speed_spatial(x_i = xs[i,time_idxs], y_i = ys[i,time_idxs], R = spatial_R, forward = F, seconds_per_time_step = seconds_per_time_step)
+
+        #get data for the group centroid without i
+        if(centroid){
+          centr_out_fut <- cocomo::get_heading_and_speed_spatial(x_i = centr_x_without_i[time_idxs], y_i = centr_y_without_i[time_idxs], R = spatial_R, forward = T, seconds_per_time_step = seconds_per_time_step)
+          centr_out_past <- cocomo::get_heading_and_speed_spatial(x_i = centr_x_without_i[time_idxs], y_i = centr_y_without_i[time_idxs], R = spatial_R, forward = F, seconds_per_time_step = seconds_per_time_step)
+        }
+
       }
       if(heading_type == 'temporal'){
         out_fut <- cocomo::get_heading_and_speed_temporal(x_i = xs[i,time_idxs], y_i = ys[i,time_idxs], t_window = t_window, forward = T, seconds_per_time_step = seconds_per_time_step)
         out_past <- cocomo::get_heading_and_speed_temporal(x_i = xs[i,time_idxs], y_i = ys[i,time_idxs], t_window = t_window, forward = F, seconds_per_time_step = seconds_per_time_step)
+
+        #get data for the group centroid without i
+        if(centroid){
+          centr_out_fut <- cocomo::get_heading_and_speed_temporal(x_i = centr_x_without_i[time_idxs], y_i = centr_y_without_i[time_idxs], t_window = t_window, forward = T, seconds_per_time_step = seconds_per_time_step)
+          centr_out_past <- cocomo::get_heading_and_speed_temporal(x_i = centr_x_without_i[time_idxs], y_i = centr_y_without_i[time_idxs], t_window = t_window, forward = F, seconds_per_time_step = seconds_per_time_step)
+        }
+
       }
 
       #store output
@@ -146,20 +204,42 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
       heads_speeds_past[[i]]$heads[time_idxs] <- out_past$heads
       heads_speeds_past[[i]]$speeds[time_idxs] <- out_past$speeds
       heads_speeds_past[[i]]$dts[time_idxs] <- out_past$dts
+
+      if(centroid){
+        centr_heads_speeds_fut[[i]]$heads[time_idxs] <- centr_out_fut$heads
+        centr_heads_speeds_fut[[i]]$speeds[time_idxs] <- centr_out_fut$speeds
+        centr_heads_speeds_fut[[i]]$dts[time_idxs] <- centr_out_fut$dts
+        centr_heads_speeds_past[[i]]$heads[time_idxs] <- centr_out_past$heads
+        centr_heads_speeds_past[[i]]$speeds[time_idxs] <- centr_out_past$speeds
+        centr_heads_speeds_past[[i]]$dts[time_idxs] <- centr_out_past$dts
+      }
+
     }
   }
 
   #for each individual i get...
   # speed_up[i,t] = speed difference of individual i along its past direction of movement between future and past
   # turn_angle[i,t] = turning angle of individual i between future and past
+  # if working with the group centroid, instead get speed_up and turn_angle for centroid excluding individual i
   speed_up <- turn_angle <- matrix(NA, nrow = n_inds, ncol = n_times)
   if(verbose){print('getting speed differences and turning angles for all individuals')}
   for(i in 1:n_inds){
 
-    heads_i_fut <- heads_speeds_fut[[i]]$heads
-    heads_i_past <- heads_speeds_past[[i]]$heads
-    speeds_i_fut <- heads_speeds_fut[[i]]$speeds
-    speeds_i_past <- heads_speeds_past[[i]]$speeds
+    #in the normal case (centroid = F), heads_i_fut represents the headings of individual i
+    if(!centroid){
+      heads_i_fut <- heads_speeds_fut[[i]]$heads
+      heads_i_past <- heads_speeds_past[[i]]$heads
+      speeds_i_fut <- heads_speeds_fut[[i]]$speeds
+      speeds_i_past <- heads_speeds_past[[i]]$speeds
+    }
+
+    #in the centroid case (centroid = T), heads_i_fut represents the headings of the centroid excluding individual i
+    if(centroid){
+      heads_i_fut <- centr_heads_speeds_fut[[i]]$heads
+      heads_i_past <- centr_heads_speeds_past[[i]]$heads
+      speeds_i_fut <- centr_heads_speeds_fut[[i]]$speeds
+      speeds_i_past <- centr_heads_speeds_past[[i]]$speeds
+    }
 
     #get unit vector pointing in direction of past heading of individual i
     dx_i_past_unit <- cos(heads_i_past)
@@ -196,24 +276,50 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
   for(i in 1:n_inds){
     for(j in 1:n_inds){
 
-      #don't compute individual's influence on themselves
-      if(i==j){
-        next
+      #In the normal (non-centroid) case, get info for i and j
+      if(!centroid){
+        #don't compute individual's influence on themselves
+        if(i==j){
+          next
+        }
+
+        #---Get relevant info for i and j
+
+        #get past speeds and headings for i and j
+        heads_i_past <- heads_speeds_past[[i]]$heads
+        speeds_i_past <- heads_speeds_past[[i]]$speeds
+        heads_j_past <- heads_speeds_past[[j]]$heads
+        speeds_j_past <- heads_speeds_past[[j]]$speeds
+
+        #get current locations of individual i and j
+        x_i <- xs[i,]
+        y_i <- ys[i,]
+        x_j <- xs[j,]
+        y_j <- ys[j,]
       }
 
-      #---Get relevant info for i and j
+      #in the non-centroid case, get info for i and the centroid (call the centroid j in this case, for consistency with the dyadic version)
+      if(centroid){
 
-      #get past speeds and headings for i and j
-      heads_i_past <- heads_speeds_past[[i]]$heads
-      speeds_i_past <- heads_speeds_past[[i]]$speeds
-      heads_j_past <- heads_speeds_past[[j]]$heads
-      speeds_j_past <- heads_speeds_past[[j]]$speeds
+        #only need to do this once per individual i, so skip j > 1
+        if(j > 1){
+          next
+        }
 
-      #get current locations of individual i and j
-      x_i <- xs[i,]
-      y_i <- ys[i,]
-      x_j <- xs[j,]
-      y_j <- ys[j,]
+        #---Get relevant info for i and j
+
+        #get past speeds and headings for i and j (j is the centroid in this case)
+        heads_i_past <- heads_speeds_past[[i]]$heads
+        speeds_i_past <- heads_speeds_past[[i]]$speeds
+        heads_j_past <- centr_heads_speeds_past[[i]]$heads
+        speeds_j_past <- centr_heads_speeds_past[[i]]$speeds
+
+        #get current locations of individual i and j (j is in the centroid in this case)
+        x_i <- xs[i,]
+        y_i <- ys[i,]
+        x_j <- colMeans(xs[-i,], na.rm=T)
+        y_j <- colMeans(ys[-i,], na.rm=T)
+      }
 
       #----Movement-based metrics (left-right speed and front-back speed difference)
 
@@ -298,14 +404,19 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
   }
 
   #----Turn and speed influence for all pairs
-  if(verbose){print('getting turn and speed influence for all dyads')}
+  if(verbose){print('getting turn and speed influence for all dyads (or for all inds and the centroid, if centroid = T)')}
   turn_influence_movement <- turn_influence_position <- matrix(NA, nrow = n_inds, ncol = n_inds)
   speed_influence_movement <- speed_influence_position <- matrix(NA, nrow = n_inds, ncol = n_inds)
   for(i in 1:n_inds){
     for(j in 1:n_inds){
-      print(paste(i,j))
-      #don't compute for i = j
-      if(i==j){
+
+      #don't compute for i = j (for dyadic version)
+      if(!centroid & i==j){
+        next
+      }
+
+      #skip everything above j = 1 (for centroid version) because this is empty in that case
+      if(centroid & j > 1){
         next
       }
 
@@ -343,10 +454,14 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
   #-----Outputs---
   if(verbose){print('constructing output list')}
   out <- list()
-  out$heading_type <- heading_type
-  out$spatial_R <- spatial_R
-  out$t_window <- t_window
-  out$min_percentile <- min_percentile
+
+  out$params <- list()
+  out$params$heading_type <- heading_type
+  out$params$spatial_R <- spatial_R
+  out$params$t_window <- t_window
+  out$params$centroid <- centroid
+  out$params$min_percentile <- min_percentile
+
   out$turn_influence_movement <- turn_influence_movement
   out$turn_influence_position <- turn_influence_position
   out$speed_influence_movement <- speed_influence_movement
@@ -359,7 +474,21 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
     out$fb_pos <- fb_pos
     out$turn_angle <- turn_angle
     out$speed_up <- speed_up
+
+    out$params$min_left_speed <- min_left_speed
+    out$params$min_right_speed <- min_right_speed
+    out$params$min_left_pos <- min_left_pos
+    out$params$min_right_pos <- min_right_pos
+    out$params$min_faster_speed_diff <- min_faster_speed_diff
+    out$params$min_slower_speed_diff <- min_slower_speed_diff
+    out$params$min_front_pos <- min_front_pos
+    out$params$min_back_pos <- min_back_pos
+    out$params$seconds_per_time_step <- seconds_per_time_step
+    out$params$symmetrize_lr <- symmetrize_lr
+
   }
+
+  print('done')
 
   return(out)
 
