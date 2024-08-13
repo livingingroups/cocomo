@@ -86,3 +86,10 @@ breaks <- c(1,which(diff(as.numeric(cohesive_ts)) > 1)+1)
 coati_dyad <- cocomo::get_turn_and_speed_influence_simplified(xs = cohesive_xs, ys = cohesive_ys, heading_type = 'spatial', centroid = F, breaks = breaks, spatial_R = 10, min_percentile = 0.5)
 coati_centr <- cocomo::get_turn_and_speed_influence_simplified(xs = cohesive_xs, ys = cohesive_ys, heading_type = 'spatial', centroid = T, breaks = breaks, spatial_R = 10, min_percentile = 0.5)
 
+
+#level 0 to level 1 example
+level_0_file <- '~/Dropbox/hyenas/hyena_data/RData/hyena_gps_level0.RData'
+level_1_file <- '~/Desktop/test_hyena_level1.RData'
+level1out <- cocomo::gps_preprocess_level0_to_level1(input_file_path = level_0_file,
+                                             output_file_path = level_1_file)
+
