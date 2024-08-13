@@ -16,7 +16,7 @@
 #'
 #' @returns Returns a list containing rel_xs and rel_ys matrices of each individual's position relative to the group centroid and heading
 #' @export
-get_positions_relative_to_group <- function(xs, ys, heading_type, spatial_R = NULL, t_window = NULL, forward = T, min_inds_tracked = NULL){
+get_position_relative_to_group <- function(xs, ys, heading_type, spatial_R = NULL, t_window = NULL, forward = T, min_inds_tracked = NULL){
 
   #check matrix dimensions
   if(nrow(xs) != nrow(ys) || ncol(xs) != ncol(ys)){
