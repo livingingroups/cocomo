@@ -4,12 +4,13 @@ library(cocomo)
 library(plotrix)
 library(lubridate)
 
-load('~/Dropbox/meerkats/processed_data/HM2019_COORDINATES_all_sessions_with_scans.RData')
+load('~/Dropbox/meerkats/processed_data/NQ2021_COORDINATES_all_sessions.RData')
 
-xs <- HM2019_allX
-ys <- HM2019_allY
-timestamps <- HM2019_timeLine
-ids <- HM2019_indInfo
+xs <- NQ2021_allX
+ys <- NQ2021_allY
+timestamps <- NQ2021_timeLine
+ids <- NQ2021_indInfo
+breaks <- NQ2021_dayIdx
 
 #Relative positions
 heading_type <- 'spatial'
@@ -57,17 +58,25 @@ points(xs[,t0+2*t_window], ys[,t0+2*t_window], col = 'red', cex = .5, pch = 19)
 
 #turn influence
 
+out_nq2021 <- cocomo::get_turn_and_speed_influence_simplified(xs, ys, heading_type = 'spatial', breaks = breaks, spatial_R = 10, min_percentile = 0.01)
+
+
 #TODO: test turn and speed influence code with visualizations
-#add day_breaks functionality
 #break into chunks to allow recomputing turn and speed influence from heads etc.
 #add centroid functionality
 #update documentation
 
-dt <- 1
-timestamps <- as.POSIXct(timestamps, tz = 'UTC')
-dts <- seconds(diff(timestamps))
-idx_breaks <- which(dts > dt) + 1
-
-test <- cocomo::get_headings_and_speeds_spatial(xs[1,],ys[1,],R=10, forward=T)
-test2 <- cocomo::get_group_heading_and_speed(xs, ys, heading_type = 'spatial', spatial_R = 10, forward = T, seconds_per_time_step = 1)
-test3 <- cocomo::get_headings_and_speeds_spatial(colMeans(xs,na.rm=T), colMeans(ys,na.rm=T), forward = T, R = 10)
+i <- 2
+j <- 6
+x <- out_nq2021$lr_speed[i,j,]
+y <- -out_nq2021$turn_angle[j,]
+bins <- seq(-quantile(x,0.99,na.rm=T),quantile(x,0.99,na.rm=T),length.out=9)
+mids <- (bins[1:(length(bins)-1)] + bins[2:length(bins)]) / 2
+p <- rep(NA, length(bins)-1)
+for(i in 1:(length(bins)-1)){
+  idxs <- which(x >= bins[i] & x < bins[i+1])
+  p[i] <- mean(y[idxs] > 0, na.rm=T)
+}
+plot(mids,p,ylim=c(0,1))
+abline(h=0.5)
+abline(v=0)

@@ -1,33 +1,52 @@
 #' Get simplified turn and speed influence
 #'
-#' Get the simplified turn influence between all pairs of individuals
-#' TODO: Update documentation to incorporate speed influence stuff
-#' `i` and `j`, or, if `centroid = T` for all indiividuals `i` on the group centroid.
-#' The `simplified movement turn influence` of individual `i` on individual `j`
+#' Get the simplified turn and speed influence (movement and positional) between all pairs of individuals
+#' `i` and `j`, or, if `centroid = T` for all indiividuals `i` on the group centroid excluding `i`.
+#'
+#' The simplified movement turn influence of individual `i` on individual `j` (`turn_influence_movement[i,j]`)
 #' is defined as the probability that `j` turns right in the future given that `i` moved
 #' right relative to `j`'s past heading at a speed above a threshold value
 #' `min_right_speed` or left relative to `j`'s past heading at a speed above a threshold
-#' value `min_left_speed`. This will be computed if `influence_type` is set to `'movement'`.
-#' The `simplified positional turn influence` of individual `i` on individual `j`
+#' value `min_left_speed`.
+#'
+#' The simplified positional turn influence of individual `i` on individual `j` (`turn_influence_position[i,j]`)
 #' is defined as the probability that `j` turns right in the future given that `i` was located
 #' at least `min_right_dist` meters right of individual `j` relative to `j`'s current position
 #' and heading or the probability that `j` turns left in the future given that `i` was located
 #' at least `min_left_dist` meters left of individual `j` relative to `j`'s current position
-#' and heading. This will be computed if `influence_type` is set to `position`.
-#' The parameters `min_right_dist` and `min_left_dist`, or `min_right_speed` and
-#' `min_left_speed` are either set manually or, if `min_percentile` is specified, based on percentiles
-#' of the left-right relative speed and front-back relatives speed distributions across all dyads
+#' and heading.
+#'
+#' The simplified movement speed influence of individual `i` on individual `j` (`speed_influence_movement[i,j]`)
+#' is defined as the probability that `j` speeds up in the future along the vector defined by `j`'s heading in the past,
+#' given that `i` was moving at least a speed `min_faster_speed_diff` faster than `j` along `j`'s past heading direction, or
+#' slows down along the vector defined by `j`'s heading in the past given that `j` was moving at least a speed `min_slower_speed_diff`
+#' slower than `i` along the same vector in the past.
+#'
+#' The simplified positional speed influence of individual `i` on individual `j` (`speed_influence_position[i,j]`)
+#' is defined as the probability that `j` speeds up in the future along the vector defined by `j`'s heading in the past
+#' given that `i` was in front of `j` by at least `min_front_pos` meters relative to `j`'s current position and past heading,
+#' or that `j` slows down in the future along the vector defined by `j`'s heading in the past given that `i` was
+#' behind `j` by at least `min_back_pos` relative to `j`'s current position and past heading.
+#'
+#' Future headings and speeds are computed either using a fixed temporal window `t_window` forward in time (if `heading_type = 'temporal'`)
+#' or based on spatial discretization with a radius `spatial_R` (if `heading_type = 'spatial'`), i.e. defining the heading based on the
+#' when the focal individual has moved a distance `spatial_R` from its current location. Similarly, past headings and speeds
+#' are computed by looking backward in time either at a fixed temporal window (`t_window`) or based on a fixed displacement distance (`spatial_R`).
+#'
+#' The parameters specifying minimum speeds and distances left-right and front-back are either set manually (not recommended) or,
+#' if `min_percentile` is specified, based on percentiles of the relevant distributions of these variables across all dyads
 #' (or across all individuals relative to the group centroid, if `centroid = T`). The variable
 #' `min_percentile` overrides the manually set minimum speeds / distances.
-#'
 #' The minimum speeds (or distances) are computed as follows. First, split the distribution of relative left-right
-#' speeds (or distances) across all dyads into those greater than and those less than 0. Then, compute the quantile
-#' `min_percentile` for each distribution separately. Finally, set `min_left_speed` and `min_right_speed` at the computed
-#' values. If `symmetrize_lr = T`, take instead the mean absolute value of the quantiles for both distributions and use it
-#' for both thresholds (this will result in using the same relative speed when going right or left as a threshold - otherwise these could be different if `symmetrize = F`)
+#' speeds (for example) across all dyads into those greater than and those less than 0. Take the absolute value of all speeds to
+#' define a positive speed for both directions. Next, compute the quantile `min_percentile` for each distribution (left and right) separately.
+#' Finally, set `min_left_speed` and `min_right_speed` at the computed
+#' values. If `symmetrize_lr = T` (recommended), take instead the mean value of the quantiles for both distributions and use it
+#' for both thresholds (this will result in using the same relative speed when going right or left as a threshold - otherwise these could be different if `symmetrize_lr = F`)
+#' The same procedure is done for left-right positions, front-back relative speeds, and front-back positions, using the same value of `min_percentile`. In the case of
+#' speeds, no symmetrization is done because speed differences and front-back distances are not expected to be symmetrical.
 #'
-#' The same can be done for the relative left and right distance distributions to set
-#' `min_left_dist` and `min_right_dist` respectively, if `influence_type = 'position'`
+#' If `idx_breaks` is set, headings that go across breaks in the data as specified by this vector are not included in the computations.
 #'
 #' @author Ariana Strandburg-Peshkin
 #' @author NOT YET CODE REVIEWED
@@ -57,8 +76,8 @@
 #' @export
 #'
 get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
-                                                    idx_breaks = NULL, spatial_R = NULL, t_window = NULL,
-                                                    min_percentile = 0.5, seconds_per_time_step = 1,
+                                                    breaks = NULL, spatial_R = NULL, t_window = NULL,
+                                                    min_percentile = 0.5, seconds_per_time_step = 1, symmetrize_lr = T,
                                                     min_left_speed = NULL, min_right_speed = NULL,
                                                     min_left_pos = NULL, min_right_pos = NULL,
                                                     min_faster_speed_diff = NULL, min_slower_speed_diff = NULL,
@@ -83,16 +102,50 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type,
   heads_speeds_fut <- list()
   heads_speeds_past <- list()
 
+  #set idx_breaks, if not yet set
+  if(is.null(breaks)){
+    breaks <- seq(1, n_times + 1)
+  }
+
+  #add end point to breaks if needed
+  if(breaks[length(breaks)] < n_times){
+    breaks <- c(breaks, n_times + 1)
+  }
+
   if(verbose){print('getting individual headings and speeds')}
+
+  #initialized heads_speeds object to use for each individual
+  heads_speeds_init <- list()
+  heads_speeds_init$heads <- rep(NA, n_times)
+  heads_speeds_init$speeds <- rep(NA, n_times)
+  heads_speeds_init$dts <- rep(NA, n_times)
+
   for(i in 1:n_inds){
+
     if(verbose){print(paste0('ind ',i,'/',n_inds))}
-    if(heading_type == 'spatial'){
-      heads_speeds_fut[[i]] <- cocomo::get_heading_and_speed_spatial(x_i = xs[i,], y_i = ys[i,], R = spatial_R, forward = T, seconds_per_time_step = seconds_per_time_step)
-      heads_speeds_past[[i]] <- cocomo::get_heading_and_speed_spatial(x_i = xs[i,], y_i = ys[i,], R = spatial_R, forward = F, seconds_per_time_step = seconds_per_time_step)
-    }
-    if(heading_type == 'temporal'){
-      heads_speeds_fut[[i]] <- cocomo::get_heading_and_speed_temporal(x_i = xs[i,], y_i = ys[i,], t_window = t_window, forward = T, seconds_per_time_step = seconds_per_time_step)
-      heads_speeds_past[[i]] <- cocomo::get_heading_and_speed_temporal(x_i = xs[i,], y_i = ys[i,], t_window = t_window, forward = F, seconds_per_time_step = seconds_per_time_step)
+
+    heads_speeds_fut[[i]] <- heads_speeds_init
+    heads_speeds_past[[i]] <- heads_speeds_init
+
+    for(b in 1:(length(breaks)-1)){
+      time_idxs <- seq(breaks[b], breaks[b+1]-1, 1)
+
+      if(heading_type == 'spatial'){
+        out_fut <- cocomo::get_heading_and_speed_spatial(x_i = xs[i,time_idxs], y_i = ys[i,time_idxs], R = spatial_R, forward = T, seconds_per_time_step = seconds_per_time_step)
+        out_past <- cocomo::get_heading_and_speed_spatial(x_i = xs[i,time_idxs], y_i = ys[i,time_idxs], R = spatial_R, forward = F, seconds_per_time_step = seconds_per_time_step)
+      }
+      if(heading_type == 'temporal'){
+        out_fut <- cocomo::get_heading_and_speed_temporal(x_i = xs[i,time_idxs], y_i = ys[i,time_idxs], t_window = t_window, forward = T, seconds_per_time_step = seconds_per_time_step)
+        out_past <- cocomo::get_heading_and_speed_temporal(x_i = xs[i,time_idxs], y_i = ys[i,time_idxs], t_window = t_window, forward = F, seconds_per_time_step = seconds_per_time_step)
+      }
+
+      #store output
+      heads_speeds_fut[[i]]$heads[time_idxs] <- out_fut$heads
+      heads_speeds_fut[[i]]$speeds[time_idxs] <- out_fut$speeds
+      heads_speeds_fut[[i]]$dts[time_idxs] <- out_fut$dts
+      heads_speeds_past[[i]]$heads[time_idxs] <- out_past$heads
+      heads_speeds_past[[i]]$speeds[time_idxs] <- out_past$speeds
+      heads_speeds_past[[i]]$dts[time_idxs] <- out_past$dts
     }
   }
 

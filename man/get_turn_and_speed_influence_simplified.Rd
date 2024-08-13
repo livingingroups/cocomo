@@ -8,11 +8,12 @@ get_turn_and_speed_influence_simplified(
   xs,
   ys,
   heading_type,
-  idx_breaks = NULL,
+  breaks = NULL,
   spatial_R = NULL,
   t_window = NULL,
   min_percentile = 0.5,
   seconds_per_time_step = 1,
+  symmetrize_lr = T,
   min_left_speed = NULL,
   min_right_speed = NULL,
   min_left_pos = NULL,
@@ -32,8 +33,6 @@ get_turn_and_speed_influence_simplified(
 
 \item{heading_type}{character string specifying heading type - \code{'spatial'} or \code{'temporal'}}
 
-\item{idx_breaks}{vector of indexes to breaks in the data (e.g. breaks between days)}
-
 \item{spatial_R}{radius to use for spatial headings (if \code{heading_type = 'spatial'})}
 
 \item{t_window}{temporal window to use for temporal headings (if \code{heading_type = 'temporal'})}
@@ -41,6 +40,8 @@ get_turn_and_speed_influence_simplified(
 \item{min_percentile}{minimum percentile to use for left / right relative speed or distance}
 
 \item{seconds_per_time_step}{number of seconds corresponding to each time step}
+
+\item{symmetrize_lr}{whether to symmetrize the thresholds for right and left movement + position (default \code{T})}
 
 \item{min_left_speed}{minimum speed when i moving to the left to include data (positive value)}
 
@@ -60,43 +61,62 @@ get_turn_and_speed_influence_simplified(
 
 \item{verbose}{whether the print progress (if \code{T})}
 
-\item{centroid}{whether to use the group centroid (if \code{centroid = T}) instead of computing influence for each dyad (if \code{centroid = F})}
+\item{idx_breaks}{vector of indexes to breaks in the data (e.g. breaks between days)}
 
-\item{symmetrize_lr}{whether to symmetrize the thresholds for right and left movement + position (default \code{T})}
+\item{centroid}{whether to use the group centroid (if \code{centroid = T}) instead of computing influence for each dyad (if \code{centroid = F})}
 }
 \value{
 Returns an \verb{N x N} matrix of the turn influence of individual \code{i} (row) on individual \code{j} (column).
 }
 \description{
-Get the simplified turn influence between all pairs of individuals
-TODO: Update documentation to incorporate speed influence stuff
-\code{i} and \code{j}, or, if \code{centroid = T} for all indiividuals \code{i} on the group centroid.
-The \verb{simplified movement turn influence} of individual \code{i} on individual \code{j}
+Get the simplified turn and speed influence (movement and positional) between all pairs of individuals
+\code{i} and \code{j}, or, if \code{centroid = T} for all indiividuals \code{i} on the group centroid excluding \code{i}.
+}
+\details{
+The simplified movement turn influence of individual \code{i} on individual \code{j} (\code{turn_influence_movement[i,j]})
 is defined as the probability that \code{j} turns right in the future given that \code{i} moved
 right relative to \code{j}'s past heading at a speed above a threshold value
 \code{min_right_speed} or left relative to \code{j}'s past heading at a speed above a threshold
-value \code{min_left_speed}. This will be computed if \code{influence_type} is set to \code{'movement'}.
-The \verb{simplified positional turn influence} of individual \code{i} on individual \code{j}
+value \code{min_left_speed}.
+
+The simplified positional turn influence of individual \code{i} on individual \code{j} (\code{turn_influence_position[i,j]})
 is defined as the probability that \code{j} turns right in the future given that \code{i} was located
 at least \code{min_right_dist} meters right of individual \code{j} relative to \code{j}'s current position
 and heading or the probability that \code{j} turns left in the future given that \code{i} was located
 at least \code{min_left_dist} meters left of individual \code{j} relative to \code{j}'s current position
-and heading. This will be computed if \code{influence_type} is set to \code{position}.
-The parameters \code{min_right_dist} and \code{min_left_dist}, or \code{min_right_speed} and
-\code{min_left_speed} are either set manually or, if \code{min_percentile} is specified, based on percentiles
-of the left-right relative speed and front-back relatives speed distributions across all dyads
+and heading.
+
+The simplified movement speed influence of individual \code{i} on individual \code{j} (\code{speed_influence_movement[i,j]})
+is defined as the probability that \code{j} speeds up in the future along the vector defined by \code{j}'s heading in the past,
+given that \code{i} was moving at least a speed \code{min_faster_speed_diff} faster than \code{j} along \code{j}'s past heading direction, or
+slows down along the vector defined by \code{j}'s heading in the past given that \code{j} was moving at least a speed \code{min_slower_speed_diff}
+slower than \code{i} along the same vector in the past.
+
+The simplified positional speed influence of individual \code{i} on individual \code{j} (\code{speed_influence_position[i,j]})
+is defined as the probability that \code{j} speeds up in the future along the vector defined by \code{j}'s heading in the past
+given that \code{i} was in front of \code{j} by at least \code{min_front_pos} meters relative to \code{j}'s current position and past heading,
+or that \code{j} slows down in the future along the vector defined by \code{j}'s heading in the past given that \code{i} was
+behind \code{j} by at least \code{min_back_pos} relative to \code{j}'s current position and past heading.
+
+Future headings and speeds are computed either using a fixed temporal window \code{t_window} forward in time (if \code{heading_type = 'temporal'})
+or based on spatial discretization with a radius \code{spatial_R} (if \code{heading_type = 'spatial'}), i.e. defining the heading based on the
+when the focal individual has moved a distance \code{spatial_R} from its current location. Similarly, past headings and speeds
+are computed by looking backward in time either at a fixed temporal window (\code{t_window}) or based on a fixed displacement distance (\code{spatial_R}).
+
+The parameters specifying minimum speeds and distances left-right and front-back are either set manually (not recommended) or,
+if \code{min_percentile} is specified, based on percentiles of the relevant distributions of these variables across all dyads
 (or across all individuals relative to the group centroid, if \code{centroid = T}). The variable
 \code{min_percentile} overrides the manually set minimum speeds / distances.
-}
-\details{
 The minimum speeds (or distances) are computed as follows. First, split the distribution of relative left-right
-speeds (or distances) across all dyads into those greater than and those less than 0. Then, compute the quantile
-\code{min_percentile} for each distribution separately. Finally, set \code{min_left_speed} and \code{min_right_speed} at the computed
-values. If \code{symmetrize_lr = T}, take instead the mean absolute value of the quantiles for both distributions and use it
-for both thresholds (this will result in using the same relative speed when going right or left as a threshold - otherwise these could be different if \code{symmetrize = F})
+speeds (for example) across all dyads into those greater than and those less than 0. Take the absolute value of all speeds to
+define a positive speed for both directions. Next, compute the quantile \code{min_percentile} for each distribution (left and right) separately.
+Finally, set \code{min_left_speed} and \code{min_right_speed} at the computed
+values. If \code{symmetrize_lr = T} (recommended), take instead the mean value of the quantiles for both distributions and use it
+for both thresholds (this will result in using the same relative speed when going right or left as a threshold - otherwise these could be different if \code{symmetrize_lr = F})
+The same procedure is done for left-right positions, front-back relative speeds, and front-back positions, using the same value of \code{min_percentile}. In the case of
+speeds, no symmetrization is done because speed differences and front-back distances are not expected to be symmetrical.
 
-The same can be done for the relative left and right distance distributions to set
-\code{min_left_dist} and \code{min_right_dist} respectively, if \code{influence_type = 'position'}
+If \code{idx_breaks} is set, headings that go across breaks in the data as specified by this vector are not included in the computations.
 }
 \author{
 Ariana Strandburg-Peshkin
