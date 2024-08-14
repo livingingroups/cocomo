@@ -38,13 +38,13 @@ If you would like to contribute code to the library, please submit a pull reques
 
 ## Licensing
 
-This package is distributed under a GNU GPLv3 license. Basically, you can do almost anything you want with it, except distribute closed-source versions.
+This package is distributed under a GNU GPLv3 license. Basically, you can do almost anything you want with it, except distribute closed-source versions. See COPYING.txt for the full license.
 
 ## Attribution
 
 Please cite this package if you use it:
 
-`cite('cocomo`)
+`cite('cocomo')`
 
 ## Style guidelines
 

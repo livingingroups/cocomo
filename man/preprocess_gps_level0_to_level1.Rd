@@ -89,3 +89,8 @@ The function performs the following steps (in order):
 them with the mean location of the individual between start and end of the sequence
 }
 }
+\author{
+Ariana Strandburg-Peshkin (primary author)
+
+NOT YET CODE REVIEWED
+}

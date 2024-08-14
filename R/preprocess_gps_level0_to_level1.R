@@ -15,6 +15,9 @@
 #' 5.	If `interpolate_stationary_periods = T`, finds instances where an animal did not move more than `max_move_dist` (default 5 m) during an `NA` gap of `< max_move_time` (default 300 timesteps) and replaces
 #'		them with the mean location of the individual between start and end of the sequence
 #'
+#' @author Ariana Strandburg-Peshkin (primary author)
+#' @author NOT YET CODE REVIEWED
+#'
 #' @param input_file_path full path to the input file containing `xs`, `ys`, `timestamps`, and `ids` (overrides manual passing in of these parameters), must be an RData file
 #' @param output_file_path full path to the output file where the level 1 dataset will be stored, must end in .RData
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time (if an input file is not specified, pass this in manually)
