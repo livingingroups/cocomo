@@ -118,3 +118,9 @@ cocomo::generate_movement_and_calls_visualization(xs = xs, ys = ys, timestamps =
                                                   tail_time = 60, call_persist_time = 60,
                                                   scalebar_size = 10, scalebar_offset = 40)
 
+#plot y conditioned on x
+pol <- cocomo::get_group_polarization(xs, ys, heading_type = 'temporal', t_window = 10, min_inds_tracked = 3)
+head_speed <- cocomo::get_group_heading_and_speed(xs, ys, heading_type = 'temporal',t_window = 10 ,min_inds_tracked = 3)
+speed <- head_speed$speeds
+test <- cocomo::plot_y_conditioned_on_x(pol, speed)
+
