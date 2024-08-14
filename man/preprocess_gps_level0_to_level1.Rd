@@ -33,9 +33,9 @@ preprocess_gps_level0_to_level1(
 
 \item{output_file_path}{full path to the output file where the level 1 dataset will be stored, must end in .RData}
 
-\item{xs}{\verb{N x n_times} matrix giving x coordinates of each individual over time (if an input file is not specified, pass this in manually)}
+\item{xs}{\verb{n_inds x n_times} matrix giving x coordinates of each individual over time (if an input file is not specified, pass this in manually)}
 
-\item{ys}{\verb{N x n_times} matrix giving y coordinates of each individual over time (if an input file is not specified, pass this in manually)}
+\item{ys}{\verb{n_inds x n_times} matrix giving y coordinates of each individual over time (if an input file is not specified, pass this in manually)}
 
 \item{timestamps}{vector of timestamps (if an input file is not specified, pass this in manually)}
 

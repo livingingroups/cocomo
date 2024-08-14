@@ -48,9 +48,9 @@
 #'
 #' @param R_inner inner distance threshold to identify periods of connectedness (numeric)
 #' @param R_outer outer distance threshold to identify periods of connectedness (numeric)
-#' @param xs UTM eastings matrix (`n_ninds` x `n_times` matrix where xs[i,t] gives the easting of individual i at time step t)
-#' @param ys UTM northing matrix (`n_ninds` x `n_times` matrix where ys[i,t] gives the northing of individual i at time step t)
-#' @param ts vector of timestamps (POSIXct), must have same dimensions as columns of `xs` and `ys` matrices
+#' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs[i,t] gives the easting of individual i at time step t)
+#' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys[i,t] gives the northing of individual i at time step t)
+#' @param timestamps vector of timestamps (POSIXct), must have same dimensions as columns of `xs` and `ys` matrices
 #' @param breaks indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides `break_by_day`
 #' @param break_by_day whether to break up data by date (T or F)
 
@@ -125,7 +125,7 @@
 #' @importFrom lubridate date
 #' @importFrom dbscan dbscan
 #' @export
-identify_splits_and_merges <- function(R_inner, R_outer, xs = xs, ys = ys, ts = ts, breaks = c(1, length(ts)+1), names = NULL, break_by_day = F, verbose = T){
+identify_splits_and_merges <- function(R_inner, R_outer, xs = xs, ys = ys, timestamps = timestamps, breaks = c(1, length(timestamps)+1), names = NULL, break_by_day = F, verbose = T){
 
   #----Identify subgroups at each point
   if(verbose){print('Identifying subgroups at each point using sticky DBSCAN')}
@@ -135,9 +135,9 @@ identify_splits_and_merges <- function(R_inner, R_outer, xs = xs, ys = ys, ts = 
 
   #day start indexes
   if(break_by_day){
-    days <- date(ts)
+    days <- date(timestamps)
     day_start_idxs <- c(1, which(diff(days)==1)+1)
-    day_start_idxs <- c(day_start_idxs, length(ts)+1)
+    day_start_idxs <- c(day_start_idxs, length(timestamps)+1)
     if(!exists('breaks')){
       breaks <- day_start_idxs
     }

@@ -20,8 +20,8 @@
 #'
 #' @param input_file_path full path to the input file containing `xs`, `ys`, `timestamps`, and `ids` (overrides manual passing in of these parameters), must be an RData file
 #' @param output_file_path full path to the output file where the level 1 dataset will be stored, must end in .RData
-#' @param xs `N x n_times` matrix giving x coordinates of each individual over time (if an input file is not specified, pass this in manually)
-#' @param ys `N x n_times` matrix giving y coordinates of each individual over time (if an input file is not specified, pass this in manually)
+#' @param xs `n_inds x n_times` matrix giving x coordinates of each individual over time (if an input file is not specified, pass this in manually)
+#' @param ys `n_inds x n_times` matrix giving y coordinates of each individual over time (if an input file is not specified, pass this in manually)
 #' @param timestamps vector of timestamps (if an input file is not specified, pass this in manually)
 #' @param ids data frame containing information about each individual (if an input file is not specified, pass this in manually)
 #' @param breaks vector giving indexes to breaks in the data (e.g. gaps between recording intervals), if the sequence is not continuous. breaks should specify the index associated with the beginning of each interval, starting with 1 (the first interval)
@@ -186,11 +186,25 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
       #otherwise, leave it
       for(j in 1:length(extremes)){
         t_idx <- extremes[j]
+
+        #if prev_t or next_t are not available (usually because you've hit the end of the contiguous chunk, skip and don't make any changes)
+        if(length(which(non_nas < t_idx))==0){
+          next
+        }
+        if(length(which(non_nas > t_idx))==0){
+          next
+        }
+
         prev_t <- max(non_nas[which(non_nas < t_idx)])
         next_t <- min(non_nas[which(non_nas > t_idx)])
 
         dist_prev <- sqrt( (xs[i, prev_t] - xs[i, t_idx])^2 + (ys[i, prev_t] - ys[i, t_idx])^2 )
         dist_next <- sqrt( (xs[i, next_t] - xs[i, t_idx])^2 + (ys[i, next_t] - ys[i, t_idx])^2 )
+
+        #if the distance is not defined, skip and don't change anything
+        if(is.na(dist_prev) | is.na(dist_next)){
+          next
+        }
 
         if(dist_prev > max_isolated_point_dist & dist_next > max_isolated_point_dist){
           if(verbose)

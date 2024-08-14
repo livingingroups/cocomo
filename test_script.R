@@ -93,3 +93,28 @@ level_1_file <- '~/Desktop/test_hyena_level1.RData'
 level1out <- cocomo::preprocess_gps_level0_to_level1(input_file_path = level_0_file,
                                              output_file_path = level_1_file)
 
+load('~/Dropbox/meerkats/processed_data/RW2021_COORDINATES_all_sessions.RData')
+xs <- RW2021_allX
+ys <- RW2021_allY
+ids <- RW2021_indInfo
+timestamps <- RW2021_timeLine
+breaks <- RW2021_dayIdx
+breaks <- breaks[1:(length(breaks)-1)]
+level_1_file <- '~/Desktop/test_meerkat_level1.RData'
+level1out <- cocomo::preprocess_gps_level0_to_level1(xs = xs, ys = ys, timestamps = timestamps,
+                                                     ids = ids, breaks = breaks,
+                                                     output_file_path = level_1_file)
+
+#visualization test data
+start_time <- 5000
+end_time <- 6000
+time_step <- 5
+calls <- data.frame(ind_idx = c(rep(1,20), rep(2,20)),
+                    time_idx = round(seq(start_time, end_time, length.out = 40)),
+                    call_type = c(rep('cc',10), rep('sn',10),rep('al',10),rep('cc',10)))
+cocomo::generate_movement_and_calls_visualization(xs = xs, ys = ys, timestamps = timestamps,
+                                                  calls = calls, start_time = start_time,
+                                                  end_time = end_time, time_step = 1, output_dir = '~/Desktop',
+                                                  tail_time = 60, call_persist_time = 60,
+                                                  scalebar_size = 10, scalebar_offset = 40)
+

@@ -9,8 +9,8 @@ identify_splits_and_merges(
   R_outer,
   xs = xs,
   ys = ys,
-  ts = ts,
-  breaks = c(1, length(ts) + 1),
+  timestamps = timestamps,
+  breaks = c(1, length(timestamps) + 1),
   names = NULL,
   break_by_day = F,
   verbose = T
@@ -21,11 +21,11 @@ identify_splits_and_merges(
 
 \item{R_outer}{outer distance threshold to identify periods of connectedness (numeric)}
 
-\item{xs}{UTM eastings matrix (\code{n_ninds} x \code{n_times} matrix where xs\link{i,t} gives the easting of individual i at time step t)}
+\item{xs}{UTM eastings matrix (\code{n_inds} x \code{n_times} matrix where xs\link{i,t} gives the easting of individual i at time step t)}
 
-\item{ys}{UTM northing matrix (\code{n_ninds} x \code{n_times} matrix where ys\link{i,t} gives the northing of individual i at time step t)}
+\item{ys}{UTM northings matrix (\code{n_inds} x \code{n_times} matrix where ys\link{i,t} gives the northing of individual i at time step t)}
 
-\item{ts}{vector of timestamps (POSIXct), must have same dimensions as columns of \code{xs} and \code{ys} matrices}
+\item{timestamps}{vector of timestamps (POSIXct), must have same dimensions as columns of \code{xs} and \code{ys} matrices}
 
 \item{breaks}{indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides \code{break_by_day}}
 
