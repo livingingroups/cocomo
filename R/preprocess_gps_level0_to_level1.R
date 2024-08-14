@@ -21,6 +21,7 @@
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time (if an input file is not specified, pass this in manually)
 #' @param timestamps vector of timestamps (if an input file is not specified, pass this in manually)
 #' @param ids data frame containing information about each individual (if an input file is not specified, pass this in manually)
+#' @param breaks vector giving indexes to breaks in the data (e.g. gaps between recording intervals), if the sequence is not continuous. breaks should specify the index associated with the beginning of each interval, starting with 1 (the first interval)
 #' @param remove_unrealistic_speeds whether to remove unrealistic speeds (`T` or `F`)
 #' @param remove_unrealistic_locations whether to remove unrealistic locations (`T` or `F`)
 #' @param remove_isolated_points whether to remove isolated points (`T` or `F`)
@@ -40,12 +41,13 @@
 #'
 #' @export
 #'
-gps_preprocess_level0_to_level1 <- function(input_file_path = NULL,
+preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
                                             output_file_path = NULL,
                                             xs = NULL,
                                             ys = NULL,
                                             timestamps = NULL,
                                             ids = NULL,
+                                            breaks = NULL,
                                             remove_unrealistic_speeds = T,
                                             remove_isolated_points = T,
                                             remove_unrealistic_locations = T,
@@ -93,6 +95,20 @@ gps_preprocess_level0_to_level1 <- function(input_file_path = NULL,
     print(sum(is.na(xs))/length(xs))
   }
 
+  #if breaks is not present assume the data is all in one continuous chunk
+  if(is.null(breaks)){
+    breaks <- c(1)
+    include_breaks <- F
+  } else{
+    include_breaks <- T
+  }
+
+  #add an end point to breaks for later usage in the for loops below
+  breaks_with_end <- c(breaks, n_times + 1)
+
+  #get number of breaks, for later usage in the for loop below
+  n_breaks <- length(breaks)
+
   #1.----Remove unrealistic speeds----
 
   if(remove_unrealistic_speeds){
@@ -103,9 +119,17 @@ gps_preprocess_level0_to_level1 <- function(input_file_path = NULL,
 
     #Find extreme speeds and replace with NAs
     speeds <- matrix(NA,nrow=n_inds,ncol=n_times)
-    for(i in 1:n_inds){
-      speeds[i,seq(1,n_times-1)] <- sqrt(diff(xs[i,])^2 + diff(ys[i,])^2)
+    for(b in 1:n_breaks){
+
+      #get time indexes associated with each chunk
+      tidxs <- seq(breaks_with_end[b], breaks_with_end[b+1]-1, 1)
+
+      #for each individual get speed
+      for(i in 1:n_inds){
+        speeds[i,tidxs[1:(length(tidxs)-1)]] <- sqrt(diff(xs[i,tidxs])^2 + diff(ys[i,tidxs])^2)
+      }
     }
+
 
     #get maximum speed based on percentile unless it was specified
     if(is.null(max_speed)){
@@ -220,67 +244,72 @@ gps_preprocess_level0_to_level1 <- function(input_file_path = NULL,
 
     #Interpolate through seqs of NAs of length < max_interp_len
     for(i in 1:n_inds){
+      for(b in 1:n_breaks){
 
-      #data for a single individual
-      x <- xs[i,]
-      y <- ys[i,]
+        #get time indexes associated with each continuous chunk
+        tidxs <- seq(breaks_with_end[b]:(breaks_with_end[b+1]-1))
 
-      #vectors to hold interpolated data
-      x_interp <- x
-      y_interp <- y
+        #data for a single individual
+        x <- xs[i,tidxs]
+        y <- ys[i,tidxs]
 
-      #get runs of NAs
-      runs <- rle(is.na(x)) #get runs of NAs
-      vals <- runs$values
-      lens <- runs$lengths
-      idxs <- c(0,cumsum(runs$lengths))
+        #vectors to hold interpolated data
+        x_interp <- x
+        y_interp <- y
 
-      #for each run of NAs, fill in with linearly interp values if length is less than max_interp_len
-      for(j in 1:length(vals)){
-        if(vals[j]==TRUE){
-          first_idx <- idxs[j] + 1
-          last_idx <- idxs[j+1]
+        #get runs of NAs
+        runs <- rle(is.na(x)) #get runs of NAs
+        vals <- runs$values
+        lens <- runs$lengths
+        idxs <- c(0,cumsum(runs$lengths))
 
-          #If not too near the beginning or the end of the sequence...
-          if((first_idx > 1) & (last_idx < length(x))){
+        #for each run of NAs, fill in with linearly interp values if length is less than max_interp_len
+        for(j in 1:length(vals)){
+          if(vals[j]==TRUE){
+            first_idx <- idxs[j] + 1
+            last_idx <- idxs[j+1]
 
-            #Get values before and after NA sequence
-            prev_val_x <- x[first_idx-1]
-            next_val_x <- x[last_idx + 1]
-            prev_val_y <- y[first_idx-1]
-            next_val_y <- y[last_idx +1]
+            #If not too near the beginning or the end of the sequence...
+            if((first_idx > 1) & (last_idx < length(x))){
 
-            #Fill in with linear interpolation if the NA sequence is short (< max_interp_len)
-            if(lens[j] <= max_interp_len){
-              interp_vals_x <- seq(prev_val_x, next_val_x, length.out = lens[j] + 2)
-              interp_vals_y <- seq(prev_val_y, next_val_y, length.out = lens[j] + 2)
-              x_interp[seq(first_idx - 1, last_idx + 1)] <- interp_vals_x
-              y_interp[seq(first_idx - 1,last_idx + 1)] <- interp_vals_y
-            }
+              #Get values before and after NA sequence
+              prev_val_x <- x[first_idx-1]
+              next_val_x <- x[last_idx + 1]
+              prev_val_y <- y[first_idx-1]
+              next_val_y <- y[last_idx +1]
 
-            if(interpolate_stationary_periods){
+              #Fill in with linear interpolation if the NA sequence is short (< max_interp_len)
+              if(lens[j] <= max_interp_len){
+                interp_vals_x <- seq(prev_val_x, next_val_x, length.out = lens[j] + 2)
+                interp_vals_y <- seq(prev_val_y, next_val_y, length.out = lens[j] + 2)
+                x_interp[seq(first_idx - 1, last_idx + 1)] <- interp_vals_x
+                y_interp[seq(first_idx - 1,last_idx + 1)] <- interp_vals_y
+              }
 
-              #Otherwise...if less than 5 minutes gap...
-              if((lens[j] > max_interp_len) & (lens[j] < max_move_time)){
+              if(interpolate_stationary_periods){
 
-                #Fill in with mean value at start and end if they are close enough ( <= max_move_dist)
-                dist_moved <- sqrt((next_val_x - prev_val_x)^2 + (next_val_y - prev_val_y)^2)
-                time_elapsed <- last_idx - first_idx
-                if(dist_moved < max_move_dist){
-                  mean_x <- mean(c(next_val_x, prev_val_x))
-                  mean_y <- mean(c(next_val_y, prev_val_y))
-                  x_interp[seq(first_idx, last_idx)] <- mean_x
-                  y_interp[seq(first_idx, last_idx)] <- mean_y
+                #Otherwise...if less than 5 minutes gap...
+                if((lens[j] > max_interp_len) & (lens[j] < max_move_time)){
+
+                  #Fill in with mean value at start and end if they are close enough ( <= max_move_dist)
+                  dist_moved <- sqrt((next_val_x - prev_val_x)^2 + (next_val_y - prev_val_y)^2)
+                  time_elapsed <- last_idx - first_idx
+                  if(dist_moved < max_move_dist){
+                    mean_x <- mean(c(next_val_x, prev_val_x))
+                    mean_y <- mean(c(next_val_y, prev_val_y))
+                    x_interp[seq(first_idx, last_idx)] <- mean_x
+                    y_interp[seq(first_idx, last_idx)] <- mean_y
+                  }
                 }
               }
             }
           }
         }
+
+        xs[i,tidxs] <- x_interp
+        ys[i,tidxs] <- y_interp
+
       }
-
-      xs[i,] <- x_interp
-      ys[i,] <- y_interp
-
     }
 
     if(verbose){
@@ -290,13 +319,14 @@ gps_preprocess_level0_to_level1 <- function(input_file_path = NULL,
   }
 
   #save output
-  if(!is.null(output_file_path)){
-    if(!is.null(ids)){
-      save(file = output_file_path, list = c('xs','ys','timestamps','ids'))
-    } else{
-      save(file = output_file_path, list = c('xs','ys','timestamps'))
-    }
+  out_list <- c('xs','ys','timestamps')
+  if(!is.null(ids)){
+    out_list <- c(out_list, 'ids')
   }
+  if(include_breaks){
+    out_list <- c(out_list, 'breaks')
+  }
+  save(file = output_file_path, list = out_list)
 
   #return output
   out <- list()
@@ -305,6 +335,10 @@ gps_preprocess_level0_to_level1 <- function(input_file_path = NULL,
   out$timestamps <- timestamps
   if(!is.null(ids)){
     out$ids <- ids
+  }
+
+  if(include_breaks){
+    out$breaks <- breaks
   }
 
   return(out)
