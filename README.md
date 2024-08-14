@@ -11,6 +11,7 @@ This library contains functions used by the Communication and Collective Movemen
 You can install the package by first installing the `devtools` library, then running:
 
 `library(devtools)`
+
 `install_github('livingingroups/cocomo')`
 
 ## Dataset structure
@@ -29,7 +30,7 @@ ys[i,t] gives the y / northing position of individual i at time point t
 
 ## Code review
 
-Our eventual goal is to have all functions in the package code reviewed by at least one other person than the person who wrote the code. Code reviewers are credited in the function documentation under "Author(s)" (they are indicated as code reviewers). Functions that have not yet been code reviewed specify "NOT YET CODE REVIEWED" under "Author(s) in the documentation. At the time of writing, most functions have no yet been code reviewed. **If you would like to contribute to this package by code revieweing any of the functions, please contact Ari.**
+Our eventual goal is to have all functions in the package code reviewed by at least one other person than the person who wrote the code. Code reviewers are credited in the function documentation under "Author(s)" (they are indicated as code reviewers). Functions that have not yet been code reviewed specify "NOT YET CODE REVIEWED" under "Author(s)" in the documentation. At the time of writing, most functions have no yet been code reviewed. **If you would like to contribute to this package by code revieweing any of the functions, please contact Ari.**
 
 ## Contributing
 
@@ -37,7 +38,7 @@ If you would like to contribute code to the library, please submit a pull reques
 
 ## Licensing
 
-This package is distributed under a GNU GPLv3 license. Basically, you can do almost anything you want with it, except distributed closed-source versions.
+This package is distributed under a GNU GPLv3 license. Basically, you can do almost anything you want with it, except distribute closed-source versions.
 
 ## Attribution
 
