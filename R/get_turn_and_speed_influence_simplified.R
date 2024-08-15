@@ -149,7 +149,7 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type, centro
 
   #set idx_breaks, if not yet set
   if(is.null(breaks)){
-    breaks <- seq(1, n_times + 1)
+    breaks <- c(1, n_times + 1)
   }
 
   #add end point to breaks if needed
