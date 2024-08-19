@@ -25,6 +25,7 @@ preprocess_gps_level0_to_level1(
   max_interp_len = 5,
   max_move_dist = 5,
   max_move_time = 5,
+  bounding_box = NULL,
   verbose = T
 )
 }
@@ -69,6 +70,8 @@ preprocess_gps_level0_to_level1(
 
 \item{max_move_time}{maximum time of a gap to interpolate if stationary (in timesteps)}
 
+\item{bounding_box}{vector of length 4 giving a bounding box outside of which points will be removed - should be in the format \code{c(min_easting, max_easting, min_northing, max_northing)}}
+
 \item{verbose}{whether to print out progress and information}
 }
 \value{
@@ -84,6 +87,7 @@ The function performs the following steps (in order):
 \item If \code{remove_unrealistic_speeds = T}, removes unrealistic speeds (greater than \code{max_speed_percentile}) and replaces them with NAs (default .9995 quantile, or alternatively a max speed \code{max_speed} can be set manually.
 \item If \code{remove_isolated_points = T}, finds extreme distances \verb{> max_dist_percentile} quantile (default 99.99\%) or \verb{< 1 - max_dist_percentile} of \code{xs} or \code{ys} for each individual and, if there are no other points from that individual within \code{max_isolated_point_dist} (default 1000 m) of that point, replaces them with \code{NA}s
 \item If \code{remove_unrealistic_locations = T}, finds extreme xs and ys above \code{mean + sd * max_sd_away} (default 10) for each ind and removes those
+\item If \code{bounding_box != NULL}, removes all points outside of a specified \code{bounding_box = c(min_easting, max_easting, min_northing, max_northing)}
 \item If \code{interpolate_small_gaps = T}, fills in missing data gaps less than length \code{max_interp_len} with linear interpolation (default 5)
 \item If \code{interpolate_stationary_periods = T}, finds instances where an animal did not move more than \code{max_move_dist} (default 5 m) during an \code{NA} gap of \verb{< max_move_time} (default 300 timesteps) and replaces
 them with the mean location of the individual between start and end of the sequence

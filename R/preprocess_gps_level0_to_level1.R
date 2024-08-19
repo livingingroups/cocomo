@@ -10,9 +10,11 @@
 #'
 #' 3. If `remove_unrealistic_locations = T`, finds extreme xs and ys above `mean + sd * max_sd_away` (default 10) for each ind and removes those
 #'
-#' 4. If `interpolate_small_gaps = T`, fills in missing data gaps less than length `max_interp_len` with linear interpolation (default 5)
+#' 4. If `bounding_box != NULL`, removes all points outside of a specified `bounding_box = c(min_easting, max_easting, min_northing, max_northing)`
 #'
-#' 5.	If `interpolate_stationary_periods = T`, finds instances where an animal did not move more than `max_move_dist` (default 5 m) during an `NA` gap of `< max_move_time` (default 300 timesteps) and replaces
+#' 5. If `interpolate_small_gaps = T`, fills in missing data gaps less than length `max_interp_len` with linear interpolation (default 5)
+#'
+#' 6.	If `interpolate_stationary_periods = T`, finds instances where an animal did not move more than `max_move_dist` (default 5 m) during an `NA` gap of `< max_move_time` (default 300 timesteps) and replaces
 #'		them with the mean location of the individual between start and end of the sequence
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
@@ -38,6 +40,7 @@
 #' @param max_interp_len maximum length of an `NA` gap to linearly interpolate (number of time points)
 #' @param max_move_dist maximum distance moved during a time `max_move_time` to interpolate using the average position
 #' @param max_move_time maximum time of a gap to interpolate if stationary (in timesteps)
+#' @param bounding_box vector of length 4 giving a bounding box outside of which points will be removed - should be in the format `c(min_easting, max_easting, min_northing, max_northing)`
 #' @param verbose whether to print out progress and information
 #'
 #' @returns Returns a list containing new `xs` and `ys` matrices, and also saves them plus the `timestamps` and `ids` objects to an output file if specified
@@ -64,6 +67,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
                                             max_interp_len = 5,
                                             max_move_dist = 5,
                                             max_move_time = 5,
+                                            bounding_box = NULL,
                                             verbose = T){
   #Load level 0 gps data
   if(!is.null(input_file_path)){
@@ -251,7 +255,34 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     }
   }
 
-  #4./5.-----Interpolate small gaps and stationary periods-----
+  #4.--------Remove points outside of a specified bounding box, if a bounding box is entered---
+  if(!is.null(bounding_box)){
+
+    if(verbose){
+      print('removing points outside of bounding box')
+    }
+
+    if(length(bounding_box) != 4){
+      stop('bounding_box vector must be of length 4')
+    }
+
+    if(bounding_box[2] < bounding_box[1] | bounding_box[3] < bounding_box[4]){
+      stop('bounding box order seems to be wrong - should be in order: min_easting, max_easting, min_northing, max_northing')
+    }
+
+    #find points outside of the bounding box
+    idxs_outside_box <- which((xs < bounding_box[1]) | (xs > bounding_box[2]) | (ys < bounding_box[3]) | (ys > bounding_box[4]))
+
+    #remove the points outside of the bounding box (replace with NAs)
+    if(length(idxs_outside_box) > 0){
+      xs[idxs_outside_box] <- NA
+      ys[idxs_outside_box] <- NA
+    }
+
+  }
+
+
+  #5./6.-----Interpolate small gaps and stationary periods-----
 
   if(interpolate_small_gaps){
 
