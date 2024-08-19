@@ -124,3 +124,19 @@ head_speed <- cocomo::get_group_heading_and_speed(xs, ys, heading_type = 'tempor
 speed <- head_speed$speeds
 test <- cocomo::plot_y_conditioned_on_x(pol, speed)
 
+#hyena influence matrices
+load('~/EAS_shared/hyena/working/processed/cc23/hyena_south2023_xy_level0_30s.RData')
+load('~/EAS_shared/hyena/working/processed/cc23/hyena_ids.RData')
+
+hyena_ids$color <- '#FF0000'
+hyena_ids$color[which(hyena_ids$sex == 'm' & hyena_ids$status == 'i')] <- '#0000FF'
+hyena_ids$color[which(hyena_ids$sex == 'm' & hyena_ids$status == 'r')] <- '#AAAAFF'
+#hyena_influence <- cocomo::get_turn_and_speed_influence_simplified(xs, ys, heading_type = 'spatial', centroid = F, spatial_R = 10, seconds_per_time_step = 30, max_distance = 300)
+pdf(file = '~/EAS_shared/hyena/working/analysis/hyena_influence_test.pdf', width = 10, height = 10)
+par(mfrow=c(2,2))
+zlim <- c(0.15,0.85)
+cocomo::plot_network_matrix(mat = hyena_influence$turn_influence_movement[-c(8, 12, 19), -c(8, 12, 19)], ind_names = hyena_ids$id[-c(8, 12, 19)], ind_cols = hyena_ids$color[-c(8, 12, 19)], main = 'Movement turn influence', zlim = zlim)
+cocomo::plot_network_matrix(mat = hyena_influence$turn_influence_position[-c(8, 12, 19), -c(8, 12, 19)], ind_names = hyena_ids$id[-c(8, 12, 19)], ind_cols = hyena_ids$color[-c(8, 12, 19)], main = 'Position turn influence', zlim = zlim)
+cocomo::plot_network_matrix(mat = hyena_influence$speed_influence_movement[-c(8, 12, 19), -c(8, 12, 19)], ind_names = hyena_ids$id[-c(8, 12, 19)], ind_cols = hyena_ids$color[-c(8, 12, 19)], main = 'Movement speed influence', zlim = zlim)
+cocomo::plot_network_matrix(mat = hyena_influence$speed_influence_position[-c(8, 12, 19), -c(8, 12, 19)], ind_names = hyena_ids$id[-c(8, 12, 19)], ind_cols = hyena_ids$color[-c(8, 12, 19)], main = 'Position speed influence', zlim = zlim)
+dev.off()

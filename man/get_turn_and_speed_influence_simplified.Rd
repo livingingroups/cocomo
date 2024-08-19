@@ -166,7 +166,7 @@ values represent the speeds / positions of individuals relative to the centroid 
 }
 
 \author{
-Ariana Strandburg-Peshkin
+Ariana Strandburg-Peshkin (primary author)
 
-NOT YET CODE REVIEWED
+Jack Winans (code reviewer, 15 August 2024)
 }
