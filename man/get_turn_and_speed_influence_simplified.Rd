@@ -15,6 +15,7 @@ get_turn_and_speed_influence_simplified(
   min_percentile = 0.5,
   seconds_per_time_step = 1,
   symmetrize_lr = T,
+  max_distance = NULL,
   min_left_speed = NULL,
   min_right_speed = NULL,
   min_left_pos = NULL,
@@ -47,6 +48,8 @@ get_turn_and_speed_influence_simplified(
 \item{seconds_per_time_step}{number of seconds corresponding to each time step}
 
 \item{symmetrize_lr}{whether to symmetrize the thresholds for right and left movement + position (default \code{T})}
+
+\item{max_distance}{optional maximum distance between a pair of individuals, or between an individual and the centroid, to include a given time point in the influence calculations}
 
 \item{min_left_speed}{minimum speed when i moving to the left to include data (positive value)}
 

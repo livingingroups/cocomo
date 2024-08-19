@@ -48,8 +48,8 @@
 #'
 #' If `breaks` is set, headings that go across breaks in the data as specified by this vector are not included in the computations.
 #'
-#' @author Ariana Strandburg-Peshkin
-#' @author NOT YET CODE REVIEWED
+#' @author Ariana Strandburg-Peshkin (primary author)
+#' @author Jack Winans (code reviewer, 15 August 2024)
 #'
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time
@@ -61,6 +61,7 @@
 #' @param centroid whether to use the group centroid (if `centroid = T`) instead of computing influence for each dyad (if `centroid = F`)
 #' @param seconds_per_time_step number of seconds corresponding to each time step
 #' @param symmetrize_lr whether to symmetrize the thresholds for right and left movement + position (default `T`)
+#' @param max_distance optional maximum distance between a pair of individuals, or between an individual and the centroid, to include a given time point in the influence calculations
 #' @param min_left_speed minimum speed when i moving to the left to include data (positive value)
 #' @param min_right_speed minimum speed when i moving to the right to include data (positive value)
 #' @param min_left_pos minimum distance of i to the left of j to include data (positive value)
@@ -118,6 +119,7 @@
 get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type, centroid = F,
                                                     breaks = NULL, spatial_R = NULL, t_window = NULL,
                                                     min_percentile = 0.5, seconds_per_time_step = 1, symmetrize_lr = T,
+                                                    max_distance = NULL,
                                                     min_left_speed = NULL, min_right_speed = NULL,
                                                     min_left_pos = NULL, min_right_pos = NULL,
                                                     min_faster_speed_diff = NULL, min_slower_speed_diff = NULL,
@@ -308,7 +310,7 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type, centro
         y_j <- ys[j,]
       }
 
-      #in the non-centroid case, get info for i and the centroid (call the centroid j in this case, for consistency with the dyadic version)
+      #in the centroid case, get info for i and the centroid (call the centroid j in this case, for consistency with the dyadic version)
       if(centroid){
 
         #only need to do this once per individual i, so skip j > 1
@@ -363,6 +365,63 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type, centro
       lr_pos[i,j,] <- -dy_ji_rot #need to take the negative so that right = positive values
       fb_pos[i,j,] <- dx_ji_rot #front-back distance in reference frame defined by j's position and heading
 
+    }
+
+  }
+
+  #---Filter out time points where the dyad distance or distance to centroid are greater than max_distance
+  if(!is.null(max_distance)){
+
+    #centroid case
+    if(centroid){
+
+      #for each individual i
+      #get group centroid location excluding each individual i
+      #then get distance from this centroid to i
+      #filter out elements of lr_speed, lr_pos, fb_speed_diff, fb_pos correpsonding to distances that are too far (> max_distance) by setting them as NAs
+      dist_centr_i <- matrix(n_inds, n_times)
+      for(i in 1:n_inds){
+
+        #centroid location
+        centr_x_without_i <- colMeans(xs[-i,], na.rm=T)
+        centr_y_without_i <- colMeans(ys[-i,], na.rm=T)
+
+        #distance of i to the centroid
+        dist_centr_i[i,] <- sqrt((xs[i,] - centr_x_without_i)^2 + (ys[i,] - centr_y_without_i)^2)
+
+        #time points where i is too far away from the centroid
+        too_far_idxs <- which(dist_centr_i[i,] > max_distance)
+
+        #replace corresponding matrix elements with NAs
+        if(length(too_far_idxs)>0){
+          lr_speed[i,1,too_far_idxs] <- NA
+          lr_pos[i,1,too_far_idxs] <- NA
+          fb_speed_diff[i,1,too_far_idxs] <- NA
+          fb_pos[i,1,too_far_idxs] <- NA
+        }
+      }
+
+    }
+
+    if(!centroid){
+
+      #get dyadic distances
+      dyad_dists <- cocomo::get_group_dyadic_distances(xs, ys)
+
+      #filter out elements of matrices where dyadic distances are too high
+      for(i in 1:n_inds){
+        for(j in 1:n_inds){
+          if(i != j){
+            too_far_idxs <- which(dyad_dists[i,j,] > max_distance)
+            if(length(too_far_idxs)>0){
+              lr_speed[i,j,too_far_idxs] <- NA
+              lr_pos[i,j,too_far_idxs] <- NA
+              fb_speed_diff[i,j,too_far_idxs] <- NA
+              fb_pos[i,j,too_far_idxs] <- NA
+            }
+          }
+        }
+      }
     }
 
   }
