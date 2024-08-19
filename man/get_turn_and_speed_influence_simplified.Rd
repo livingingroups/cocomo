@@ -16,6 +16,7 @@ get_turn_and_speed_influence_simplified(
   seconds_per_time_step = 1,
   symmetrize_lr = T,
   max_distance = NULL,
+  min_past_speed = NULL,
   min_left_speed = NULL,
   min_right_speed = NULL,
   min_left_pos = NULL,
@@ -51,6 +52,8 @@ get_turn_and_speed_influence_simplified(
 
 \item{max_distance}{optional maximum distance between a pair of individuals, or between an individual and the centroid, to include a given time point in the influence calculations}
 
+\item{min_past_speed}{optional minimum previous speed of either the group centroid (if \code{centroid = T}) or the 'follower' (if \code{centroid = F}) to include data in the computation - can be used to subset to only times when the individual or group are already moving}
+
 \item{min_left_speed}{minimum speed when i moving to the left to include data (positive value)}
 
 \item{min_right_speed}{minimum speed when i moving to the right to include data (positive value)}
@@ -77,7 +80,7 @@ See "Additional information about returned objects" section below for a list of 
 }
 \description{
 Get the simplified turn and speed influence (movement and positional) between all pairs of individuals
-\code{i} and \code{j}, or, if \code{centroid = T} for all indiividuals \code{i} on the group centroid excluding \code{i}.
+\code{i} and \code{j}, or, if \code{centroid = T} for all individuals \code{i} on the group centroid excluding \code{i}.
 }
 \details{
 The simplified movement turn influence of individual \code{i} on individual \code{j} (\code{turn_influence_movement[i,j]})
@@ -124,6 +127,12 @@ The same procedure is done for left-right positions, front-back relative speeds,
 speeds, no symmetrization is done because speed differences and front-back distances are not expected to be symmetrical.
 
 If \code{breaks} is set, headings that go across breaks in the data as specified by this vector are not included in the computations.
+
+If \code{max_distance} is set, only compute the scores based on times when the distance between a given pair of individuals (or between)
+an individual and the group centroid) is less than \code{max_distance}. By default \code{max_distance = NULL} and this filtering will not be done.
+
+If \code{min_past_speed} is set, only compute the scores based on times when the follower individual (or the centroid, if \code{centroid = T})
+was initially moving at a minimum past speed. By default, \code{min_past_speed = NULL} and this filtering will not be done.
 }
 \section{Additional information about returned objects}{
 

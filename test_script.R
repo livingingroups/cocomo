@@ -131,7 +131,7 @@ load('~/EAS_shared/hyena/working/processed/cc23/hyena_ids.RData')
 hyena_ids$color <- '#FF0000'
 hyena_ids$color[which(hyena_ids$sex == 'm' & hyena_ids$status == 'i')] <- '#0000FF'
 hyena_ids$color[which(hyena_ids$sex == 'm' & hyena_ids$status == 'r')] <- '#AAAAFF'
-#hyena_influence <- cocomo::get_turn_and_speed_influence_simplified(xs, ys, heading_type = 'spatial', centroid = F, spatial_R = 10, seconds_per_time_step = 30, max_distance = 300)
+hyena_influence <- cocomo::get_turn_and_speed_influence_simplified(xs, ys, heading_type = 'spatial', centroid = F, spatial_R = 10, seconds_per_time_step = 30, max_distance = 300, min_past_speed = 1)
 pdf(file = '~/EAS_shared/hyena/working/analysis/hyena_influence_test.pdf', width = 10, height = 10)
 par(mfrow=c(2,2))
 zlim <- c(0.15,0.85)

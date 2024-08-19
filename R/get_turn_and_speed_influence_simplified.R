@@ -1,7 +1,7 @@
 #' Get simplified turn and speed influence
 #'
 #' Get the simplified turn and speed influence (movement and positional) between all pairs of individuals
-#' `i` and `j`, or, if `centroid = T` for all indiividuals `i` on the group centroid excluding `i`.
+#' `i` and `j`, or, if `centroid = T` for all individuals `i` on the group centroid excluding `i`.
 #'
 #' The simplified movement turn influence of individual `i` on individual `j` (`turn_influence_movement[i,j]`)
 #' is defined as the probability that `j` turns right in the future given that `i` moved
@@ -48,6 +48,12 @@
 #'
 #' If `breaks` is set, headings that go across breaks in the data as specified by this vector are not included in the computations.
 #'
+#' If `max_distance` is set, only compute the scores based on times when the distance between a given pair of individuals (or between)
+#' an individual and the group centroid) is less than `max_distance`. By default `max_distance = NULL` and this filtering will not be done.
+#'
+#' If `min_past_speed` is set, only compute the scores based on times when the follower individual (or the centroid, if `centroid = T`)
+#' was initially moving at a minimum past speed. By default, `min_past_speed = NULL` and this filtering will not be done.
+#'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author Jack Winans (code reviewer, 15 August 2024)
 #'
@@ -62,6 +68,7 @@
 #' @param seconds_per_time_step number of seconds corresponding to each time step
 #' @param symmetrize_lr whether to symmetrize the thresholds for right and left movement + position (default `T`)
 #' @param max_distance optional maximum distance between a pair of individuals, or between an individual and the centroid, to include a given time point in the influence calculations
+#' @param min_past_speed optional minimum previous speed of either the group centroid (if `centroid = T`) or the 'follower' (if `centroid = F`) to include data in the computation - can be used to subset to only times when the individual or group are already moving
 #' @param min_left_speed minimum speed when i moving to the left to include data (positive value)
 #' @param min_right_speed minimum speed when i moving to the right to include data (positive value)
 #' @param min_left_pos minimum distance of i to the left of j to include data (positive value)
@@ -119,7 +126,7 @@
 get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type, centroid = F,
                                                     breaks = NULL, spatial_R = NULL, t_window = NULL,
                                                     min_percentile = 0.5, seconds_per_time_step = 1, symmetrize_lr = T,
-                                                    max_distance = NULL,
+                                                    max_distance = NULL, min_past_speed = NULL,
                                                     min_left_speed = NULL, min_right_speed = NULL,
                                                     min_left_pos = NULL, min_right_pos = NULL,
                                                     min_faster_speed_diff = NULL, min_slower_speed_diff = NULL,
@@ -274,6 +281,7 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type, centro
     turn_angles_i[idxs_over_pi] <- turn_angles_i[idxs_over_pi] - 2*pi
     turn_angles_i[idxs_below_neg_pi] <- turn_angles_i[idxs_below_neg_pi] + 2*pi
     turn_angle[i,] <- turn_angles_i
+
   }
 
   #i is the leader and j is the follower
@@ -426,8 +434,59 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type, centro
 
   }
 
+  #-----If there is a min_past_speed, replace everything below that speed with NAs in the matrices
+  if(!is.null(min_past_speed)){
 
-  #----Minimum thresholds
+    #if centroid = T, we use the past speed of the centroid (excluding individual i) for each i
+    #we filter out all entries in matrices where the centroid speed was lower than a threshold
+    #because we only computed one value for each individual at each time point, use only column = 1 in the matrices
+    if(centroid){
+
+      for(i in 1:n_inds){
+
+        #get centroid speeds (excluding individual i)
+        speeds_centr_past <- centr_heads_speeds_past[[i]]$speeds
+
+        #get indexes where centroid past speed was too slow
+        idxs_too_slow <- which(speeds_centr_past < min_past_speed)
+
+        #replace with NAs in the relevant matrices
+        if(length(idxs_too_slow)>0){
+          lr_speed[i,1,idxs_too_slow] <- NA
+          lr_pos[i,1,idxs_too_slow] <- NA
+          fb_speed_diff[i,1,idxs_too_slow] <- NA
+          fb_pos[i,1,idxs_too_slow] <- NA
+        }
+      }
+    }
+
+    #if centroid = F, we use the past speed of individual j (the follower) for each j
+    #we filter out all entries in matrices where j's speed was lower than a threshold
+    if(!centroid){
+
+      #loop over all followers
+      for(j in 1:n_inds){
+
+        #get past speed of the follower
+        speeds_j_past <- heads_speeds_past[[j]]$speeds
+
+        #get indexes to time points when the follower's past speed was too slow
+        idxs_too_slow <- which(speeds_j_past < min_past_speed)
+
+        #replace too slow speeds with NAs in the relevant matrices
+        #all rows will be replaced with NAs at these time points because the leader's movement is irrelevant here (we are only filtering based on the follower's past speed)
+        if(length(idxs_too_slow)){
+          lr_speed[,j,idxs_too_slow] <- NA
+          lr_pos[,j,idxs_too_slow] <- NA
+          fb_speed_diff[,j,idxs_too_slow] <- NA
+          fb_pos[,j,idxs_too_slow] <- NA
+        }
+      }
+    }
+  }
+
+
+  #----Minimum thresholds on lr speed, lr position, fb speed diff, fb position
 
   if(verbose){print('getting thresholds from percentiles (if min_percentile=T)')}
 
@@ -530,6 +589,8 @@ get_turn_and_speed_influence_simplified <- function(xs, ys, heading_type, centro
   out$params$t_window <- t_window
   out$params$centroid <- centroid
   out$params$min_percentile <- min_percentile
+  out$params$max_distance <- max_distance
+  out$params$min_past_speed <- min_past_speed
 
   out$turn_influence_movement <- turn_influence_movement
   out$turn_influence_position <- turn_influence_position
