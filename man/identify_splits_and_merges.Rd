@@ -5,11 +5,11 @@
 \title{Identify group splits and merges from multi-individual trajectory data}
 \usage{
 identify_splits_and_merges(
+  xs,
+  ys,
+  timestamps,
   R_inner,
   R_outer,
-  xs = xs,
-  ys = ys,
-  timestamps = timestamps,
   breaks = c(1, length(timestamps) + 1),
   names = NULL,
   break_by_day = F,
@@ -17,15 +17,15 @@ identify_splits_and_merges(
 )
 }
 \arguments{
-\item{R_inner}{inner distance threshold to identify periods of connectedness (numeric)}
-
-\item{R_outer}{outer distance threshold to identify periods of connectedness (numeric)}
-
 \item{xs}{UTM eastings matrix (\code{n_inds} x \code{n_times} matrix where xs\link{i,t} gives the easting of individual i at time step t)}
 
 \item{ys}{UTM northings matrix (\code{n_inds} x \code{n_times} matrix where ys\link{i,t} gives the northing of individual i at time step t)}
 
 \item{timestamps}{vector of timestamps (POSIXct), must have same dimensions as columns of \code{xs} and \code{ys} matrices}
+
+\item{R_inner}{inner distance threshold to identify periods of connectedness (numeric)}
+
+\item{R_outer}{outer distance threshold to identify periods of connectedness (numeric)}
 
 \item{breaks}{indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides \code{break_by_day}}
 
@@ -111,7 +111,7 @@ See list of outputs for more details.
 
 \code{events_detected$big_group}: names of all the individuals involved in the event
 
-\code{events_detected$group_A_idxs}, $group_B_idxs, $group_C_idxs, etc.: individual idxs of subgroup members
+\code{events_detected$group_A_idxs}, \verb{$group_B_idxs}, \verb{$group_C_idxs}, etc.: individual idxs of subgroup members
 
 \code{events_detected$group_A}, \verb{$group_B}, \verb{$group_C}, etc.: names of subgroup members
 

@@ -140,3 +140,13 @@ cocomo::plot_network_matrix(mat = hyena_influence$turn_influence_position[-c(8, 
 cocomo::plot_network_matrix(mat = hyena_influence$speed_influence_movement[-c(8, 12, 19), -c(8, 12, 19)], ind_names = hyena_ids$id[-c(8, 12, 19)], ind_cols = hyena_ids$color[-c(8, 12, 19)], main = 'Movement speed influence', zlim = zlim)
 cocomo::plot_network_matrix(mat = hyena_influence$speed_influence_position[-c(8, 12, 19), -c(8, 12, 19)], ind_names = hyena_ids$id[-c(8, 12, 19)], ind_cols = hyena_ids$color[-c(8, 12, 19)], main = 'Position speed influence', zlim = zlim)
 dev.off()
+
+#analyze split/merge
+load('~/Dropbox/coati/processed/galaxy/galaxy_xy_highres_level1.RData')
+load('~/Dropbox/coati/processed/galaxy/galaxy_coati_ids.RData')
+timestamps <- ts
+rm(ts)
+breaks <- c(1, which(diff(timestamps) > 1) + 1)
+out <- cocomo::identify_splits_and_merges(xs = xs, ys = ys, timestamps = ts, R_inner = 15, R_outer = 30, breaks = breaks, names = coati_ids$name)
+events <- out$events_detected
+out_analyze <- cocomo::analyze_split_or_merge_event(i = 20, events = events, xs = xs, ys = ys, timestamps = timestamps, max_time = 600, thresh_h = 50, thresh_l = 15)

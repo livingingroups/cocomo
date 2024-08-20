@@ -46,11 +46,11 @@
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author Eli Strauss (code reviewer, May 2024)
 #'
-#' @param R_inner inner distance threshold to identify periods of connectedness (numeric)
-#' @param R_outer outer distance threshold to identify periods of connectedness (numeric)
 #' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs[i,t] gives the easting of individual i at time step t)
 #' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys[i,t] gives the northing of individual i at time step t)
 #' @param timestamps vector of timestamps (POSIXct), must have same dimensions as columns of `xs` and `ys` matrices
+#' @param R_inner inner distance threshold to identify periods of connectedness (numeric)
+#' @param R_outer outer distance threshold to identify periods of connectedness (numeric)
 #' @param breaks indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides `break_by_day`
 #' @param break_by_day whether to break up data by date (T or F)
 
@@ -88,7 +88,7 @@
 #'
 #'`events_detected$big_group`: names of all the individuals involved in the event
 #'
-#'`events_detected$group_A_idxs`, $group_B_idxs, $group_C_idxs, etc.: individual idxs of subgroup members
+#'`events_detected$group_A_idxs`, `$group_B_idxs`, `$group_C_idxs`, etc.: individual idxs of subgroup members
 #'
 #'`events_detected$group_A`, `$group_B`, `$group_C`, etc.: names of subgroup members
 #'
@@ -125,7 +125,7 @@
 #' @importFrom lubridate date
 #' @importFrom dbscan dbscan
 #' @export
-identify_splits_and_merges <- function(R_inner, R_outer, xs = xs, ys = ys, timestamps = timestamps, breaks = c(1, length(timestamps)+1), names = NULL, break_by_day = F, verbose = T){
+identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer, breaks = c(1, length(timestamps)+1), names = NULL, break_by_day = F, verbose = T){
 
   #----Identify subgroups at each point
   if(verbose){print('Identifying subgroups at each point using sticky DBSCAN')}
