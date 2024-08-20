@@ -226,7 +226,7 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
         upper <- thresh_h
       }
     }
-    if(sum(!is.na(dyad_dist_event[middle_idxs]))){
+    if(sum(!is.na(dyad_dist_event[middle_idxs]))>1){
       if(min(dyad_dist_event[middle_idxs],na.rm=T) > thresh_l){
         lower <- min(dyad_dist_event[middle_idxs],na.rm=T) + .001
       } else{
@@ -276,11 +276,11 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
 
   #find sequences that go 0-1-2 (low-middle-high) for a fission)
   if(event_type=='fission'){
-    event_loc <- as.data.frame(str_locate_all(seqs_str,'012')[[1]])
+    event_loc <- as.data.frame(stringr::str_locate_all(seqs_str,'012')[[1]])
   }
   #find sequences that go 2-1-0 (high-middle-lower) for a fusion)
   if(event_type == 'fusion'){
-    event_loc <- as.data.frame(str_locate_all(seqs_str,'210')[[1]])
+    event_loc <- as.data.frame(stringr::str_locate_all(seqs_str,'210')[[1]])
   }
 
   #for seuqneces of h-m-l or l-m-h (for fission and fusion respectively), get the time index when they start and end
@@ -315,7 +315,7 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
   #if the start time is on a different date from the end time, make both NA
   #TODO: fix this so it uses breaks instead of days
   if(!is.na(start_time) & !is.na(end_time)){
-    if(date(timestamps[start_time])!= date(timestamps[end_time])){
+    if(lubridate::date(timestamps[start_time])!= lubridate::date(timestamps[end_time])){
       start_time <- NA
       end_time <- NA
     }
@@ -337,6 +337,8 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
     max_after_time <- end_time + time_window
 
     thresh_m <- (thresh_h + thresh_l)/2 #middle threshold is average of upper and lower
+
+    #TODO: consider modifying thresh_m if upper or lower get modified, otherwise might get before and after time really close to start / end time
 
     #go backward in time until the two groups cross thresh_m or until the time window has elapsed
     for(t in seq(start_time, min_before_time, -1)){
@@ -500,8 +502,8 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
     abline(h = thresh_l, col = 'magenta')
     abline(v=out$start_time, col = 'green')
     abline(v=out$end_time, col = 'red')
-    abline(v=out$before_time, col = '#00FF0033')
-    abline(v=out$after_time, col = '#FF000033')
+    abline(v=out$before_time, col = '#004400')
+    abline(v=out$after_time, col = '#440000')
 
     xmin <- min(min(xA[,ti:tf],na.rm=T),min(xB[,ti:tf],na.rm=T))
     xmax <- max(max(xA[,ti:tf],na.rm=T),max(xB[,ti:tf],na.rm=T))
