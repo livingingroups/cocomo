@@ -41,9 +41,13 @@
 #' The before time is defined as the time point `tidx - time_window` (default
 #' `time_window = 300` sec), unless the two groups are not sufficiently together (for
 #' a fission) or apart (for a fusion) at that time. If the latter, the `before_time`
-#' is identified as the point just before the two subgroups cross a threshold midway
-#' between `thresh_l` and `thresh_h` (i.e. at `(thresh_l + thresh_h) / 2`). The logic here
-#' is that, for a fusion we are looking for what the full group (combination of the
+#' is identified as the point just before the two subgroups cross a threshold `thresh_m` midway
+#' between the upper and lower thresholds used to define the start and end times
+#' (i.e. usually at `(thresh_l + thresh_h) / 2`, though if the upper or lower
+#' thresholds get modified due to *subtlety 1* below, this will also modify `thresh_m`
+#' accordingly).
+#'
+#' The logic here is that, for a fusion we are looking for what the full group (combination of the
 #' two eventual subgroups) was doing before they began to split. However, we do not
 #' want this point to fall during a prior fusion event, so we require the centroids
 #' of the two subgroups to be less than `(thresh_l + thresh_h) / 2` distance apart.
@@ -336,9 +340,7 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
     #by default, the after_time is time_window steps after the end_time
     max_after_time <- end_time + time_window
 
-    thresh_m <- (thresh_h + thresh_l)/2 #middle threshold is average of upper and lower
-
-    #TODO: consider modifying thresh_m if upper or lower get modified, otherwise might get before and after time really close to start / end time
+    thresh_m <- (upper + lower)/2 #middle threshold is average of upper and lower (modified from earlier, used to be average of original thresh_l and thresh_h)
 
     #go backward in time until the two groups cross thresh_m or until the time window has elapsed
     for(t in seq(start_time, min_before_time, -1)){
