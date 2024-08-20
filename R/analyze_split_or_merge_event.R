@@ -502,6 +502,7 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
     abline(v=t_event,col='black', lty = 2)
     abline(h = thresh_h, col = 'darkorange1')
     abline(h = thresh_l, col = 'magenta')
+    abline(h = thresh_m, col = '#AAAAAA')
     abline(v=out$start_time, col = 'green')
     abline(v=out$end_time, col = 'red')
     abline(v=out$before_time, col = '#004400')
