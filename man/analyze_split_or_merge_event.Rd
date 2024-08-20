@@ -105,9 +105,13 @@ subtlety 1 below).
 The before time is defined as the time point \code{tidx - time_window} (default
 \code{time_window = 300} sec), unless the two groups are not sufficiently together (for
 a fission) or apart (for a fusion) at that time. If the latter, the \code{before_time}
-is identified as the point just before the two subgroups cross a threshold midway
-between \code{thresh_l} and \code{thresh_h} (i.e. at \code{(thresh_l + thresh_h) / 2}). The logic here
-is that, for a fusion we are looking for what the full group (combination of the
+is identified as the point just before the two subgroups cross a threshold \code{thresh_m} midway
+between the upper and lower thresholds used to define the start and end times
+(i.e. usually at \code{(thresh_l + thresh_h) / 2}, though if the upper or lower
+thresholds get modified due to \emph{subtlety 1} below, this will also modify \code{thresh_m}
+accordingly).
+
+The logic here is that, for a fusion we are looking for what the full group (combination of the
 two eventual subgroups) was doing before they began to split. However, we do not
 want this point to fall during a prior fusion event, so we require the centroids
 of the two subgroups to be less than \code{(thresh_l + thresh_h) / 2} distance apart.

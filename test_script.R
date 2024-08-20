@@ -149,4 +149,4 @@ rm(ts)
 breaks <- c(1, which(diff(timestamps) > 1) + 1)
 out <- cocomo::identify_splits_and_merges(xs = xs, ys = ys, timestamps = ts, R_inner = 15, R_outer = 50, breaks = breaks, names = coati_ids$name)
 events <- out$events_detected
-out_analyze <- cocomo::analyze_split_or_merge_event(i = 21, events = events, xs = xs, ys = ys, timestamps = timestamps, max_time = 600, thresh_h = 50, thresh_l = 15)
+out_analyze <- cocomo::analyze_split_or_merge_event(i = 18, events = events, xs = xs, ys = ys, timestamps = timestamps, max_time = 600, thresh_h = 50, thresh_l = 15)
