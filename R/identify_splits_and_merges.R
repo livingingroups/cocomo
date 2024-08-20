@@ -135,11 +135,18 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer, bre
 
   #day start indexes
   if(break_by_day){
-    days <- date(timestamps)
+    days <- lubridate::date(timestamps)
     day_start_idxs <- c(1, which(diff(days)==1)+1)
     day_start_idxs <- c(day_start_idxs, length(timestamps)+1)
     if(!exists('breaks')){
       breaks <- day_start_idxs
+    }
+  }
+
+  #if needed, add an end point to breaks
+  if(exists('breaks')){
+    if(breaks[length(breaks)] < (length(timestamps) + 1)){
+      breaks <- c(breaks, length(timestamps) + 1)
     }
   }
 

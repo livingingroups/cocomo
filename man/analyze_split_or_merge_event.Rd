@@ -5,8 +5,8 @@
 \title{Analyze split or merge event}
 \usage{
 analyze_split_or_merge_event(
-  i,
   events,
+  i,
   xs,
   ys,
   timestamps,
@@ -14,14 +14,16 @@ analyze_split_or_merge_event(
   thresh_h = 50,
   thresh_l = 15,
   time_window = 300,
-  plot = T,
-  seconds_per_time_step = 1
+  seconds_per_time_step = 1,
+  breaks = NULL,
+  break_by_day = F,
+  plot = T
 )
 }
 \arguments{
-\item{i}{index of the row to use in the events table}
-
 \item{events}{a data frame of fission-fusion events, output from \code{identify_splits_and_merges}}
+
+\item{i}{index of the row to use in the events table}
 
 \item{xs}{\verb{n_inds x n_times} matrix of x coordinates}
 
@@ -37,9 +39,13 @@ analyze_split_or_merge_event(
 
 \item{time_window}{time steps to move backward or forward in time to identify the before and after times}
 
-\item{plot}{whether to plot the event (if \code{T}) or not (if \code{F})}
-
 \item{seconds_per_time_step}{seconds per time step (default 1)}
+
+\item{breaks}{indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides \code{break_by_day}}
+
+\item{break_by_day}{whether to break up data by date (T or F)}
+
+\item{plot}{whether to plot the event (if \code{T}) or not (if \code{F})}
 }
 \value{
 Returns a list (\code{out}) of information extracted about the event, as well as a plot (if \code{plot = T}).

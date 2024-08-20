@@ -136,8 +136,10 @@
 #' @param thresh_h upper threshold for determining when subgroups are "apart" (default 50)
 #' @param thresh_l lower threshold for determining when subgroups are "together" (default 15)
 #' @param time_window time steps to move backward or forward in time to identify the before and after times
-#' @param plot whether to plot the event (if `T`) or not (if `F`)
 #' @param seconds_per_time_step seconds per time step (default 1)
+#' @param breaks indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides `break_by_day`
+#' @param break_by_day whether to break up data by date (T or F)
+#' @param plot whether to plot the event (if `T`) or not (if `F`)
 #'
 #' @returns Returns a list (`out`) of information extracted about the event, as well as a plot (if `plot = T`).
 #'
@@ -164,7 +166,14 @@
 #' @importFrom stringr str_locate_all
 #' @importFrom lubridate date
 #'@export
-analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time = 600, thresh_h = 50, thresh_l = 15, time_window = 300, plot = T, seconds_per_time_step = 1){
+analyze_split_or_merge_event <- function(events, i,
+                                         xs, ys, timestamps,
+                                         max_time = 600,
+                                         thresh_h = 50, thresh_l = 15,
+                                         time_window = 300,
+                                         seconds_per_time_step = 1,
+                                         breaks = NULL, break_by_day = F,
+                                         plot = T){
 
   #get info about the event from the events data frame
   t_event <- events$tidx[i] #time of the event
@@ -184,6 +193,27 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
   nA <- length(group_A) #number of individuals in subgroup A
   nB <- length(group_B) #number of individuals in subgroup B
   nT <- ncol(xs) #number of time points overall
+
+  if(break_by_day){
+    days <- lubridate::date(timestamps)
+    day_start_idxs <- c(1, which(diff(days)==1)+1)
+    day_start_idxs <- c(day_start_idxs, length(timestamps)+1)
+    if(!exists('breaks')){
+      breaks <- day_start_idxs
+    }
+  }
+
+  #if braeks is null, create a breaks variable specifying one data chunk
+  if(is.null(breaks)){
+    breaks <- c(1, length(timestamps) + 1)
+  }
+
+  #if needed, add an end point to breaks
+  if(exists('breaks')){
+    if(breaks[length(breaks)] < (length(timestamps) + 1)){
+      breaks <- c(breaks, length(timestamps) + 1)
+    }
+  }
 
   #if time of event is before or after tracking period, return empty list
   #TODO: why is this here?
@@ -316,10 +346,11 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
   if(is.null(start_time)){start_time <- NA}
   if(is.null(end_time)){end_time <- NA}
 
-  #if the start time is on a different date from the end time, make both NA
-  #TODO: fix this so it uses breaks instead of days
+  #if the start time is in a different chunk of data from the end time, make both NA
   if(!is.na(start_time) & !is.na(end_time)){
-    if(lubridate::date(timestamps[start_time])!= lubridate::date(timestamps[end_time])){
+    start_chunk <- max(which(breaks <= start_time))
+    end_chunk <- max(which(breaks <= end_time))
+    if(start_chunk != end_chunk){
       start_time <- NA
       end_time <- NA
     }
@@ -378,8 +409,10 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
     #if the before time is on a different date, make it NA
     #TODO: fix this to use breaks instead
     if(!is.na(before_time)){
-      if(date(timestamps[before_time])!= date(timestamps[start_time])){
-        before_time <- NA
+      start_chunk <- max(which(breaks <= start_time))
+      before_chunk <- max(which(breaks <= before_time))
+      if(start_chunk != before_chunk){
+          before_time <- NA
       }
     }
 
@@ -408,10 +441,11 @@ analyze_split_or_merge_event <- function(i, events, xs, ys, timestamps, max_time
     #or by the subgroups crossing the threshold thresh_m
     after_time <- t
 
-    #if the after time is on a different date, make it NA
-    #TODO: fix this to use breaks instead
+    #if the after time is in a different data chunk, make it NA
     if(!is.na(after_time)){
-      if(date(timestamps[after_time])!= date(timestamps[end_time])){
+      end_chunk <- max(which(breaks <= end_time))
+      after_chunk <- max(which(breaks <= after_time))
+      if(end_chunk != after_chunk){
         after_time <- NA
       }
     }
