@@ -1,5 +1,5 @@
 #' Generate images for movement and calls visualization
-
+#'
 #' Generate a bunch of images (PNGs) showing trajectory data over a given time period, optionally on top of a Google Earth map,
 #' and optionally with calls plotted on top.
 #' These are saved as 1.png, 2.png, 3.png etc. to a folder, and you can then use the following ffmpeg command (or similar)

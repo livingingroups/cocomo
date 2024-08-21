@@ -16,7 +16,7 @@ You can install the package by first installing the `devtools` library, then run
 
 ## Dataset structure
 
-The library is built for datasets that have a standardized "matrix format", containing the following objects:
+The library is built for movement (typically GPS) datasets that have a standardized "matrix format", containing the following objects:
 
 `xs`: matrix of x coordinates (UTM eastings) of all individuals in a group or population (rows) at every time point (columns)
 xs[i,t] gives the x / easting position of individual i at time point t
@@ -27,6 +27,18 @@ ys[i,t] gives the y / northing position of individual i at time point t
 `timestamps`: vector of timestamps corresponding to the columns of xs and ys matrices. Timestamps must be uniformly sampled, though it is possible to have gaps (e.g. between different days of recording)
 
 `ids`: data frame giving information about the tracked individuals, with rows correpsonding to the rows of the xs and ys matrices. The columns contained are flexible.
+
+Some functions also take in time series of calls. These should be formatted as a data frame that includes, at a minimum, the following columns:
+
+`ind_idx`: index of the individual making the call (numeric)
+
+`time_idx`: time index closest to the time at which the call was produced
+
+`call_type`: string specifying the call type label
+
+`time`: exact time at which the call was produced (synched to GPS time, including fractions of a second)
+
+Note that times can be in either UTC or local time. The user should verify that the same time zone is used for both GPS and audio data.
 
 ## Code review
 
