@@ -159,7 +159,7 @@ load('~/Dropbox/hyenas/hyena_data/cc23/hyena_south2023_xy_level1_30s.RData')
 load('~/Dropbox/hyenas/hyena_data/cc23/hyena_ids.RData')
 hyena_ff <- cocomo::identify_splits_and_merges(xs = xs, ys = ys, timestamps = timestamps, R_inner = 100, R_outer = 200, names = hyena_ids$id)
 quartz()
-i <- 9
+i <- 15
 out_analyze <- cocomo::analyze_split_or_merge_event(events = hyena_ff$events_detected, i = i, xs = xs, ys = ys, timestamps = timestamps, max_time = 20, thresh_h = 300, thresh_l = 100, time_window = 10, seconds_per_time_step = 30)
 print(paste(out_analyze$before_time, out_analyze$start_time, out_analyze$end_time, out_analyze$after_time))
 

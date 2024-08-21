@@ -320,7 +320,7 @@ analyze_split_or_merge_event <- function(events, i,
   #for seuqneces of h-m-l or l-m-h (for fission and fusion respectively), get the time index when they start and end
   if(nrow(event_loc)>0){
     for(r in 1:nrow(event_loc)){
-      event_loc$start_time[r] <- ti + sum(seqs$lengths[1:event_loc$start[r]])
+      event_loc$start_time[r] <- ti + sum(seqs$lengths[1:event_loc$start[r]]) - 1
       event_loc$end_time[r] <- ti + sum(seqs$lengths[1:event_loc$end[r]-1])
     }
   }
