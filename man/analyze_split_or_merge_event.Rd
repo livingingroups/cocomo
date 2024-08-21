@@ -17,7 +17,7 @@ analyze_split_or_merge_event(
   seconds_per_time_step = 1,
   breaks = NULL,
   break_by_day = F,
-  plot = T
+  make_plot = T
 )
 }
 \arguments{
@@ -45,10 +45,10 @@ analyze_split_or_merge_event(
 
 \item{break_by_day}{whether to break up data by date (T or F)}
 
-\item{plot}{whether to plot the event (if \code{T}) or not (if \code{F})}
+\item{make_plot}{whether to plot the event (if \code{T}) or not (if \code{F})}
 }
 \value{
-Returns a list (\code{out}) of information extracted about the event, as well as a plot (if \code{plot = T}).
+Returns a list (\code{out}) of information extracted about the event, as well as a plot (if \code{make_plot = T}).
 
 The list contains:
 
@@ -71,7 +71,7 @@ The plot shows (top) dyadic distance over time with lines showing the identified
 and (bottom) a visualization of trajectories of the two subgroups,
 }
 \description{
-Analyze (and, if \code{plot=T} make a visualization of) a fission-fusion event.
+Analyze (and, if \code{make_plot=T} make a visualization of) a fission-fusion event.
 }
 \details{
 This function takes in information about a fission or fusion event as well as

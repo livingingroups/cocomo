@@ -1,6 +1,6 @@
 #' Analyze split or merge event
 #'
-#' Analyze (and, if `plot=T` make a visualization of) a fission-fusion event.
+#' Analyze (and, if `make_plot=T` make a visualization of) a fission-fusion event.
 #'
 #' This function takes in information about a fission or fusion event as well as
 #' tracking data to identify relevant time points in the fission or fusion event and compute relevant metrics about the event.
@@ -139,9 +139,9 @@
 #' @param seconds_per_time_step seconds per time step (default 1)
 #' @param breaks indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides `break_by_day`
 #' @param break_by_day whether to break up data by date (T or F)
-#' @param plot whether to plot the event (if `T`) or not (if `F`)
+#' @param make_plot whether to plot the event (if `T`) or not (if `F`)
 #'
-#' @returns Returns a list (`out`) of information extracted about the event, as well as a plot (if `plot = T`).
+#' @returns Returns a list (`out`) of information extracted about the event, as well as a plot (if `make_plot = T`).
 #'
 #' The list contains:
 #'
@@ -173,7 +173,7 @@ analyze_split_or_merge_event <- function(events, i,
                                          time_window = 300,
                                          seconds_per_time_step = 1,
                                          breaks = NULL, break_by_day = F,
-                                         plot = T){
+                                         make_plot = T){
 
   #get info about the event from the events data frame
   t_event <- events$tidx[i] #time of the event
@@ -215,8 +215,7 @@ analyze_split_or_merge_event <- function(events, i,
     }
   }
 
-  #if time of event is before or after tracking period, return empty list
-  #TODO: why is this here?
+  #if time of event is too close too the beginning or end of the tracking period, return empty list
   if(ti <1 | tf > nT){
     out <- list()
     out$start_time <- out$end_time <- out$before_time <- out$after_time <- NA
@@ -530,7 +529,7 @@ analyze_split_or_merge_event <- function(events, i,
   }
 
   #make a plot if desired
-  if(plot == T){
+  if(make_plot == T){
     par(mfrow=c(2,1))
     plot(ti:tf, dyad_dist[ti:tf],type='l', main = paste(event_type, timestamps[t_event]),xlab='Time (min)',ylab = 'Distance apart (m)')
     abline(v=t_event,col='black', lty = 2)

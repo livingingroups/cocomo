@@ -15,7 +15,6 @@
 #'
 #'
 #' @importFrom fields image.plot
-#' @importFrom dichromat colorRampPalette
 #'
 #' @export
 plot_network_matrix <- function(mat, mat_col_palette = NULL, ind_names = NULL, ind_cols = NULL, zlim = NULL, xlab = '', ylab = '', main = ''){

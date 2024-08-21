@@ -2,13 +2,7 @@
 % Please edit documentation in R/generate_movement_and_calls_visualization.R
 \name{generate_movement_and_calls_visualization}
 \alias{generate_movement_and_calls_visualization}
-\title{Generate images for movement and calls visualization
-Generate a bunch of images (PNGs) showing trajectory data over a given time period, optionally on top of a Google Earth map,
-and optionally with calls plotted on top.
-These are saved as 1.png, 2.png, 3.png etc. to a folder, and you can then use the following ffmpeg command (or similar)
-to merge them into a video:
-ffmpeg -framerate 2 -i \%d.png -r 8 -c:v libx264 -pix_fmt yuvj420p output_file_name.mp4
-Data must be entered either as \code{xs} and \code{ys} matrices (UTM) if \code{plot_on_map = F} or as \code{lats} and \code{lons} matrices (latitude / longitude) if \code{plot_on_map = T}}
+\title{Generate images for movement and calls visualization}
 \usage{
 generate_movement_and_calls_visualization(
   xs = NULL,
@@ -87,7 +81,6 @@ generate_movement_and_calls_visualization(
 \item{bg_color}{background color}
 }
 \description{
-Generate images for movement and calls visualization
 Generate a bunch of images (PNGs) showing trajectory data over a given time period, optionally on top of a Google Earth map,
 and optionally with calls plotted on top.
 These are saved as 1.png, 2.png, 3.png etc. to a folder, and you can then use the following ffmpeg command (or similar)
