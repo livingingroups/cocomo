@@ -39,7 +39,7 @@
 #' *How are the before and after times identified?*
 #'
 #' The before time is defined as the time point `tidx - time_window` (default
-#' `time_window = 300` sec), unless the two groups are not sufficiently together (for
+#' `time_window = 300` time steps), unless the two groups are not sufficiently together (for
 #' a fission) or apart (for a fusion) at that time. If the latter, the `before_time`
 #' is identified as the point just before the two subgroups cross a threshold `thresh_m` midway
 #' between the upper and lower thresholds used to define the start and end times
@@ -112,6 +112,7 @@
 #' be part of the sequence from `start_time:end_time` (at least not in terms of the)
 #' dyadic distance... individuals can drop out and they will just be excluded from
 #' the centroid calculation.
+#'
 #' If no start and end times are found, nothing else is computed (all output values are
 #' filled in with `NA`s or `NULL` for matrices).
 #'
@@ -120,9 +121,9 @@
 #' as `NA`. Metrics involving that time point can then not be computed and are also set to
 #' `NA`.
 #'
-#' If the `start_time` and `end_time` are on different days, then both are given `NA`. TODO: look into fixing this if have continuous data
+#' If the `start_time` and `end_time` are in different data chunks (as specified by `breaks`), then both are given `NA`.
 #'
-#' If the `before_time` and `start_time`, or `after_time` and `end_time`, are on different days, then
+#' If the `before_time` and `start_time`, or `after_time` and `end_time`, are in different data chunks (as specified by `breaks`), then
 #' both are given NA.
 #'
 #' If the `before_time` or `after_time` are `NA`, then other metrics stemming from those times get `NA`
@@ -132,10 +133,10 @@
 #' @param xs `n_inds x n_times` matrix of x coordinates
 #' @param ys `n_inds x n_times` matrix of y coordinates
 #' @param timestamps vector of timestamps of length `n_times` in datetime format
-#' @param max_time maximum time steps forward and back to look for the start and end of the event (units are timesteps)
+#' @param max_time maximum time steps forward and back to look for the start and end of the event (units are timesteps, not seconds)
 #' @param thresh_h upper threshold for determining when subgroups are "apart" (default 50)
 #' @param thresh_l lower threshold for determining when subgroups are "together" (default 15)
-#' @param time_window time steps to move backward or forward in time to identify the before and after times
+#' @param time_window time steps to move backward or forward in time to identify the before and after times (units are timesteps, not seconds)
 #' @param seconds_per_time_step seconds per time step (default 1)
 #' @param breaks indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides `break_by_day`
 #' @param break_by_day whether to break up data by date (T or F)

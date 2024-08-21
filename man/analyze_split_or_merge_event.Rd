@@ -31,13 +31,13 @@ analyze_split_or_merge_event(
 
 \item{timestamps}{vector of timestamps of length \code{n_times} in datetime format}
 
-\item{max_time}{maximum time steps forward and back to look for the start and end of the event (units are timesteps)}
+\item{max_time}{maximum time steps forward and back to look for the start and end of the event (units are timesteps, not seconds)}
 
 \item{thresh_h}{upper threshold for determining when subgroups are "apart" (default 50)}
 
 \item{thresh_l}{lower threshold for determining when subgroups are "together" (default 15)}
 
-\item{time_window}{time steps to move backward or forward in time to identify the before and after times}
+\item{time_window}{time steps to move backward or forward in time to identify the before and after times (units are timesteps, not seconds)}
 
 \item{seconds_per_time_step}{seconds per time step (default 1)}
 
@@ -109,7 +109,7 @@ subtlety 1 below).
 \emph{How are the before and after times identified?}
 
 The before time is defined as the time point \code{tidx - time_window} (default
-\code{time_window = 300} sec), unless the two groups are not sufficiently together (for
+\code{time_window = 300} time steps), unless the two groups are not sufficiently together (for
 a fission) or apart (for a fusion) at that time. If the latter, the \code{before_time}
 is identified as the point just before the two subgroups cross a threshold \code{thresh_m} midway
 between the upper and lower thresholds used to define the start and end times
@@ -181,6 +181,7 @@ For finding the \code{start_time} and \code{end_time}, NAs are essentially ignor
 be part of the sequence from \code{start_time:end_time} (at least not in terms of the)
 dyadic distance... individuals can drop out and they will just be excluded from
 the centroid calculation.
+
 If no start and end times are found, nothing else is computed (all output values are
 filled in with \code{NA}s or \code{NULL} for matrices).
 
@@ -189,9 +190,9 @@ backward direction, the \code{before_time} (or respectively, the \code{after_tim
 as \code{NA}. Metrics involving that time point can then not be computed and are also set to
 \code{NA}.
 
-If the \code{start_time} and \code{end_time} are on different days, then both are given \code{NA}. TODO: look into fixing this if have continuous data
+If the \code{start_time} and \code{end_time} are in different data chunks (as specified by \code{breaks}), then both are given \code{NA}.
 
-If the \code{before_time} and \code{start_time}, or \code{after_time} and \code{end_time}, are on different days, then
+If the \code{before_time} and \code{start_time}, or \code{after_time} and \code{end_time}, are in different data chunks (as specified by \code{breaks}), then
 both are given NA.
 
 If the \code{before_time} or \code{after_time} are \code{NA}, then other metrics stemming from those times get \code{NA}
