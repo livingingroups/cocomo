@@ -26,9 +26,9 @@ reformat_movebank_to_matrix(
 \code{'location_long'} (longitude coordinate), and
 \verb{'location_lat} (latitude coordinate)}
 
-\item{output_file_path}{full path to the desired output file}
+\item{output_file_path}{full path to the desired output file (must be a .RData file)}
 
-\item{data_chunks}{data frame specifying starting and ending datetimes (in POSIXct format - with time zone!) for each contiguous chunk of data. overrides other specified start and end times / dates}
+\item{data_chunks}{data frame with columns \code{start} and \code{end} specifying starting and ending datetimes (in POSIXct format - with time zone!) for each contiguous chunk of data. overrides other specified start and end times / dates.}
 
 \item{seconds_per_time_step}{sampling interval of GPS fixes (in seconds)}
 
@@ -36,11 +36,27 @@ reformat_movebank_to_matrix(
 
 \item{end_date}{a character string specifying the end date for data sampled in a daily basis, only used if \code{data_chunks = NULL}, format must be \code{'YYYY-MM-DD'}}
 
-\item{start_time}{a character string specifying the end time for data sampled on a daily basis, only used if \code{data_chunks = NULL}, format must be \code{'HH:MM:SS'}}
+\item{start_time}{a character string specifying the start time for data sampled on a daily basis, only used if \code{data_chunks = NULL}, format must be \code{'HH:MM:SS'}}
+
+\item{end_time}{a character string specifying the end time for data sampled on a daily basis, only used if \code{data_chunks = NULL}, format must be \code{'HH:MM:SS'}}
+
+\item{utm_zone}{numeric UTM zone (only needed if \code{output_utm = T} and if \code{movebank_data} does not have \code{utm_easting} and \code{utm_northing} columns)}
+
+\item{hemisphere}{hemisphere (\code{'north'} or \code{'south'}) for UTM calculations (only needed if \code{output_utm = T} and if \code{movebank_data} does not have \code{utm_easting} and \code{utm_northing} columns)}
+
+\item{output_utm}{whether to output \code{xs} and \code{ys} matrices (\code{T} or \code{F})}
+
+\item{output_latlon}{whether to output \code{lats} and \code{lons} matrices (\code{T} or \code{F})}
+}
+\value{
+Saves a file to the location \code{output_file_path} containing the objects: \code{timestamps} (vector of timestamps in POSIXct format, of length \code{n_times}),
+\code{ids} (data frame containing a single \code{id} column with the id from \code{individual_local_identifier} column in \code{movebank_data}), \code{xs} (\code{n_inds} x \code{n_times} matrix of UTM eastings for all individuals at each time point),
+\code{ys} (\code{n_inds} x \code{n_times} matrix of UTM northings for all individuals at each time point), \code{lons} (\code{n_inds} x \code{n_times} matrix of longitudes for all individuals at each time point), and
+\code{lats} (\code{n_inds} x \code{n_times} matrix of longitudes for all individuals at each time point). \code{xs} and \code{ys} are only saved if \code{output_utm = T}. \code{lons} and \code{lats} are only saved if \code{output_lonlat = T}
 }
 \description{
-Takes in regularly sampled GPS data in Movebank format (data frame with specified columns)
-and converts it into the standard matrix form used by the cocomo package.
+Takes in regularly sampled GPS data in Movebank format (i.e. data frame with specified columns - see below)
+and converts it into the standard matrix form used by the \code{cocomo} package.
 }
 \author{
 Ariana Strandburg-Peshkin (primary author)

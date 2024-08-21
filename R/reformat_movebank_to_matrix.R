@@ -1,7 +1,7 @@
 #' Reformat Movebank to matrix format
 #'
-#' Takes in regularly sampled GPS data in Movebank format (data frame with specified columns)
-#' and converts it into the standard matrix form used by the cocomo package.
+#' Takes in regularly sampled GPS data in Movebank format (i.e. data frame with specified columns - see below)
+#' and converts it into the standard matrix form used by the `cocomo` package.
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED
@@ -11,13 +11,24 @@
 #' `'study_local_timestamp'` (local timestamp for each GPS fix, must be POSIXct objects including timezone),
 #' `'location_long'` (longitude coordinate), and
 #' `'location_lat` (latitude coordinate)
-#' @param output_file_path full path to the desired output file
-#' @param data_chunks data frame specifying starting and ending datetimes (in POSIXct format - with time zone!) for each contiguous chunk of data. overrides other specified start and end times / dates
+#' @param output_file_path full path to the desired output file (must be a .RData file)
+#' @param data_chunks data frame with columns `start` and `end` specifying starting and ending datetimes (in POSIXct format - with time zone!) for each contiguous chunk of data. overrides other specified start and end times / dates.
 #' @param seconds_per_time_step sampling interval of GPS fixes (in seconds)
 #' @param start_date a character string specifying the starting date for data sampled in a daily basis, only used if `data_chunks = NULL`, format must be `'YYYY-MM-DD'`
 #' @param end_date a character string specifying the end date for data sampled in a daily basis, only used if `data_chunks = NULL`, format must be `'YYYY-MM-DD'`
 #' @param start_time a character string specifying the start time for data sampled on a daily basis, only used if `data_chunks = NULL`, format must be `'HH:MM:SS'`
-#' @param start_time a character string specifying the end time for data sampled on a daily basis, only used if `data_chunks = NULL`, format must be `'HH:MM:SS'`
+#' @param end_time a character string specifying the end time for data sampled on a daily basis, only used if `data_chunks = NULL`, format must be `'HH:MM:SS'`
+#' @param utm_zone numeric UTM zone (only needed if `output_utm = T` and if `movebank_data` does not have `utm_easting` and `utm_northing` columns)
+#' @param hemisphere hemisphere (`'north'` or `'south'`) for UTM calculations (only needed if `output_utm = T` and if `movebank_data` does not have `utm_easting` and `utm_northing` columns)
+#' @param output_utm whether to output `xs` and `ys` matrices (`T` or `F`)
+#' @param output_latlon whether to output `lats` and `lons` matrices (`T` or `F`)
+#'
+#' @returns Saves a file to the location `output_file_path` containing the objects: `timestamps` (vector of timestamps in POSIXct format, of length `n_times`),
+#' `ids` (data frame containing a single `id` column with the id from `individual_local_identifier` column in `movebank_data`), `xs` (`n_inds` x `n_times` matrix of UTM eastings for all individuals at each time point),
+#' `ys` (`n_inds` x `n_times` matrix of UTM northings for all individuals at each time point), `lons` (`n_inds` x `n_times` matrix of longitudes for all individuals at each time point), and
+#' `lats` (`n_inds` x `n_times` matrix of longitudes for all individuals at each time point). `xs` and `ys` are only saved if `output_utm = T`. `lons` and `lats` are only saved if `output_lonlat = T`
+#'
+#' @importFrom lubridate tz
 #' @export
 reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
                                         data_chunks = NULL,
@@ -40,7 +51,7 @@ reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
   }
 
   #if utm coordinates are not already included, get them
-  if(sum(c('utm_easting','utm_northing') %in% columns_included) < 2){
+  if(sum(c('utm_easting','utm_northing') %in% columns_included) < 2 & output_utm){
     if(is.null(utm_zone) | is.null(hemisphere)){
       stop('utm data not included but also utm zone and/or hemisphere are not specified - need to specify utm zone and hemisphere')
     }
@@ -113,10 +124,15 @@ reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
     time_idxs <- match(data_ind$study_local_timestamp, timestamps)
 
     #fill in matrices
-    lats[i,time_idxs] <- data_ind$location_lat
-    lons[i,time_idxs] <- data_ind$location_long
-    xs[i,time_idxs] <- data_ind$utm_easting
-    ys[i,time_idxs] <- data_ind$utm_northing
+    if(output_latlon){
+      lats[i,time_idxs] <- data_ind$location_lat
+      lons[i,time_idxs] <- data_ind$location_long
+    }
+
+    if(output_utm){
+      xs[i,time_idxs] <- data_ind$utm_easting
+      ys[i,time_idxs] <- data_ind$utm_northing
+    }
 
   }
 
