@@ -16,6 +16,7 @@
 #' @param lons matrix of longitude values (`n_inds` x `n_times`)
 #' 
 #' @returns Returns a dataframe of ids, locations, and times 
+#' @export
 
 
 
@@ -38,6 +39,13 @@ matrix_format_to_df <- function(xs, ys, timestamps, ids = NULL,
     ## If ids_selected provided but no ids, throw error
     stop('Must provide ids if ids_selected is not NULL')
   }
+  
+  if(!all(nrow(xs) == nrow(ys), ncol(xs) == ncol(ys), ncol(xs) == length(timestamps)))
+    stop("dimension mismatch with xs, ys, and timestamps")
+  
+  ## Check for matching lengths
+  if(length(ids) != nrow(xs))
+    stop("length of ids must match number of rows in xs, ys")
 
   
   ## If no IDs at all, use all rows

@@ -22,7 +22,7 @@ matrix_format_to_df(
 
 \item{timestamps}{vector of timestamps (POSIXct), must have same dimensions as columns of \code{xs} and \code{ys} matrices}
 
-\item{ids}{Vector of individuals ordered the same as the rows of xs and ys}
+\item{ids}{Vector of individuals ordered the same as the rows of xs and ys.}
 
 \item{time_indices_selected}{Time indices for data to include in the dataframe, to be matched with xs, ys, timestamps}
 
