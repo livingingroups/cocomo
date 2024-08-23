@@ -7,10 +7,11 @@
 #' @author NOT YET CODE REVIEWED
 #'
 #' @param movebank_data data frame that must include the columns
-#' `'individual_local_identifier'` (individual id of the tracked animals,
-#' `'study_local_timestamp'` (local timestamp for each GPS fix, must be POSIXct objects including timezone),
-#' `'location_long'` (longitude coordinate), and
-#' `'location_lat` (latitude coordinate)
+#' `'timestamp` (timestamp in UTC, must be character string of format YYYY-MM-DD HH:MM:SS.SSS),
+#' `'individual.local.identifier'` (individual id of the tracked animals),
+#' `'location.long'` (longitude coordinate), and
+#' `'location.lat` (latitude coordinate).
+#'  Can optionally also include the column `'study.local.timestamp'` (local timestamp for each GPS fix, must be character string of format YYYY-MM-DD HH:MM:SS.SSS).
 #' @param output_file_path full path to the desired output file (must be a .RData file)
 #' @param data_chunks data frame with columns `start` and `end` specifying starting and ending datetimes (in POSIXct format - with time zone!) for each contiguous chunk of data. overrides other specified start and end times / dates.
 #' @param seconds_per_time_step sampling interval of GPS fixes (in seconds)
@@ -22,13 +23,14 @@
 #' @param hemisphere hemisphere (`'north'` or `'south'`) for UTM calculations (only needed if `output_utm = T` and if `movebank_data` does not have `utm_easting` and `utm_northing` columns)
 #' @param output_utm whether to output `xs` and `ys` matrices (`T` or `F`)
 #' @param output_latlon whether to output `lats` and `lons` matrices (`T` or `F`)
+#' @param use_UTC if T (default) use UTC time rather than local time
+#' @param local_timezone specify local timezone string, if not using UTC (use_UTC = F)
 #'
 #' @returns Saves a file to the location `output_file_path` containing the objects: `timestamps` (vector of timestamps in POSIXct format, of length `n_times`),
-#' `ids` (data frame containing a single `id` column with the id from `individual_local_identifier` column in `movebank_data`), `xs` (`n_inds` x `n_times` matrix of UTM eastings for all individuals at each time point),
+#' `ids` (data frame containing a single `id` column with the id from `individual.local.identifier` column in `movebank_data`), `xs` (`n_inds` x `n_times` matrix of UTM eastings for all individuals at each time point),
 #' `ys` (`n_inds` x `n_times` matrix of UTM northings for all individuals at each time point), `lons` (`n_inds` x `n_times` matrix of longitudes for all individuals at each time point), and
 #' `lats` (`n_inds` x `n_times` matrix of longitudes for all individuals at each time point). `xs` and `ys` are only saved if `output_utm = T`. `lons` and `lats` are only saved if `output_lonlat = T`
 #'
-#' @importFrom lubridate tz
 #' @export
 reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
                                         data_chunks = NULL,
@@ -40,14 +42,24 @@ reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
                                         utm_zone = NULL,
                                         hemisphere = NULL,
                                         output_utm = T,
-                                        output_latlon = T){
+                                        output_latlon = T,
+                                        use_UTC = T,
+                                        local_timezone = NULL){
 
 
   #check the movebank_data dataframe has the correct columns
   columns_included <- colnames(movebank_data)
-  columns_needed <- c('individual_local_identifier','study_local_timestamp','location_long','location_lat')
+  columns_needed <- c('timestamp','individual.local.identifier','location.long','location.lat')
   if(sum(!(columns_needed %in% columns_included))>0){
     stop('movebank_data input is missing one or more needed columns - see documentation')
+  }
+
+  if(!use_UTC & !('study.local.timestamp' %in% columns_included)){
+    stop('if use_UTC = F, study.local.timestamp column must be included')
+  }
+
+  if(!use_UTC & is.null(local_timezone)){
+    stop('must specify local_timezone if use_UTC = F')
   }
 
   #if utm coordinates are not already included, get them
@@ -56,7 +68,7 @@ reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
       stop('utm data not included but also utm zone and/or hemisphere are not specified - need to specify utm zone and hemisphere')
     }
     #get utm coordinates
-    lons_lats <- cbind(movebank_data$location_long, movebank_data$location_lat)
+    lons_lats <- cbind(movebank_data$location.long, movebank_data$location.lat)
     easts_norths <- cocomo::latlon_to_utm(lons_lats = lons_lats, utm_zone = utm_zone, hemisphere = hemisphere)
 
     #add to data frame
@@ -64,14 +76,18 @@ reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
     movebank_data$utm_northing <- easts_norths[,2]
   }
 
-  #get timezone
-  timezone <- lubridate::tz(movebank_data$study_local_timestamp[1])
+  #specify which timezone to use based on use_UTC
+  if(use_UTC){
+    timezone <- 'UTC'
+  } else{
+    timezone <- local_timezone
+  }
 
   #if chunks have not been directly specified, create them from start and end dates, and start and end times
   if(is.null(data_chunks)){
 
     #first make sure start and end dates and start and end times are available
-    if(is.null(start_date) | is.null(end_date) | is.null(start_time) | is.null_end_times){
+    if(is.null(start_date) | is.null(end_date) | is.null(start_time) | is.null(end_time)){
       stop('if not specifying data chunks directly, must specify start and end date as well as start and end time')
     }
 
@@ -81,13 +97,13 @@ reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
     #create data frame to hold start and stop for each chunk
     data_chunks <- data.frame(start = paste(dates, rep(start_time, length(dates))),
                               end = paste(dates, rep(end_time, length(dates))))
-    data_chunks$start <- as.POSIXct(data_chunks$start, tz = 'UTC')
-    data_chunks$end <- as.POSIXct(data_chunks$end, tz = 'UTC')
+    data_chunks$start <- as.POSIXct(data_chunks$start, tz = timezone)
+    data_chunks$end <- as.POSIXct(data_chunks$end, tz = timezone)
 
     #if chunks cross date boundaries, fix so that end is on subsequent day
     if(data_chunks$end[1] < data_chunks$start[1]){
       data_chunks$end <- paste(dates + 1, rep(end_time, length(dates)))
-      data_chunks$end <- as.POSIXct(data_chunks$end, tz = 'UTC')
+      data_chunks$end <- as.POSIXct(data_chunks$end, tz = timezone)
     }
   }
 
@@ -104,34 +120,55 @@ reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
   #also add timezone specified by the user
   timestamps <- as.POSIXct(timestamps, tz = timezone)
 
+  #convert timestamp or study.local.timestamp column to POSIXct
+  if(use_UTC){
+    movebank_data$timestamp <- as.POSIXct(movebank_data$timestamp, tz = timezone)
+  } else{
+    movebank_data$study.local.timestamp <- as.POSIXct(movebank_data$study.local.timestamp, tz = timezone)
+  }
+
   #get list of individuals
-  inds <- unique(movebank_data$individual_local_identifier)
+  inds <- unique(movebank_data$individual.local.identifier)
 
   #get number of individuals and number of timestamps
   n_inds <- length(inds)
   n_times <- length(timestamps)
 
   #create matrices
-  lats <- lons <- xs <- ys <- matrix(NA, nrow = n_inds, ncol = n_times)
+  if(output_latlon){
+    lats <- lons <- matrix(NA, nrow = n_inds, ncol = n_times)
+  }
+  if(output_utm){
+    xs <- ys <- matrix(NA, nrow = n_inds, ncol = n_times)
+  }
 
   #fill in matrices
   for(i in 1:n_inds){
 
     #get data for individual i
-    data_ind <- movebank_data[which(movebank_data$individual_local_identifier == inds[i]),]
+    data_ind <- movebank_data[which(movebank_data$individual.local.identifier == inds[i]),]
 
     #match timestamps in input data to those in timestamps vector
-    time_idxs <- match(data_ind$study_local_timestamp, timestamps)
-
-    #fill in matrices
-    if(output_latlon){
-      lats[i,time_idxs] <- data_ind$location_lat
-      lons[i,time_idxs] <- data_ind$location_long
+    if(use_UTC){
+      time_idxs <- match(data_ind$timestamp, timestamps)
+    } else{
+      time_idxs <- match(data_ind$study.local.timestamp, timestamps)
     }
 
-    if(output_utm){
-      xs[i,time_idxs] <- data_ind$utm_easting
-      ys[i,time_idxs] <- data_ind$utm_northing
+    #fill in matrices
+    if(sum(!is.na(time_idxs))>0){
+
+      non_nas <- which(!is.na(time_idxs))
+
+      if(output_latlon){
+        lats[i,time_idxs[non_nas]] <- data_ind$location.lat[non_nas]
+        lons[i,time_idxs[non_nas]] <- data_ind$location.long[non_nas]
+      }
+
+      if(output_utm){
+        xs[i,time_idxs[non_nas]] <- data_ind$utm_easting[non_nas]
+        ys[i,time_idxs[non_nas]] <- data_ind$utm_northing[non_nas]
+      }
     }
 
   }

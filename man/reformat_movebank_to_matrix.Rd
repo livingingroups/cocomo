@@ -16,15 +16,18 @@ reformat_movebank_to_matrix(
   utm_zone = NULL,
   hemisphere = NULL,
   output_utm = T,
-  output_latlon = T
+  output_latlon = T,
+  use_UTC = T,
+  local_timezone = NULL
 )
 }
 \arguments{
 \item{movebank_data}{data frame that must include the columns
-\code{'individual_local_identifier'} (individual id of the tracked animals,
-\code{'study_local_timestamp'} (local timestamp for each GPS fix, must be POSIXct objects including timezone),
-\code{'location_long'} (longitude coordinate), and
-\verb{'location_lat} (latitude coordinate)}
+\verb{'timestamp} (timestamp in UTC, must be character string of format YYYY-MM-DD HH:MM:SS.SSS),
+\code{'individual.local.identifier'} (individual id of the tracked animals),
+\code{'location.long'} (longitude coordinate), and
+\verb{'location.lat} (latitude coordinate).
+Can optionally also include the column \code{'study.local.timestamp'} (local timestamp for each GPS fix, must be character string of format YYYY-MM-DD HH:MM:SS.SSS).}
 
 \item{output_file_path}{full path to the desired output file (must be a .RData file)}
 
@@ -47,10 +50,14 @@ reformat_movebank_to_matrix(
 \item{output_utm}{whether to output \code{xs} and \code{ys} matrices (\code{T} or \code{F})}
 
 \item{output_latlon}{whether to output \code{lats} and \code{lons} matrices (\code{T} or \code{F})}
+
+\item{use_UTC}{if T (default) use UTC time rather than local time}
+
+\item{local_timezone}{specify local timezone string, if not using UTC (use_UTC = F)}
 }
 \value{
 Saves a file to the location \code{output_file_path} containing the objects: \code{timestamps} (vector of timestamps in POSIXct format, of length \code{n_times}),
-\code{ids} (data frame containing a single \code{id} column with the id from \code{individual_local_identifier} column in \code{movebank_data}), \code{xs} (\code{n_inds} x \code{n_times} matrix of UTM eastings for all individuals at each time point),
+\code{ids} (data frame containing a single \code{id} column with the id from \code{individual.local.identifier} column in \code{movebank_data}), \code{xs} (\code{n_inds} x \code{n_times} matrix of UTM eastings for all individuals at each time point),
 \code{ys} (\code{n_inds} x \code{n_times} matrix of UTM northings for all individuals at each time point), \code{lons} (\code{n_inds} x \code{n_times} matrix of longitudes for all individuals at each time point), and
 \code{lats} (\code{n_inds} x \code{n_times} matrix of longitudes for all individuals at each time point). \code{xs} and \code{ys} are only saved if \code{output_utm = T}. \code{lons} and \code{lats} are only saved if \code{output_lonlat = T}
 }
