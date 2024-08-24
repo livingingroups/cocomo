@@ -2,31 +2,50 @@
 % Please edit documentation in R/import_meerkat_gps_data.R
 \name{import_meerkat_gps_data}
 \alias{import_meerkat_gps_data}
-\title{Import meerkat data to matrix format}
+\title{Import meerkat GPS data}
 \usage{
-import_meerkat_gps_data(input_dir, tag_type = "gipsy5", timezone = "UTC")
+import_meerkat_gps_data(
+  input_dir,
+  output_dir,
+  tag_type,
+  start_date = NULL,
+  end_date = NULL,
+  start_time = NULL,
+  end_time = NULL,
+  min_satellites = 5,
+  utm_zone = 36,
+  hemisphere = "south",
+  seconds_per_time_step = 1,
+  timezone = "UTC"
+)
 }
 \arguments{
 \item{input_dir}{full path to input directory where all files from a given deployment are stored (e.g. \code{"~/EAS_shared/meerkat/archive/rawdata/meerkat_movecomm_2017/HM_2017_1/"})}
 
+\item{output_dir}{full path to the output directory where processed files will be saved}
+
 \item{tag_type}{\code{'gipsy5'} or \code{'axytrek'}}
-
-\item{data_chunks}{data frame with columns \code{start} and \code{end} specifying starting and ending datetimes (in POSIXct format - with time zone!) for each contiguous chunk of data. overrides other specified start and end times / dates.}
-
-\item{seconds_per_time_step}{sampling interval of GPS fixes (in seconds)}
 
 \item{start_date}{a character string specifying the starting date for data sampled in a daily basis, only used if \code{data_chunks = NULL}, format must be \code{'YYYY-MM-DD'}}
 
-\item{end_date}{a character string specifying the end date for data sampled in a daily basis, only used if \code{data_chunks = NULL}, format must be \code{'YYYY-MM-DD'}}
+\item{end_date}{a character string specifying the end date for data sampled on a daily basis, only used if \code{data_chunks = NULL}, format must be \code{'YYYY-MM-DD'}}
 
 \item{start_time}{a character string specifying the start time for data sampled on a daily basis, only used if \code{data_chunks = NULL}, format must be \code{'HH:MM:SS'}}
 
 \item{end_time}{a character string specifying the end time for data sampled on a daily basis, only used if \code{data_chunks = NULL}, format must be \code{'HH:MM:SS'}}
 
+\item{min_satellites}{minimum number of satellites to include data}
+
 \item{utm_zone}{numeric UTM zone (only needed if \code{output_utm = T} and if \code{movebank_data} does not have \code{utm_easting} and \code{utm_northing} columns)}
 
 \item{hemisphere}{hemisphere (\code{'north'} or \code{'south'}) for UTM calculations (only needed if \code{output_utm = T} and if \code{movebank_data} does not have \code{utm_easting} and \code{utm_northing} columns)}
+
+\item{seconds_per_time_step}{sampling interval of GPS fixes (in seconds)}
+
+\item{timezone}{timezone to use (UTC)}
 }
 \description{
-Import meerkat data to matrix format
+#Imports raw meerkat GPS data from Technosmart files (Gipsy 5 or Axy-Trek) assuming a standardized
+file folder structure of \code{input_dir} and standardized naming schemes as done in the meerkat group collaring project.
+Outputs a file containing the xs, ys, and timestamps matrices as well as another file with the GPS data table in Movebank format
 }
