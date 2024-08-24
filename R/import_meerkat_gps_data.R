@@ -191,7 +191,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
     #get timestamps when at least half the tracked individuals are present
     timestamps_table <- table(gps_data_df$timestamp)
-    n_inds <- length(unique(gps_data_df$ind_id))
+    n_inds <- length(unique(gps_data_df$individual.local.identifier))
     timestamps_many_tracked <- names(timestamps_table)[which(timestamps_table >= (n_inds / 2))]
     timestamps_many_tracked <- as.POSIXct(timestamps_many_tracked, tz = timezone)
 
@@ -200,6 +200,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       #get the hours associated with timestamps where at least half individuals were tracked
       hours_many_tracked <- table(lubridate::hour(timestamps_many_tracked))
+      print(hours_many_tracked)
 
       #infer the start and end hour
       hours_many_tracked <- hours_many_tracked / max(hours_many_tracked)
