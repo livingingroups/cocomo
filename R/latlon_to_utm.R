@@ -13,6 +13,7 @@
 #'@return easts_norths, an N x 2 matrix of eastings (col 1) and northings (col 2)
 
 #' @importFrom sf st_as_sf st_transform st_coordinates
+#' @importFrom magrittr %>%
 #' @export
 
 latlon_to_utm <- function(lons_lats, utm_zone, hemisphere){

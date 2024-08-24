@@ -14,6 +14,7 @@
 #'@return lons_lats, an N x 2 matrix of longitudes (col 1) and latitudes (col 2)
 
 #' @importFrom sf st_as_sf st_transform st_coordinates
+#' @importFrom magrittr %>%
 #' @export
 #'
 utm_to_latlon <- function(easts_norths, utm_zone, hemisphere){
