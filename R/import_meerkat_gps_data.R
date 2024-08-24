@@ -39,13 +39,13 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
     all_files <- list.files(input_dir, pattern = ".*csv$", recursive = T)
 
     #get collar files and focal files
-    collar_files <- all_files[grep('COLLAR/GPS', all_files)]
+    collar_files <- all_files[grep('COLLAR[S]{0,1}/GPS', all_files)]
     focal_files <- all_files[grep('FOCAL', all_files)]
   }
 
   if(tag_type == 'axytrek'){
     all_files <- list.files(input_dir, pattern = ".*txt$", recursive = T)
-    collar_files <- all_files[grep('COLLAR/GPS', all_files)]
+    collar_files <- all_files[grep('COLLAR[S]{0,1}/GPS', all_files)]
     focal_files <- all_files[grep('FOCAL', all_files)]
   }
 
@@ -87,7 +87,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
       basename_split <- strsplit(file_basename, '_')
       group_id <- basename_split[[1]][1]
       ind_id <- basename_split[[1]][2]
-      file_dates <- gsub('.csv','',basename_split[[1]][length(basename_split[[1]])])
+      file_dates <- regmatches(file_basename, regexpr('20[0-9]{6}-20[0-9]{6}', file_basename))
       file_start_date <- strsplit(file_dates,'-')[[1]][1]
       file_end_date <- strsplit(file_dates,'-')[[1]][2]
 
@@ -157,7 +157,8 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
     basename_split <- strsplit(file_basename, '_')
     group_id <- basename_split[[1]][1]
     ind_id <- basename_split[[1]][2]
-    file_date <- gsub('.csv','',basename_split[[1]][length(basename_split[[1]])])
+    file_date <- regmatches(file_basename, regexpr('20[0-9]{6}', file_basename))
+
 
     #reformat date
     file_date <- as.Date(file_date, format = '%Y%m%d')
@@ -171,6 +172,13 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
     }
     if(tag_type=='axytrek'){
       curr_dat <- read.delim(file, sep = '\t', header=F)
+
+      #deal with inconsistent axy trek formats - in 2023 and beyond, timestamps are in first 2 columns instead of 1
+      if(nchar(curr_dat[1,1]) < 12){
+        curr_dat[,1] <- paste0(curr_dat[,1], ',', curr_dat[,2])
+        curr_dat <- curr_dat[,-2]
+      }
+
       colnames(curr_dat) <- c('timestamp','location.lat','location.long','V4','V5','satellite.count','V7','V8')
 
       #reformat timestamp - axy treks can have multiple formats so need parse_date_time
