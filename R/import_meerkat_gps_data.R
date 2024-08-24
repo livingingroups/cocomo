@@ -28,6 +28,11 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
                                     seconds_per_time_step = 1,
                                     timezone = 'UTC'){
 
+  #make sure input directory ends in '/'
+  if(substr(input_dir,nchar(input_dir),nchar(input_dir)) != '/'){
+    input_dir <- paste0(input_dir,'/')
+  }
+
   #make sure tag type is specified
   if(!tag_type %in% c('gipsy5','axytrek')){
     stop('must specify tag_type as either gipsy5 or axytrek')
