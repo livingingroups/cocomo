@@ -83,6 +83,11 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       file_basename <- basename(file)
 
+      #manually fix issue where 2023 was incorrectly typed as 2923 in BS_2023 data
+      if(basename(input_dir)=='BS_2023'){
+        file_basename <- gsub('2923','2023',file_basename)
+      }
+
       #split up name into parts and extract info
       basename_split <- strsplit(file_basename, '_')
       group_id <- basename_split[[1]][1]
