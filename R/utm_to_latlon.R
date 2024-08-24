@@ -39,7 +39,7 @@ utm_to_latlon <- function(easts_norths, utm_zone, hemisphere){
   }
 
   #main
-  utms <- data.frame(X=easts_norths[,1],Y=easts_norths[,2])
+  utms <- data.frame(X=as.numeric(easts_norths[,1]),Y=as.numeric(easts_norths[,2]))
   if(hemisphere %in% c('s','S','south','South')){
     crs_string <- paste0("+proj=utm +datum=WGS84 +units=m +no_defs +south +zone=", utm_zone)
   }
@@ -47,9 +47,12 @@ utm_to_latlon <- function(easts_norths, utm_zone, hemisphere){
     crs_string <- paste0("+proj=utm +datum=WGS84 +units=m +no_defs +north +zone=", utm_zone)
   }
 
-  utms_sf <- utms %>% sf::st_as_sf(coords = c('X','Y'), crs = crs_string)
+  non_na_idxs <- which(!is.na(utms$X) & !is.na(utms$Y))
+  utms_sf <- utms[non_na_idxs,] %>% sf::st_as_sf(coords = c('X','Y'), crs = crs_string)
   lonlat_sf <- utms_sf %>% sf::st_transform(crs = 4326)
-  lons_lats <- sf::st_coordinates(lonlat_sf)
+
+  lons_lats <- matrix(NA, nrow = nrow(easts_norths), ncol = 2)
+  lons_lats[non_na_idxs,] <- sf::st_coordinates(lonlat_sf)
 
   return(lons_lats)
 

@@ -38,8 +38,9 @@ latlon_to_utm <- function(lons_lats, utm_zone, hemisphere){
   }
 
   #main
-  lonlat <- data.frame(lon = lons_lats[,1], lat = lons_lats[,2])
-  lonlat_sf <- lonlat %>% sf::st_as_sf(coords = c('lon','lat'), crs = 4326)
+  lonlat <- data.frame(lon = as.numeric(lons_lats[,1]), lat = as.numeric(lons_lats[,2]))
+  non_na_idxs <- which(!is.na(lonlat$lon) & !is.na(lonlat$lat))
+  lonlat_sf <- lonlat[non_na_idxs,] %>% sf::st_as_sf(coords = c('lon','lat'), crs = 4326)
 
   #create CRS string
   if(hemisphere %in% c('S','s','south','South')){
@@ -50,7 +51,9 @@ latlon_to_utm <- function(lons_lats, utm_zone, hemisphere){
   }
 
   xy_sf <- lonlat_sf %>% sf::st_transform(crs = crs_string)
-  easts_norths <- sf::st_coordinates(xy_sf)
+
+  easts_norths <- matrix(NA, nrow = nrow(lons_lats), ncol = 2)
+  easts_norths[non_na_idxs,] <- sf::st_coordinates(xy_sf)
 
   return(easts_norths)
 
