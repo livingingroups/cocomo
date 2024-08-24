@@ -58,6 +58,16 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
   n_subdirs_focal <- sapply(focal_files, FUN = function(x){return(length(strsplit(x,'/')[[1]]))})
   focal_files <- focal_files[which(n_subdirs_focal == 4)]
 
+  #remove any error log files
+  errorlogs_collar <- grep('errorLog', collar_files)
+  errorlogs_focal <- grep('errorLog', focal_files)
+  if(length(errorlogs_collar)>0){
+    collar_files <- collar_files[-errorlogs_collar]
+  }
+  if(length(errorlogs_focal)>0){
+    focal_files <- focal_files[-errorlogs_focal]
+  }
+
   #--------Read in all GPS data and create data frame------
   gps_data_df <- data.frame()
   if(length(collar_files)>0){
