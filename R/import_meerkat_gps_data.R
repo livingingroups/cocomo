@@ -49,10 +49,14 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
     focal_files <- all_files[grep('FOCAL', all_files)]
   }
 
-  #check for the right number of subdirectories (there should be 4)
+  #check collar files for the right number of subdirectories (there should be 4)
   #ignore any files with the wrong number of subdirectories
-  n_subdirs <- sapply(collar_files, FUN = function(x){return(length(strsplit(x,'/')[[1]]))})
-  collar_files <- collar_files[which(n_subdirs == 4)]
+  n_subdirs_collar <- sapply(collar_files, FUN = function(x){return(length(strsplit(x,'/')[[1]]))})
+  collar_files <- collar_files[which(n_subdirs_collar == 4)]
+
+  #check focal files for the right number of subdirectories
+  n_subdirs_focal <- sapply(focal_files, FUN = function(x){return(length(strsplit(x,'/')[[1]]))})
+  focal_files <- focal_files[which(n_subdirs_focal == 4)]
 
   #--------Read in all GPS data and create data frame------
   gps_data_df <- data.frame()
