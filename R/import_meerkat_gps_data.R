@@ -17,7 +17,7 @@
 #' @param seconds_per_time_step sampling interval of GPS fixes (in seconds)
 #' @param timezone timezone to use (UTC)
 #'
-#' @importFrom lubridate hour
+#' @importFrom lubridate hour parse_date_time
 #' @export
 import_meerkat_gps_data <- function(input_dir, output_dir,
                                     tag_type,
@@ -163,9 +163,8 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
       curr_dat <- read.delim(file, sep = '\t', header=F)
       colnames(curr_dat) <- c('timestamp','location.lat','location.long','V4','V5','satellite.count','V7','V8')
 
-      #reformat timestamp
-      curr_dat$timestamp <- as.POSIXct(curr_dat$timestamp, tz = 'UTC', format = '%d/%m/%Y,%H:%M:%S')
-
+      #reformat timestamp - axy treks can have multiple formats so need parse_date_time
+      curr_dat$timestamp <- lubridate::parse_date_time(curr_dat$timestamp, tz = 'UTC', orders = c('%d/%m/%Y,%H:%M:%S', '%Y-%m-%d,%H:%M:%S'))
     }
 
     #filter out data outside of date range and with too few satellites
