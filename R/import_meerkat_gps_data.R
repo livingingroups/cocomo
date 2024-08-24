@@ -61,6 +61,12 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       #get file info
       file <- paste0(input_dir,collar_files[i])
+
+      #if file is empty, skip
+      if(file.size(file) == 0){
+        next
+      }
+
       file_basename <- basename(file)
 
       #split up name into parts and extract info
@@ -125,6 +131,12 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
     #get file info
     file <- paste0(input_dir,focal_files[i])
+
+    #if file is empty, skip
+    if(file.size(file) == 0){
+      next
+    }
+
     file_basename <- basename(file)
 
     #split up name into parts and extract info
