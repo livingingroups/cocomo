@@ -17,7 +17,7 @@
 #' @importFrom lubridate parse_date_time
 #'
 #' @export
-import_axytrek_gps_file <- function(input_file){
+import_axytrek_gps_file <- function(input_file_path){
 
   file_lines <- readLines(input_file_path)
   n_tabs <- stringr::str_count(file_lines, pattern = '\t')
