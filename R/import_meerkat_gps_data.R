@@ -122,6 +122,11 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
         curr_dat <- cocomo::import_axytrek_gps_file(input_file_path = file)
       }
 
+      #if file was empty, skip
+      if(is.null(curr_dat)){
+        next
+      }
+
 
       #filter out data outside of date range (here the collar was recording but not on a meerkat)
       idxs_keep <- which(as.Date(curr_dat$timestamp) >= file_start_date &
@@ -188,6 +193,11 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
     }
     if(tag_type=='axytrek'){
       curr_dat <- cocomo::import_axytrek_gps_file(file)
+    }
+
+    #if file was empty, skip
+    if(is.null(curr_dat)){
+      next
     }
 
     #filter out data outside of date range and with too few satellites

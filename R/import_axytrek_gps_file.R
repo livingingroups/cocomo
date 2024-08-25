@@ -26,6 +26,11 @@ import_axytrek_gps_file <- function(input_file_path){
   file_lines_split <- sapply(file_lines_use, FUN = function(x){return(strsplit(x, '\t'))})
   df <- do.call(rbind.data.frame, file_lines_split)
 
+  #if now rows found, return NULL
+  if(nrow(df)==0){
+    return(NULL)
+  }
+
   #combine first 2 columns into full timestamp if needed
   if(ncol(df)>=9){
     df[,1] <- paste(df[,1],df[,2],sep=',')
