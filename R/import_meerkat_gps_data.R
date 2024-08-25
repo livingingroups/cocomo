@@ -112,7 +112,6 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       #get file info
       file <- paste0(input_dir,files_to_read[i])
-      print(file)
 
       #if file is empty, skip
       if(file.size(file) == 0){
@@ -156,7 +155,6 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
       #if file is a garmin file, read it in differently
       tag_type_curr <- tag_type
       if(grepl('GARMIN',file)){
-        print('found garmin')
         tag_type_curr <- 'garmin'
 
         #if can't read in file, skip. otherwise, read in the file
@@ -264,7 +262,6 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       #get the hours associated with timestamps where at least half individuals were tracked
       hours_many_tracked <- table(lubridate::hour(timestamps_many_tracked))
-      print(hours_many_tracked)
 
       #infer the start and end hour
       hours_many_tracked <- hours_many_tracked / max(hours_many_tracked)
