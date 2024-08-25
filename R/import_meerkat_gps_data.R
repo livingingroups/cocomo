@@ -161,6 +161,11 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
       next
     }
 
+    #if file is a garmin file, skip
+    if(grepl('GARMIN',file)){
+      next
+    }
+
     file_basename <- basename(file)
 
     #split up name into parts and extract info
