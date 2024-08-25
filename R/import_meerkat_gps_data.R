@@ -6,6 +6,7 @@
 #'
 #' @param input_dir full path to input directory where all files from a given deployment are stored (e.g. `"~/EAS_shared/meerkat/archive/rawdata/meerkat_movecomm_2017/HM_2017_1/"`)
 #' @param output_dir full path to the output directory where processed files will be saved
+#' @param metadata_dir full path to the directory holding metadata files (GROUPYEAR_INDIVIDUAL_INFO.txt)
 #' @param tag_type `'gipsy5'` or `'axytrek'`
 #' @param start_date a character string specifying the starting date for data sampled in a daily basis, only used if `data_chunks = NULL`, format must be `'YYYY-MM-DD'`
 #' @param end_date a character string specifying the end date for data sampled on a daily basis, only used if `data_chunks = NULL`, format must be `'YYYY-MM-DD'`
@@ -23,6 +24,7 @@
 #' @importFrom lubridate hour
 #' @export
 import_meerkat_gps_data <- function(input_dir, output_dir,
+                                    metadata_dir = '~/EAS_shared/meerkat/working/METADATA/',
                                     tag_type,
                                     start_date = NULL, end_date = NULL,
                                     start_time = NULL, end_time = NULL,
@@ -80,6 +82,23 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
     focal_files <- focal_files[-errorlogs_focal]
   }
 
+  #--------Read in metadata and store in data frame----------
+
+  #determine which metadata file is needed
+  ind_info_files <- list.files(metadata_dir, recursive = T, pattern = 'INDIVIDUAL_INFO.txt')
+  ind_info_groupyears <- sapply(ind_info_files, FUN =function(x){return(strsplit(x,'_')[[1]][1])})
+  ind_info_groups <- gsub('[0-9]{4}', '', ind_info_groupyears)
+  ind_info_years <- gsub('[A-Z]{1,2}', '', ind_info_groupyears)
+  ind_info_groupyears <- paste0(ind_info_groups, '_',ind_info_years)
+  for(i in 1:length(ind_info_groupyears)){
+    if(grepl(ind_info_groupyears[i], input_dir)){
+      metadata_file <- ind_info_files[i]
+    }
+  }
+
+  #read in metadata
+  ids <- read.delim(paste0(metadata_dir,metadata_file), sep = '\t', header=T)
+
   #--------Read in all GPS data and create data frame------
   gps_data_df <- data.frame()
 
@@ -107,9 +126,8 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
         file_basename <- gsub('2923','2023',file_basename)
       }
 
-      #split up name into parts and extract info - group name and ind id
+      #split up name into parts and extract ind id
       basename_split <- strsplit(file_basename, '_')
-      group_id <- basename_split[[1]][1]
       ind_id <- basename_split[[1]][2]
 
       #get dates

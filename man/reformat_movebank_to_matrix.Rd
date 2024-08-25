@@ -7,6 +7,7 @@
 reformat_movebank_to_matrix(
   movebank_data,
   output_file_path = NULL,
+  ids = NULL,
   data_chunks = NULL,
   seconds_per_time_step = 1,
   start_date = NULL,
@@ -30,6 +31,8 @@ reformat_movebank_to_matrix(
 Can optionally also include the column \code{'study.local.timestamp'} (local timestamp for each GPS fix, must be character string of format YYYY-MM-DD HH:MM:SS.SSS).}
 
 \item{output_file_path}{full path to the desired output file (must be a .RData file)}
+
+\item{ids}{optional ids data frame which if specified will determine the order of rows in matrices (\code{code} column in ids needs to match to \code{individual.local.identifier} column in \code{movebank_data})}
 
 \item{data_chunks}{data frame with columns \code{start} and \code{end} specifying starting and ending datetimes (in POSIXct format - with time zone!) for each contiguous chunk of data. overrides other specified start and end times / dates.}
 
@@ -57,7 +60,7 @@ Can optionally also include the column \code{'study.local.timestamp'} (local tim
 }
 \value{
 Saves a file to the location \code{output_file_path} containing the objects: \code{timestamps} (vector of timestamps in POSIXct format, of length \code{n_times}),
-\code{ids} (data frame containing a single \code{id} column with the id from \code{individual.local.identifier} column in \code{movebank_data}), \code{xs} (\code{n_inds} x \code{n_times} matrix of UTM eastings for all individuals at each time point),
+\code{ids} (data frame containing either the original \code{ids} data or a single \code{code} column with the id from \code{individual.local.identifier} column in \code{movebank_data}), \code{xs} (\code{n_inds} x \code{n_times} matrix of UTM eastings for all individuals at each time point),
 \code{ys} (\code{n_inds} x \code{n_times} matrix of UTM northings for all individuals at each time point), \code{lons} (\code{n_inds} x \code{n_times} matrix of longitudes for all individuals at each time point), and
 \code{lats} (\code{n_inds} x \code{n_times} matrix of longitudes for all individuals at each time point). \code{xs} and \code{ys} are only saved if \code{output_utm = T}. \code{lons} and \code{lats} are only saved if \code{output_lonlat = T}
 }

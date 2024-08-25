@@ -7,6 +7,7 @@
 import_meerkat_gps_data(
   input_dir,
   output_dir,
+  metadata_dir = "~/EAS_shared/meerkat/working/METADATA/",
   tag_type,
   start_date = NULL,
   end_date = NULL,
@@ -23,6 +24,8 @@ import_meerkat_gps_data(
 \item{input_dir}{full path to input directory where all files from a given deployment are stored (e.g. \code{"~/EAS_shared/meerkat/archive/rawdata/meerkat_movecomm_2017/HM_2017_1/"})}
 
 \item{output_dir}{full path to the output directory where processed files will be saved}
+
+\item{metadata_dir}{full path to the directory holding metadata files (GROUPYEAR_INDIVIDUAL_INFO.txt)}
 
 \item{tag_type}{\code{'gipsy5'} or \code{'axytrek'}}
 

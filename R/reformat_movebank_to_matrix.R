@@ -13,6 +13,7 @@
 #' `'location.lat` (latitude coordinate).
 #'  Can optionally also include the column `'study.local.timestamp'` (local timestamp for each GPS fix, must be character string of format YYYY-MM-DD HH:MM:SS.SSS).
 #' @param output_file_path full path to the desired output file (must be a .RData file)
+#' @param ids optional ids data frame which if specified will determine the order of rows in matrices (`code` column in ids needs to match to `individual.local.identifier` column in `movebank_data`)
 #' @param data_chunks data frame with columns `start` and `end` specifying starting and ending datetimes (in POSIXct format - with time zone!) for each contiguous chunk of data. overrides other specified start and end times / dates.
 #' @param seconds_per_time_step sampling interval of GPS fixes (in seconds)
 #' @param start_date a character string specifying the starting date for data sampled in a daily basis, only used if `data_chunks = NULL`, format must be `'YYYY-MM-DD'`
@@ -27,12 +28,13 @@
 #' @param local_timezone specify local timezone string, if not using UTC (use_UTC = F)
 #'
 #' @returns Saves a file to the location `output_file_path` containing the objects: `timestamps` (vector of timestamps in POSIXct format, of length `n_times`),
-#' `ids` (data frame containing a single `id` column with the id from `individual.local.identifier` column in `movebank_data`), `xs` (`n_inds` x `n_times` matrix of UTM eastings for all individuals at each time point),
+#' `ids` (data frame containing either the original `ids` data or a single `code` column with the id from `individual.local.identifier` column in `movebank_data`), `xs` (`n_inds` x `n_times` matrix of UTM eastings for all individuals at each time point),
 #' `ys` (`n_inds` x `n_times` matrix of UTM northings for all individuals at each time point), `lons` (`n_inds` x `n_times` matrix of longitudes for all individuals at each time point), and
 #' `lats` (`n_inds` x `n_times` matrix of longitudes for all individuals at each time point). `xs` and `ys` are only saved if `output_utm = T`. `lons` and `lats` are only saved if `output_lonlat = T`
 #'
 #' @export
 reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
+                                        ids = NULL,
                                         data_chunks = NULL,
                                         seconds_per_time_step = 1,
                                         start_date = NULL,
@@ -127,11 +129,15 @@ reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
     movebank_data$study.local.timestamp <- as.POSIXct(movebank_data$study.local.timestamp, tz = timezone)
   }
 
-  #get list of individuals
-  inds <- unique(movebank_data$individual.local.identifier)
-
-  #get number of individuals and number of timestamps
+  #get list of individuals and number of individuals
+  if(is.null(ids)){
+    inds <- unique(movebank_data$individual.local.identifier)
+  } else{
+    inds <- ids$code
+  }
   n_inds <- length(inds)
+
+  #get number of timestamps
   n_times <- length(timestamps)
 
   #create matrices
@@ -173,8 +179,10 @@ reformat_movebank_to_matrix <- function(movebank_data, output_file_path = NULL,
 
   }
 
-  #create ids data frame
-  ids <- data.frame(id = inds)
+  #create ids data frame if needed
+  if(is.null(ids)){
+    ids <- data.frame(code = inds)
+  }
 
   #create list of which variables to output
   to_output <- c('ids','timestamps')
