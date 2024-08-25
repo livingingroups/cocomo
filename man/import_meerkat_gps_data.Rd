@@ -49,3 +49,8 @@ import_meerkat_gps_data(
 file folder structure of \code{input_dir} and standardized naming schemes as done in the meerkat group collaring project.
 Outputs a file containing the xs, ys, and timestamps matrices as well as another file with the GPS data table in Movebank format
 }
+\author{
+Ariana Strandburg-Peshkin (primary author)
+
+NOT YET CODE REVIEWED
+}

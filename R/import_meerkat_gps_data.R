@@ -17,7 +17,10 @@
 #' @param seconds_per_time_step sampling interval of GPS fixes (in seconds)
 #' @param timezone timezone to use (UTC)
 #'
-#' @importFrom lubridate hour parse_date_time
+#' @author Ariana Strandburg-Peshkin (primary author)
+#' @author NOT YET CODE REVIEWED
+#'
+#' @importFrom lubridate hour
 #' @export
 import_meerkat_gps_data <- function(input_dir, output_dir,
                                     tag_type,
@@ -114,12 +117,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       }
       if(tag_type=='axytrek'){
-        curr_dat <- read.delim(file, sep = '\t', header=F)
-        colnames(curr_dat) <- c('timestamp','location.lat','location.long','V4','V5','satellite.count','V7','V8')
-
-        #reformat timestamp
-        curr_dat$timestamp <- as.POSIXct(curr_dat$timestamp, tz = 'UTC', format = '%d/%m/%Y,%H:%M:%S')
-
+        curr_dat <- cocomo::import_axytrek_gps_file(file)
       }
 
 
@@ -181,18 +179,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
       curr_dat$timestamp <- as.POSIXct(curr_dat$timestamp, tz = 'UTC', format = '%d/%m/%Y %H:%M:%S')
     }
     if(tag_type=='axytrek'){
-      curr_dat <- read.delim(file, sep = '\t', header=F)
-
-      #deal with inconsistent axy trek formats - in 2023 and beyond, timestamps are in first 2 columns instead of 1
-      if(nchar(curr_dat[1,1]) < 12){
-        curr_dat[,1] <- paste0(curr_dat[,1], ',', curr_dat[,2])
-        curr_dat <- curr_dat[,-2]
-      }
-
-      colnames(curr_dat) <- c('timestamp','location.lat','location.long','V4','V5','satellite.count','V7','V8')
-
-      #reformat timestamp - axy treks can have multiple formats so need parse_date_time
-      curr_dat$timestamp <- lubridate::parse_date_time(curr_dat$timestamp, tz = 'UTC', orders = c('%d/%m/%Y,%H:%M:%S', '%Y-%m-%d,%H:%M:%S'))
+      curr_dat <- cocomo::import_axytrek_gps_file(file)
     }
 
     #filter out data outside of date range and with too few satellites
