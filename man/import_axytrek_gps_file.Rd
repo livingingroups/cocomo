@@ -4,7 +4,7 @@
 \alias{import_axytrek_gps_file}
 \title{Import Axy-Trek GPS file}
 \usage{
-import_axytrek_gps_file(input_file)
+import_axytrek_gps_file(input_file_path)
 }
 \arguments{
 \item{input_file_path}{full path to the input file}

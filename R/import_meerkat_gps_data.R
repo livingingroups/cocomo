@@ -117,7 +117,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       }
       if(tag_type=='axytrek'){
-        curr_dat <- cocomo::import_axytrek_gps_file(file)
+        curr_dat <- cocomo::import_axytrek_gps_file(input_file_path = file)
       }
 
 
