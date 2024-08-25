@@ -78,14 +78,25 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
   #--------Read in all GPS data and create data frame------
   gps_data_df <- data.frame()
-  if(length(collar_files)>0){
-    for(i in 1:length(collar_files)){
+
+  n_focal_files <- length(focal_files)
+  n_collar_files <- length(collar_files)
+  files_to_read <- c(focal_files, collar_files)
+  recording_types <- c(rep('focal',n_focal_files),rep('collar',n_collar_files))
+
+  if(length(files_to_read)>0){
+    for(i in 1:length(files_to_read)){
 
       #get file info
       file <- paste0(input_dir,collar_files[i])
 
       #if file is empty, skip
       if(file.size(file) == 0){
+        next
+      }
+
+      #if file is a garmin file, skip
+      if(grepl('GARMIN',file)){
         next
       }
 
@@ -102,13 +113,26 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
       ind_id <- basename_split[[1]][2]
 
       #get dates
-      file_dates <- regmatches(file_basename, regexpr('20[0-9]{6}[-_]20[0-9]{6}', file_basename))
-      file_start_date <- strsplit(file_dates,'[-_]')[[1]][1]
-      file_end_date <- strsplit(file_dates,'[-_]')[[1]][2]
+      if(recording_types[i] == 'collar'){
 
-      #reformat dates
-      file_start_date <- as.Date(file_start_date, format = '%Y%m%d')
-      file_end_date <- as.Date(file_end_date, format = '%Y%m%d')
+        #get file dates
+        file_dates <- regmatches(file_basename, regexpr('20[0-9]{6}[-_]20[0-9]{6}', file_basename))
+        file_start_date <- strsplit(file_dates,'[-_]')[[1]][1]
+        file_end_date <- strsplit(file_dates,'[-_]')[[1]][2]
+
+        #reformat dates
+        file_start_date <- as.Date(file_start_date, format = '%Y%m%d')
+        file_end_date <- as.Date(file_end_date, format = '%Y%m%d')
+      }
+      if(recording_types[i] == 'focal'){
+
+        #get file date
+        file_date <- regmatches(file_basename, regexpr('20[0-9]{6}', file_basename))
+
+        #reformat date
+        file_date <- as.Date(file_date, format = '%Y%m%d')
+        file_start_date <- file_end_date <- file_date
+      }
 
       #read in data from file
       if(tag_type=='gipsy5'){
@@ -146,82 +170,13 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
                                   location.long = curr_dat$location.long,
                                   location.lat = curr_dat$location.lat,
                                   satellites = curr_dat$satellite.count,
-                                  record_type = rep('collar', n_rows),
+                                  record_type = rep(recording_types[i], n_rows),
                                   tag_type = rep(tag_type, n_rows)
                                   )
 
         #add to data frame
         gps_data_df <- rbind(gps_data_df, data_to_add)
       }
-    }
-  }
-
-  for(i in 1:length(focal_files)){
-
-    #get file info
-    file <- paste0(input_dir,focal_files[i])
-
-    #if file is empty, skip
-    if(file.size(file) == 0){
-      next
-    }
-
-    #if file is a garmin file, skip
-    if(grepl('GARMIN',file)){
-      next
-    }
-
-    file_basename <- basename(file)
-
-    #split up name into parts and extract info
-    basename_split <- strsplit(file_basename, '_')
-    group_id <- basename_split[[1]][1]
-    ind_id <- basename_split[[1]][2]
-
-    #get file date
-    file_date <- regmatches(file_basename, regexpr('20[0-9]{6}', file_basename))
-
-    #reformat date
-    file_date <- as.Date(file_date, format = '%Y%m%d')
-
-    #read in data from file
-    if(tag_type == 'gipsy5'){
-      curr_dat <- read.csv(file, sep = '\t', header=T)
-
-      #reformat timestamp
-      curr_dat$timestamp <- as.POSIXct(curr_dat$timestamp, tz = 'UTC', format = '%d/%m/%Y %H:%M:%S')
-    }
-    if(tag_type=='axytrek'){
-      curr_dat <- cocomo::import_axytrek_gps_file(file)
-    }
-
-    #if file was empty, skip
-    if(is.null(curr_dat)){
-      next
-    }
-
-    #filter out data outside of date range and with too few satellites
-    idxs_keep <- which(as.Date(curr_dat$timestamp) == file_date & curr_dat$satellite.count >= min_satellites)
-    curr_dat <- curr_dat[idxs_keep,]
-
-    #number of rows
-    n_rows <- length(idxs_keep)
-
-    if(n_rows > 0){
-      data_to_add <- data.frame(filename = rep(file_basename, n_rows),
-                                individual.local.identifier = rep(ind_id, n_rows),
-                                animal.group.id = rep(group_id, n_rows),
-                                timestamp = curr_dat$timestamp,
-                                location.long = curr_dat$location.long,
-                                location.lat = curr_dat$location.lat,
-                                satellites = curr_dat$satellite.count,
-                                record_type = rep('focal', n_rows),
-                                tag_type = rep(tag_type, n_rows)
-      )
-
-      #add to data frame
-      gps_data_df <- rbind(gps_data_df, data_to_add)
-
     }
   }
 
