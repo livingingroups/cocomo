@@ -128,6 +128,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       #split up name into parts and extract ind id
       basename_split <- strsplit(file_basename, '_')
+      group_id <- basename_split[[1]][1]
       ind_id <- basename_split[[1]][2]
 
       #get dates
