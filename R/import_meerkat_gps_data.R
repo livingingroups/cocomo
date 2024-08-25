@@ -96,13 +96,15 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
         file_basename <- gsub('2923','2023',file_basename)
       }
 
-      #split up name into parts and extract info
+      #split up name into parts and extract info - group name and ind id
       basename_split <- strsplit(file_basename, '_')
       group_id <- basename_split[[1]][1]
       ind_id <- basename_split[[1]][2]
-      file_dates <- regmatches(file_basename, regexpr('20[0-9]{6}-20[0-9]{6}', file_basename))
-      file_start_date <- strsplit(file_dates,'-')[[1]][1]
-      file_end_date <- strsplit(file_dates,'-')[[1]][2]
+
+      #get dates
+      file_dates <- regmatches(file_basename, regexpr('20[0-9]{6}[-_]20[0-9]{6}', file_basename))
+      file_start_date <- strsplit(file_dates,'[-_]')[[1]][1]
+      file_end_date <- strsplit(file_dates,'[-_]')[[1]][2]
 
       #reformat dates
       file_start_date <- as.Date(file_start_date, format = '%Y%m%d')
@@ -165,8 +167,9 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
     basename_split <- strsplit(file_basename, '_')
     group_id <- basename_split[[1]][1]
     ind_id <- basename_split[[1]][2]
-    file_date <- regmatches(file_basename, regexpr('20[0-9]{6}', file_basename))
 
+    #get file date
+    file_date <- regmatches(file_basename, regexpr('20[0-9]{6}', file_basename))
 
     #reformat date
     file_date <- as.Date(file_date, format = '%Y%m%d')
