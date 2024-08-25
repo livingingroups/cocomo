@@ -88,7 +88,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
     for(i in 1:length(files_to_read)){
 
       #get file info
-      file <- paste0(input_dir,collar_files[i])
+      file <- paste0(input_dir,files_to_read[i])
 
       #if file is empty, skip
       if(file.size(file) == 0){
