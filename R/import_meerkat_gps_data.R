@@ -27,7 +27,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
                                     start_date = NULL, end_date = NULL,
                                     start_time = NULL, end_time = NULL,
                                     min_satellites = 5,
-                                    utm_zone = 36, hemisphere = 'south',
+                                    utm_zone = 34, hemisphere = 'south',
                                     seconds_per_time_step = 1,
                                     timezone = 'UTC'){
 
@@ -45,6 +45,10 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
   if(tag_type == 'gipsy5'){
     #get all files
     all_files <- list.files(input_dir, pattern = ".*csv$", recursive = T)
+
+    #add in any garmin files, since they won't be csvs
+    garmin_files <- list.files(input_dir, pattern='GARMIN', recursive = T)
+    all_files <- unique(c(all_files, garmin_files))
 
     #get collar files and focal files
     collar_files <- all_files[grep('COLLAR[S]{0,1}/GPS', all_files)]
@@ -89,14 +93,10 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       #get file info
       file <- paste0(input_dir,files_to_read[i])
+      print(file)
 
       #if file is empty, skip
       if(file.size(file) == 0){
-        next
-      }
-
-      #if file is a garmin file, skip
-      if(grepl('GARMIN',file)){
         next
       }
 
@@ -134,15 +134,57 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
         file_start_date <- file_end_date <- file_date
       }
 
+      #if file is a garmin file, read it in differently
+      tag_type_curr <- tag_type
+      if(grepl('GARMIN',file)){
+        print('found garmin')
+        tag_type_curr <- 'garmin'
+
+        #if can't read in file, skip. otherwise, read in the file
+        curr_dat <- tryCatch(read.delim(file), error = function(e){return(NULL)})
+        if(is.null(curr_dat)){
+          next
+        }
+
+        #there are two types of garmin formats. deal with first format (5 cols)
+        if(ncol(curr_dat) == 5){
+
+          #in the first format, Longitude and Latitude columns are actually UTM Eastings and Northings respectively - go figure
+          #so replace them with lats and lons
+          easts_norths <- cbind(curr_dat$Longitude, curr_dat$Latitude)
+          lons_lats <- cocomo::utm_to_latlon(easts_norths, utm_zone = utm_zone, hemisphere = hemisphere)
+          curr_dat$Longitude <- lons_lats[,1]
+          curr_dat$Latitude <- lons_lats[,2]
+
+          colnames(curr_dat) <- c('location.long','location.lat','altitude','timestamp','satellite.count')
+
+          #add a column for satellites and fill it with min_satellites to be compatible with later code
+          curr_dat$satellite.count <- min_satellites
+
+          #reformat timestamp
+          curr_dat$timestamp <- as.POSIXct(curr_dat$timestamp, tz = timezone, format = '%Y-%m-%d %H:%M:%S')
+
+        }
+
+        if(ncol(curr_dat) == 27){
+          curr_dat <- curr_dat[,c('time','lon','lat')]
+          curr_dat$timestamp <- as.POSIXct(curr_dat$time, format = '%Y-%m-%dT%H:%M:%SZ', tz = timezone)
+          colnames(curr_dat) <- c('time_old','location.long','location.lat','timestamp')
+
+          #add a column for satellites and fill it with min_satellites to be compatible with later code
+          curr_dat$satellite.count <- min_satellites
+        }
+      }
+
       #read in data from file
-      if(tag_type=='gipsy5'){
+      if(tag_type_curr=='gipsy5'){
         curr_dat <- read.csv(file, sep = '\t', header=T)
 
         #reformat timestamp
         curr_dat$timestamp <- as.POSIXct(curr_dat$timestamp, tz = 'UTC', format = '%d/%m/%Y %H:%M:%S')
 
       }
-      if(tag_type=='axytrek'){
+      if(tag_type_curr=='axytrek'){
         curr_dat <- cocomo::import_axytrek_gps_file(input_file_path = file)
       }
 
@@ -171,7 +213,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
                                   location.lat = curr_dat$location.lat,
                                   satellites = curr_dat$satellite.count,
                                   record_type = rep(recording_types[i], n_rows),
-                                  tag_type = rep(tag_type, n_rows)
+                                  tag_type = rep(tag_type_curr, n_rows)
                                   )
 
         #add to data frame

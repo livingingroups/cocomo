@@ -13,7 +13,7 @@ import_meerkat_gps_data(
   start_time = NULL,
   end_time = NULL,
   min_satellites = 5,
-  utm_zone = 36,
+  utm_zone = 34,
   hemisphere = "south",
   seconds_per_time_step = 1,
   timezone = "UTC"
