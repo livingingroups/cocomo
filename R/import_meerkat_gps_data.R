@@ -237,7 +237,7 @@ import_meerkat_gps_data <- function(input_dir, output_dir,
 
       #infer the start and end hour
       hours_many_tracked <- hours_many_tracked / max(hours_many_tracked)
-      hours_many_tracked <- names(hours_many_tracked)[which(hours_many_tracked > 0.1)]
+      hours_many_tracked <- names(hours_many_tracked)[which(hours_many_tracked > 0.25)]
       start_hour <- min(as.numeric(hours_many_tracked))
       end_hour <- max(as.numeric(hours_many_tracked)) + 1
 
