@@ -11,7 +11,7 @@
 #' @param metadata_file path to corresponding metadata file
 #'
 #' @returns Returns 0 if the metadata and xy data match. Returns 1 otherwise and prints any discrepancies.
-
+#' @export
 compare_meerkat_gps_data_to_recording_intervals <- function(xy_file, metadata_file){
 
   #get xy data
