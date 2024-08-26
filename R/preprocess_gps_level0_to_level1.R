@@ -212,6 +212,11 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
       }
     }
     
+    #get maximum speed based on percentile unless it was specified
+    if(is.null(max_speed)){
+      max_speed <- quantile(speeds, max_speed_percentile, na.rm=T)
+    }
+    
     #report max speed in kph and m/s
     if(verbose){
       max_speed_ms <- max_speed / as.numeric(difftime(timestamps[2], timestamps[1], units = 'sec'))
