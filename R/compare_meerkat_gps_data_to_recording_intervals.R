@@ -19,7 +19,8 @@ compare_meerkat_gps_data_to_recording_intervals <- function(xy_file, metadata_fi
 
   #get individuals and dates from xy data
   inds_xy <- ids$code
-  dates_xy <- unique(as.Date(timestamps))
+  timestamps_dates <- as.Date(timestamps)
+  dates_xy <- unique(timestamps_dates)
 
   #get metadata
   metadata <- read.delim(metadata_file, header=T, sep = '\t')
