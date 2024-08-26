@@ -60,7 +60,7 @@ preprocess_gps_level0_to_level1(
 
 \item{max_sd_away}{standard deviation of xs and ys distributions for each individual beyond which points will be removed}
 
-\item{max_dist_percentile}{quantile to use to define the maximum x and y coordinates (all those outside will be removed)}
+\item{max_dist_percentile}{quantile to use to define the maximum x and y coordinates of points to check for isolation (those outside and isolated will be removed)}
 
 \item{max_isolated_point_dist}{maximum isolated point distance}
 

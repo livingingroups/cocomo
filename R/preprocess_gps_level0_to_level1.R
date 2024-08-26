@@ -36,7 +36,7 @@
 #' @param max_speed_percentile quantile to use to define the maximum speed
 #' @param max_speed maximum speed (overrides max_speed_percentile if specified). This value is interpreted as the max allowable meters traveled in one time step in `timesteps`. 
 #' @param max_sd_away standard deviation of xs and ys distributions for each individual beyond which points will be removed
-#' @param max_dist_percentile quantile to use to define the maximum x and y coordinates (all those outside will be removed)
+#' @param max_dist_percentile quantile to use to define the maximum x and y coordinates of points to check for isolation (those outside and isolated will be removed)
 #' @param max_isolated_point_dist maximum isolated point distance
 #' @param max_interp_len maximum length of an `NA` gap to linearly interpolate (number of time points)
 #' @param max_move_dist maximum distance moved during a time `max_move_time` to interpolate using the average position
