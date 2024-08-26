@@ -88,7 +88,7 @@ compare_meerkat_gps_data_to_recording_intervals <- function(xy_file, metadata_fi
 
   #if there are mismatches, attribute them
   if(sum(!metadata_xy_match, na.rm=T) != 0){
-    for(i in 1:n_inds){
+    for(i in 1:length(inds)){
       for(j in 1:length(dates)){
         if(is.na(xy_tf[i,j])){
           next
