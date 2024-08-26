@@ -2,8 +2,9 @@
 #'
 #' This function takes in a level 0 dataset (raw GPS data) and performs minimal
 #' pre-processing to return a level 1 dataset.
+#' 
+#' 
 #' The function performs the following steps (in order):
-#'
 #' 1. If `remove_unrealistic_speeds = T`, removes unrealistic speeds (greater than `max_speed_percentile`) and replaces them with NAs (default .9995 quantile, or alternatively a max speed `max_speed` can be set manually.
 #'
 #' 2. If `remove_isolated_points = T`, finds extreme distances `> max_dist_percentile` quantile (default 99.99%) or `< 1 - max_dist_percentile` of `xs` or `ys` for each individual and, if there are no other points from that individual within `max_isolated_point_dist` (default 1000 m) of that point, replaces them with `NA`s

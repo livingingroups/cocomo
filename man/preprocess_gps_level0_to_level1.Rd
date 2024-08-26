@@ -80,9 +80,9 @@ Returns a list containing new \code{xs} and \code{ys} matrices, and also saves t
 \description{
 This function takes in a level 0 dataset (raw GPS data) and performs minimal
 pre-processing to return a level 1 dataset.
-The function performs the following steps (in order):
 }
 \details{
+The function performs the following steps (in order):
 \enumerate{
 \item If \code{remove_unrealistic_speeds = T}, removes unrealistic speeds (greater than \code{max_speed_percentile}) and replaces them with NAs (default .9995 quantile, or alternatively a max speed \code{max_speed} can be set manually.
 \item If \code{remove_isolated_points = T}, finds extreme distances \verb{> max_dist_percentile} quantile (default 99.99\%) or \verb{< 1 - max_dist_percentile} of \code{xs} or \code{ys} for each individual and, if there are no other points from that individual within \code{max_isolated_point_dist} (default 1000 m) of that point, replaces them with \code{NA}s
