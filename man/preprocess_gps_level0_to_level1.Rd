@@ -34,9 +34,9 @@ preprocess_gps_level0_to_level1(
 
 \item{output_file_path}{full path to the output file where the level 1 dataset will be stored, must end in .RData}
 
-\item{xs}{\verb{n_inds x n_times} matrix giving x coordinates of each individual over time (if an input file is not specified, pass this in manually)}
+\item{xs}{\verb{n_inds x n_times} matrix giving x coordinates (in UTM eastings) of each individual over time (if an input file is not specified, pass this in manually)}
 
-\item{ys}{\verb{n_inds x n_times} matrix giving y coordinates of each individual over time (if an input file is not specified, pass this in manually)}
+\item{ys}{\verb{n_inds x n_times} matrix giving y coordinates (in UTM northings) of each individual over time (if an input file is not specified, pass this in manually)}
 
 \item{timestamps}{vector of timestamps (if an input file is not specified, pass this in manually)}
 
@@ -78,8 +78,8 @@ preprocess_gps_level0_to_level1(
 Returns a list containing new \code{xs} and \code{ys} matrices, and also saves them plus the \code{timestamps} and \code{ids} objects to an output file if specified
 }
 \description{
-This function takes in a level 0 dataset (raw GPS data) and performs minimal
-pre-processing to return a level 1 dataset.
+This function takes in a level 0 dataset (uncleaned location data in UTM coordinates) and performs minimal
+pre-processing to return a level 1 dataset. To convert from lat/lon to UTM, see \link{latlon_to_utm}.
 }
 \details{
 The function performs the following steps (in order):

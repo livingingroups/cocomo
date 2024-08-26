@@ -1,7 +1,7 @@
 #' Preprocess GPS data (in matrix format) from level 0 to level 1
 #'
-#' This function takes in a level 0 dataset (raw GPS data) and performs minimal
-#' pre-processing to return a level 1 dataset.
+#' This function takes in a level 0 dataset (uncleaned location data in UTM coordinates) and performs minimal
+#' pre-processing to return a level 1 dataset. See [latlon_to_utm] to convert from lat/lon to UTM. 
 #' 
 #' 
 #' The function performs the following steps (in order):
@@ -23,8 +23,8 @@
 #'
 #' @param input_file_path full path to the input file containing `xs`, `ys`, `timestamps`, and `ids` (overrides manual passing in of these parameters), must be an RData file
 #' @param output_file_path full path to the output file where the level 1 dataset will be stored, must end in .RData
-#' @param xs `n_inds x n_times` matrix giving x coordinates of each individual over time (if an input file is not specified, pass this in manually)
-#' @param ys `n_inds x n_times` matrix giving y coordinates of each individual over time (if an input file is not specified, pass this in manually)
+#' @param xs `n_inds x n_times` matrix giving x coordinates (in UTM eastings) of each individual over time (if an input file is not specified, pass this in manually)
+#' @param ys `n_inds x n_times` matrix giving y coordinates (in UTM northings) of each individual over time (if an input file is not specified, pass this in manually)
 #' @param timestamps vector of timestamps (if an input file is not specified, pass this in manually)
 #' @param ids data frame containing information about each individual (if an input file is not specified, pass this in manually)
 #' @param breaks vector giving indexes to breaks in the data (e.g. gaps between recording intervals), if the sequence is not continuous. breaks should specify the index associated with the beginning of each interval, starting with 1 (the first interval)
