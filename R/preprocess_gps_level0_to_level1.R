@@ -390,7 +390,10 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(include_breaks){
     out_list <- c(out_list, 'breaks')
   }
-  save(file = output_file_path, list = out_list)
+  
+  if(!is.null(output_file_path)){
+    save(file = output_file_path, list = out_list)
+  }
 
   #return output
   out <- list()
