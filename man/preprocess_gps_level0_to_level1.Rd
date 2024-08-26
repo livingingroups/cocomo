@@ -56,7 +56,7 @@ preprocess_gps_level0_to_level1(
 
 \item{max_speed_percentile}{quantile to use to define the maximum speed}
 
-\item{max_speed}{maximum speed (overrides max_speed_percentile if specified)}
+\item{max_speed}{maximum speed (overrides max_speed_percentile if specified). This value is interpreted as the max allowable meters traveled in one time step in \code{timesteps}.}
 
 \item{max_sd_away}{standard deviation of xs and ys distributions for each individual beyond which points will be removed}
 
@@ -79,7 +79,7 @@ Returns a list containing new \code{xs} and \code{ys} matrices, and also saves t
 }
 \description{
 This function takes in a level 0 dataset (uncleaned location data in UTM coordinates) and performs minimal
-pre-processing to return a level 1 dataset. To convert from lat/lon to UTM, see \link{latlon_to_utm}.
+pre-processing to return a level 1 dataset. See \link{latlon_to_utm} to convert from lat/lon to UTM.
 }
 \details{
 The function performs the following steps (in order):

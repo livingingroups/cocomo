@@ -34,7 +34,7 @@
 #' @param interpolate_small_gaps whether to interpolate small gaps (`T` or `F`)
 #' @param interpolate_stationary_periods whether to interpolate stationary periods (`T` or `F`) - cannot be run unless `interpolate_small_gaps` is also `T`
 #' @param max_speed_percentile quantile to use to define the maximum speed
-#' @param max_speed maximum speed (overrides max_speed_percentile if specified)
+#' @param max_speed maximum speed (overrides max_speed_percentile if specified). This value is interpreted as the max allowable meters traveled in one time step in `timesteps`. 
 #' @param max_sd_away standard deviation of xs and ys distributions for each individual beyond which points will be removed
 #' @param max_dist_percentile quantile to use to define the maximum x and y coordinates (all those outside will be removed)
 #' @param max_isolated_point_dist maximum isolated point distance
