@@ -52,7 +52,9 @@
 #' @param R_inner inner distance threshold to identify periods of connectedness (numeric)
 #' @param R_outer outer distance threshold to identify periods of connectedness (numeric)
 #' @param breaks indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides `break_by_day`
+#' @param names optional vector of names (if NULL, will be defined as `as.character(1:n_inds)`)
 #' @param break_by_day whether to break up data by date (T or F)
+#' @param verbose whether to print out statements as code progresses
 
 #' @return a list containing:
 #'
@@ -125,7 +127,31 @@
 #' @importFrom lubridate date
 #' @importFrom dbscan dbscan
 #' @export
-identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer, breaks = c(1, length(timestamps)+1), names = NULL, break_by_day = F, verbose = T){
+identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
+                                       breaks = c(1, length(timestamps)+1),
+                                       names = NULL,
+                                       break_by_day = F,
+                                       verbose = T){
+
+  #error checking - xs and ys matrices
+  if(nrow(xs) != nrow(ys) | ncol(xs) != ncol(ys)){
+    stop('xs and ys matrices must have same dimensions')
+  }
+
+  #error checking timestamps
+  if(ncol(xs) != length(timestamps)){
+    stop('timestamps must be same length as ncol(xs) and ncol(ys)')
+  }
+
+  #if names is NULL, create a vector for names with index numbers
+  if(is.null(names)){
+    names <- as.character(1:nrow(xs))
+  }
+
+  #check length of names
+  if(length(names) != nrow(xs)){
+    stop('names vector must have same length as nrow(xs)')
+  }
 
   #----Identify subgroups at each point
   if(verbose){print('Identifying subgroups at each point using sticky DBSCAN')}

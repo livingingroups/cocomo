@@ -29,7 +29,11 @@ identify_splits_and_merges(
 
 \item{breaks}{indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides \code{break_by_day}}
 
+\item{names}{optional vector of names (if NULL, will be defined as \code{as.character(1:n_inds)})}
+
 \item{break_by_day}{whether to break up data by date (T or F)}
+
+\item{verbose}{whether to print out statements as code progresses}
 }
 \value{
 a list containing:
