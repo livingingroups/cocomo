@@ -357,7 +357,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
               if(interpolate_stationary_periods){
 
                 #Interpolation of stationary periods shorter than max_move_time
-                if((lens[j] > max_interp_len) & (lens[j] < max_move_time)){
+                if((lens[j] > max_interp_len) & (lens[j] <= max_move_time)){
 
                   #Fill in with mean value at start and end if they are close enough ( < max_move_dist)
                   dist_moved <- sqrt((next_val_x - prev_val_x)^2 + (next_val_y - prev_val_y)^2)
