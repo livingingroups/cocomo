@@ -127,6 +127,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(remove_isolated_points){
     
     if(verbose){
+      cat('\n')
       print('removing unrealistic isolated points')
     }
     
@@ -196,6 +197,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(remove_unrealistic_speeds){
 
     if(verbose){
+      cat('\n')
       print('removing unrealistic speeds')
     }
 
@@ -221,7 +223,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     if(verbose){
       max_speed_ms <- max_speed / as.numeric(difftime(timestamps[2], timestamps[1], units = 'sec'))
       max_speed_kph <- max_speed_ms * ((60*60)/1000)
-      print(paste0('max speed set to ', round(max_speed_kph,2), 'kph (', round(max_speed_ms,2), ') m/s'))
+      print(paste0('max speed set to ', round(max_speed_kph,2), 'kph (', round(max_speed_ms,2), ' m/s)'))
     }
     
 
@@ -246,6 +248,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(remove_unrealistic_locations){
 
     if(verbose){
+      cat('\n')
       print('removing very unrealistic locations beyond a max standard deviation')
     }
 
@@ -275,6 +278,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(!is.null(bounding_box)){
 
     if(verbose){
+      cat('\n')
       print('removing points outside of bounding box')
     }
 
@@ -307,6 +311,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(interpolate_small_gaps){
 
     if(verbose){
+      cat('\n')
       print('interpolating small gaps (and slightly longer stationary periods, if specified)')
     }
 
@@ -380,7 +385,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     }
 
     if(verbose){
-      print('after interpolating:')
+      print('after interpolating, fraction of NAs:')
       print(sum(is.na(xs))/length(xs))
     }
   }
