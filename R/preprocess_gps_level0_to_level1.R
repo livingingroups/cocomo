@@ -147,6 +147,14 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     if(is.null(max_speed)){
       max_speed <- quantile(speeds, max_speed_percentile, na.rm=T)
     }
+    
+    #report max speed in kph and m/s
+    if(verbose){
+      max_speed_ms <- max_speed / as.numeric(difftime(timestamps[2], timestamps[1], units = 'sec'))
+      max_speed_kph <- max_speed_ms * ((60*60)/1000)
+      print(paste0('max speed set to ', round(max_speed_kph,2), 'kph (', round(max_speed_ms,2), ') m/s'))
+    }
+    
 
     #replace unrealistic speeds with NAs
     for(i in 1:n_inds){
