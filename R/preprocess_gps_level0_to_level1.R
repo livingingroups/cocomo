@@ -5,10 +5,11 @@
 #' 
 #' 
 #' The function performs the following steps (in order):
-#' 1. If `remove_unrealistic_speeds = T`, removes unrealistic speeds (greater than `max_speed_percentile`) and replaces them with NAs (default .9995 quantile, or alternatively a max speed `max_speed` can be set manually.
-#'
-#' 2. If `remove_isolated_points = T`, finds extreme distances `> max_dist_percentile` quantile (default 99.99%) or `< 1 - max_dist_percentile` of `xs` or `ys` for each individual and, if there are no other points from that individual within `max_isolated_point_dist` (default 1000 m) of that point, replaces them with `NA`s
-#'
+#' 
+#' 1. If `remove_isolated_points = T`, finds extreme distances `> max_dist_percentile` quantile (default 99.99%) or `< 1 - max_dist_percentile` of `xs` or `ys` for each individual and, if there are no other points from that individual within `max_isolated_point_dist` (default 1000 m) of that point, replaces them with `NA`s
+#' 
+#' 2. If `remove_unrealistic_speeds = T`, removes unrealistic speeds (greater than `max_speed_percentile`) and replaces them with NAs (default .9995 quantile, or alternatively a max speed `max_speed` can be set manually).
+#' 
 #' 3. If `remove_unrealistic_locations = T`, finds extreme xs and ys above `mean + sd * max_sd_away` (default 10) for each ind and removes those
 #'
 #' 4. If `bounding_box != NULL`, removes all points outside of a specified `bounding_box = c(min_easting, max_easting, min_northing, max_northing)`
@@ -121,7 +122,76 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   #get number of breaks, for later usage in the for loop below
   n_breaks <- length(breaks)
 
-  #1.----Remove unrealistic speeds----
+  
+  #1.-----Remove unrealistic locations if they aren't near other points-----
+  if(remove_isolated_points){
+    
+    if(verbose){
+      print('removing unrealistic isolated points')
+    }
+    
+    for(i in 1:n_inds){
+      
+      xi <- xs[i,]
+      yi <- ys[i,]
+      non_nas <- which(!is.na(xi))
+      
+      max_x_i <- quantile(xi, max_dist_percentile, na.rm=T)
+      max_y_i <- quantile(yi, max_dist_percentile, na.rm=T)
+      min_x_i <- quantile(xi, 1-max_dist_percentile, na.rm=T)
+      min_y_i <- quantile(yi, 1-max_dist_percentile, na.rm=T)
+      
+      #get very large or very small values of x and y (outside their normal range)
+      bigs <- unique(c(which(xi > max_x_i), which(yi > max_y_i)))
+      smalls <- unique(c(which(xi < min_x_i), which(yi < min_y_i)))
+      extremes <- unique(c(bigs,smalls))
+      
+      if(verbose){
+        print(paste('number of extreme points found for individual ',i, '= ', length(extremes)))
+      }
+      
+      #for each extreme value, find the previous and next non-NA data point
+      #if this previous point is more than max_isolated_point_dist away, just replace the unrealistic location with NA
+      #otherwise, leave it
+      for(j in 1:length(extremes)){
+        t_idx <- extremes[j]
+        
+        #if prev_t or next_t are not available (usually because you've hit the end of the contiguous chunk, skip and don't make any changes)
+        if(length(which(non_nas < t_idx))==0){
+          next
+        }
+        if(length(which(non_nas > t_idx))==0){
+          next
+        }
+        
+        prev_t <- max(non_nas[which(non_nas < t_idx)])
+        next_t <- min(non_nas[which(non_nas > t_idx)])
+        
+        dist_prev <- sqrt( (xs[i, prev_t] - xs[i, t_idx])^2 + (ys[i, prev_t] - ys[i, t_idx])^2 )
+        dist_next <- sqrt( (xs[i, next_t] - xs[i, t_idx])^2 + (ys[i, next_t] - ys[i, t_idx])^2 )
+        
+        #if the distance is not defined, skip and don't change anything
+        if(is.na(dist_prev) | is.na(dist_next)){
+          next
+        }
+        
+        if(dist_prev > max_isolated_point_dist & dist_next > max_isolated_point_dist){
+          if(verbose)
+            print(paste('found unrealistic distance at time:',t_idx,'dist_prev = ',dist_prev,'dist_next = ',dist_next,'dt1=',(t_idx-prev_t),'dt2=',(next_t-prev_t)))
+          
+          xi[t_idx] <- NA
+          yi[t_idx] <- NA
+        }
+        
+      }
+      
+      xs[i,] <- xi
+      ys[i,] <- yi
+      
+    }
+  }
+  
+  #2.----Remove unrealistic speeds----
 
   if(remove_unrealistic_speeds){
 
@@ -171,73 +241,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     }
   }
 
-  #2.-----Remove unrealistic locations if they aren't near other points-----
-  if(remove_isolated_points){
 
-    if(verbose){
-      print('removing unrealistic isolated points')
-    }
-
-    for(i in 1:n_inds){
-
-      xi <- xs[i,]
-      yi <- ys[i,]
-      non_nas <- which(!is.na(xi))
-
-      max_x_i <- quantile(xi, max_dist_percentile, na.rm=T)
-      max_y_i <- quantile(yi, max_dist_percentile, na.rm=T)
-      min_x_i <- quantile(xi, 1-max_dist_percentile, na.rm=T)
-      min_y_i <- quantile(yi, 1-max_dist_percentile, na.rm=T)
-
-      #get very large or very small values of x and y (outside their normal range)
-      bigs <- unique(c(which(xi > max_x_i), which(yi > max_y_i)))
-      smalls <- unique(c(which(xi < min_x_i), which(yi < min_y_i)))
-      extremes <- unique(c(bigs,smalls))
-
-      if(verbose){
-        print(paste('number of extreme points found for individual ',i, '= ', length(extremes)))
-      }
-
-      #for each extreme value, find the previous and next non-NA data point
-      #if this previous point is more than max_isolated_point_dist away, just replace the unrealistic location with NA
-      #otherwise, leave it
-      for(j in 1:length(extremes)){
-        t_idx <- extremes[j]
-
-        #if prev_t or next_t are not available (usually because you've hit the end of the contiguous chunk, skip and don't make any changes)
-        if(length(which(non_nas < t_idx))==0){
-          next
-        }
-        if(length(which(non_nas > t_idx))==0){
-          next
-        }
-
-        prev_t <- max(non_nas[which(non_nas < t_idx)])
-        next_t <- min(non_nas[which(non_nas > t_idx)])
-
-        dist_prev <- sqrt( (xs[i, prev_t] - xs[i, t_idx])^2 + (ys[i, prev_t] - ys[i, t_idx])^2 )
-        dist_next <- sqrt( (xs[i, next_t] - xs[i, t_idx])^2 + (ys[i, next_t] - ys[i, t_idx])^2 )
-
-        #if the distance is not defined, skip and don't change anything
-        if(is.na(dist_prev) | is.na(dist_next)){
-          next
-        }
-
-        if(dist_prev > max_isolated_point_dist & dist_next > max_isolated_point_dist){
-          if(verbose)
-            print(paste('found unrealistic distance at time:',t_idx,'dist_prev = ',dist_prev,'dist_next = ',dist_next,'dt1=',(t_idx-prev_t),'dt2=',(next_t-prev_t)))
-
-          xi[t_idx] <- NA
-          yi[t_idx] <- NA
-        }
-
-      }
-
-      xs[i,] <- xi
-      ys[i,] <- yi
-
-    }
-  }
 
   #3. Remove very unrealistic locations (beyond a maximal standard deviation from the distribution) no matter what
   if(remove_unrealistic_locations){
