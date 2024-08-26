@@ -180,8 +180,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
 
     for(i in 1:n_inds){
 
-      xi <- xi_new <- xs[i,]
-      yi <- yi_new <- ys[i,]
+      xi <- xs[i,]
+      yi <- ys[i,]
       non_nas <- which(!is.na(xi))
 
       max_x_i <- quantile(xi, max_dist_percentile, na.rm=T)
@@ -227,14 +227,14 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
           if(verbose)
             print(paste('found unrealistic distance at time:',t_idx,'dist_prev = ',dist_prev,'dist_next = ',dist_next,'dt1=',(t_idx-prev_t),'dt2=',(next_t-prev_t)))
 
-          xi_new[t_idx] <- NA
-          yi_new[t_idx] <- NA
+          xi[t_idx] <- NA
+          yi[t_idx] <- NA
         }
 
       }
 
-      xs[i,] <- xi_new
-      ys[i,] <- yi_new
+      xs[i,] <- xi
+      ys[i,] <- yi
 
     }
   }
