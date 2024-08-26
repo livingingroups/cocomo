@@ -291,6 +291,10 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
       xs[idxs_outside_box] <- NA
       ys[idxs_outside_box] <- NA
     }
+    
+    if(verbose){
+      print(paste0('removed ', length(idxs_outside_box), ' locations outside bounding box'))
+    }
 
   }
 
