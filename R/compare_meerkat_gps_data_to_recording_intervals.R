@@ -67,15 +67,17 @@ compare_meerkat_gps_data_to_recording_intervals <- function(xy_file, metadata_fi
     xy_data[,i] <- frac_tracked
   }
 
-  #convert metadata matrix to T / F
-  metadata_tf <- metadata
+  #convert metadata matrix to T / F (or NA) matrix
+  metadata_tf <- matrix(NA, nrow = nrow(metadata), ncol = ncol(metadata))
+  row.names(metadata_tf) <- row.names(metadata)
+  colnames(metadata_tf) <- colnames(metadata)
   metadata_tf[grep('Record', metadata)] <- T
   metadata_tf[grep('No', metadata)] <- F
   metadata_tf[grep('Scan', metadata)] <- F
   metadata_tf[grep('Absent', metadata)] <- NA
 
   #convert xy matrix to T / F
-  xy_tf <- xy_data > 0
+  xy_tf <- as.matrix(xy_data > 0)
 
   #compare the two matrices and find any mismatches
   metadata_xy_match <- xy_tf == metadata_tf
@@ -90,14 +92,14 @@ compare_meerkat_gps_data_to_recording_intervals <- function(xy_file, metadata_fi
   if(sum(!metadata_xy_match, na.rm=T) != 0){
     for(i in 1:length(inds)){
       for(j in 1:length(dates)){
-        if(is.na(xy_tf[i,j])){
+        if(is.na(metadata_tf[i,j])){
           next
         }
 
-        if(xy_tf[i,j] & !metadata_tf){
-          print(paste('ind',inds[i],'on date',dates[j],'has data but metadata lists as not recorded'))
+        if(xy_tf[i,j] & !metadata_tf[i,j]){
+          print(paste('ind',inds[i],'on date',dates[j],'has', round(xy_data[i,j]*100, 3) ,'% data but metadata lists it as not recorded'))
         }
-        if(!xy_tf[i,j] & metadata_tf){
+        if(!xy_tf[i,j] & metadata_tf[i,j]){
           print(paste('ind',inds[i],'on date',dates[j],'is missing data that should be present according to metadata'))
         }
 
