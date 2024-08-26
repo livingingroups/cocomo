@@ -97,6 +97,10 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(length(timestamps) != n_times){
     stop('timestamps must be the same length as the number of columns in xs and ys matrices')
   }
+  if(length(ids) != n_inds){
+    stop('ids must be the same length as the number of rows in xs and ys matrices')
+  }
+  
 
   if(verbose){
     print('initial NA frac:')
