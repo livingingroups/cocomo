@@ -98,8 +98,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(length(timestamps) != n_times){
     stop('timestamps must be the same length as the number of columns in xs and ys matrices')
   }
-  if(!is.null(ids) & nrow(ids) != n_inds){
-    stop('ids must be the same length as the number of rows in xs and ys matrices')
+  if(is.null(nrow(ids)) || nrow(ids) != n_inds){
+    stop('ids must be a dataframe with the same number of rows as rows in xs and ys matrices')
   }
   
 
