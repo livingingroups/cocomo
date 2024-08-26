@@ -279,7 +279,7 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
       stop('bounding_box vector must be of length 4')
     }
 
-    if(bounding_box[2] < bounding_box[1] | bounding_box[3] < bounding_box[4]){
+    if(bounding_box[2] < bounding_box[1] | bounding_box[4] < bounding_box[3]){
       stop('bounding box order seems to be wrong - should be in order: min_easting, max_easting, min_northing, max_northing')
     }
 
