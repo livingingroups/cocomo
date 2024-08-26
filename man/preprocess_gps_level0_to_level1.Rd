@@ -66,9 +66,9 @@ preprocess_gps_level0_to_level1(
 
 \item{max_interp_len}{maximum length of an \code{NA} gap to linearly interpolate (number of time points)}
 
-\item{max_move_dist}{maximum distance moved during a time \code{max_move_time} to interpolate using the average position}
+\item{max_move_dist}{maximum distance moved during a time \code{max_move_time} to be considered stationary during interpolation of stationary periods (interpolated using the average position)}
 
-\item{max_move_time}{maximum time of a gap to interpolate if stationary (in timesteps)}
+\item{max_move_time}{maximum time of a gap to interpolate if stationary (number of time points)}
 
 \item{bounding_box}{vector of length 4 giving a bounding box outside of which points will be removed - should be in the format \code{c(min_easting, max_easting, min_northing, max_northing)}}
 

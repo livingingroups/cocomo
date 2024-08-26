@@ -39,8 +39,8 @@
 #' @param max_dist_percentile quantile to use to define the maximum x and y coordinates of points to check for isolation (those outside and isolated will be removed)
 #' @param max_isolated_point_dist maximum isolated point distance
 #' @param max_interp_len maximum length of an `NA` gap to linearly interpolate (number of time points)
-#' @param max_move_dist maximum distance moved during a time `max_move_time` to interpolate using the average position
-#' @param max_move_time maximum time of a gap to interpolate if stationary (in timesteps)
+#' @param max_move_dist maximum distance moved during a time `max_move_time` to be considered stationary during interpolation of stationary periods (interpolated using the average position)
+#' @param max_move_time maximum time of a gap to interpolate if stationary (number of time points)
 #' @param bounding_box vector of length 4 giving a bounding box outside of which points will be removed - should be in the format `c(min_easting, max_easting, min_northing, max_northing)`
 #' @param verbose whether to print out progress and information
 #'
@@ -353,12 +353,11 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
 
               if(interpolate_stationary_periods){
 
-                #Otherwise...if less than 5 minutes gap...
+                #Interpolation of stationary periods shorter than max_move_time
                 if((lens[j] > max_interp_len) & (lens[j] < max_move_time)){
 
-                  #Fill in with mean value at start and end if they are close enough ( <= max_move_dist)
+                  #Fill in with mean value at start and end if they are close enough ( < max_move_dist)
                   dist_moved <- sqrt((next_val_x - prev_val_x)^2 + (next_val_y - prev_val_y)^2)
-                  time_elapsed <- last_idx - first_idx
                   if(dist_moved < max_move_dist){
                     mean_x <- mean(c(next_val_x, prev_val_x))
                     mean_y <- mean(c(next_val_y, prev_val_y))
