@@ -129,6 +129,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     if(verbose){
       cat('\n')
       print('removing unrealistic isolated points')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
     }
     
     for(i in 1:n_inds){
@@ -190,6 +192,14 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
       ys[i,] <- yi
       
     }
+    
+    ## count number of points changed
+
+    if(verbose){
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas_new-nas, ' changes'))
+    }
+    
   }
   
   #2.----Remove unrealistic speeds----
@@ -199,6 +209,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     if(verbose){
       cat('\n')
       print('removing unrealistic speeds')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
     }
 
     #Find extreme speeds and replace with NAs
@@ -237,6 +249,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     }
 
     if(verbose){
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas_new-nas, ' changes'))
       print('after removing unrealistic speeds, fraction of NAs:')
       print(sum(is.na(xs))/length(xs))
     }
@@ -250,6 +264,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     if(verbose){
       cat('\n')
       print('removing very unrealistic locations beyond a max standard deviation')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
     }
 
     #Find and remove super unrealistic locations (>mean + max_sd_away*sd for each ind in x or y)
@@ -272,6 +288,11 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
         }
       }
     }
+    if(verbose){
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas_new-nas, ' changes'))
+    }
+    
   }
 
   #4.--------Remove points outside of a specified bounding box, if a bounding box is entered---
@@ -280,6 +301,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     if(verbose){
       cat('\n')
       print('removing points outside of bounding box')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
     }
 
     if(length(bounding_box) != 4){
@@ -300,7 +323,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     }
     
     if(verbose){
-      print(paste0('removed ', length(idxs_outside_box), ' locations outside bounding box'))
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas_new-nas, ' changes'))
     }
 
   }
@@ -313,6 +337,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     if(verbose){
       cat('\n')
       print('interpolating small gaps (and slightly longer stationary periods, if specified)')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
     }
 
     #Interpolate through seqs of NAs of length < max_interp_len
@@ -385,6 +411,8 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     }
 
     if(verbose){
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas-nas_new, ' changes'))
       print('after interpolating, fraction of NAs:')
       print(sum(is.na(xs))/length(xs))
     }
