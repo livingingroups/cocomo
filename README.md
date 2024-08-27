@@ -26,7 +26,7 @@ ys[i,t] gives the y / northing position of individual i at time point t
 
 `timestamps`: vector of timestamps corresponding to the columns of xs and ys matrices. Timestamps must be uniformly sampled, though it is possible to have gaps (e.g. between different days of recording)
 
-`ids`: data frame giving information about the tracked individuals, with rows correpsonding to the rows of the xs and ys matrices. The columns contained are flexible.
+`ids`: data frame giving information about the tracked individuals, with rows correpsonding to the rows of the xs and ys matrices. There must be one column called `id_code` which contains a unique individual identifier for each animal (e.g. for meerkats: `'VCVM001'`, for hyenas: `'WRTH'`, for coatis: `'Luna'`) The other columns contained are flexible, and can include information on age, sex, dominance, etc.
 
 Some functions also take in time series of calls. These should be formatted as a data frame that includes, at a minimum, the following columns:
 
@@ -36,9 +36,9 @@ Some functions also take in time series of calls. These should be formatted as a
 
 `call_type`: string specifying the call type label
 
-`time`: exact time at which the call was produced (synched to GPS time, including fractions of a second)
+`time`: exact time at which the call was produced (synched to UTC time, including fractions of a second)
 
-Note that times can be in either UTC or local time. The user should verify that the same time zone is used for both GPS and audio data.
+Note that times should generally be in UTC, however most functions would also work with local time. The user should verify that the same time zone is used for both GPS and audio data.
 
 ## Code review
 
@@ -76,5 +76,5 @@ To facilitate code review and consistency within the package, we have a few mini
 
 - Function names should start with a verb (e.g. `get_group_heading`) to distinguish them from variables
 - Where possible, avoid using lots of external packages
-- Avoid tidyverse (sorry, no offense intended!)
+- Avoid tidyverse if possible (sorry, no offense intended!). Edit: I have just been informed that stringr and lubridate are part of tidyverse, so apparently I am not following this recommendation too closely.
 - We generally use the US rather than the British spellings of words
