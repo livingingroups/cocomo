@@ -1,13 +1,15 @@
 #' Preprocess GPS data (in matrix format) from level 0 to level 1
 #'
-#' This function takes in a level 0 dataset (raw GPS data) and performs minimal
-#' pre-processing to return a level 1 dataset.
+#' This function takes in a level 0 dataset (uncleaned location data in UTM coordinates) and performs minimal
+#' pre-processing to return a level 1 dataset. See [latlon_to_utm] to convert from lat/lon to UTM. 
+#' 
+#' 
 #' The function performs the following steps (in order):
-#'
-#' 1. If `remove_unrealistic_speeds = T`, removes unrealistic speeds (greater than `max_speed_percentile`) and replaces them with NAs (default .9995 quantile, or alternatively a max speed `max_speed` can be set manually.
-#'
-#' 2. If `remove_isolated_points = T`, finds extreme distances `> max_dist_percentile` quantile (default 99.99%) or `< 1 - max_dist_percentile` of `xs` or `ys` for each individual and, if there are no other points from that individual within `max_isolated_point_dist` (default 1000 m) of that point, replaces them with `NA`s
-#'
+#' 
+#' 1. If `remove_isolated_points = T`, finds extreme distances `> max_dist_percentile` quantile (default 99.99%) or `< 1 - max_dist_percentile` of `xs` or `ys` for each individual and, if there are no other points from that individual within `max_isolated_point_dist` (default 1000 m) of that point, replaces them with `NA`s
+#' 
+#' 2. If `remove_unrealistic_speeds = T`, removes unrealistic speeds (greater than `max_speed_percentile`) and replaces them with NAs (default .9995 quantile, or alternatively a max speed `max_speed` can be set manually).
+#' 
 #' 3. If `remove_unrealistic_locations = T`, finds extreme xs and ys above `mean + sd * max_sd_away` (default 10) for each ind and removes those
 #'
 #' 4. If `bounding_box != NULL`, removes all points outside of a specified `bounding_box = c(min_easting, max_easting, min_northing, max_northing)`
@@ -22,8 +24,8 @@
 #'
 #' @param input_file_path full path to the input file containing `xs`, `ys`, `timestamps`, and `ids` (overrides manual passing in of these parameters), must be an RData file
 #' @param output_file_path full path to the output file where the level 1 dataset will be stored, must end in .RData
-#' @param xs `n_inds x n_times` matrix giving x coordinates of each individual over time (if an input file is not specified, pass this in manually)
-#' @param ys `n_inds x n_times` matrix giving y coordinates of each individual over time (if an input file is not specified, pass this in manually)
+#' @param xs `n_inds x n_times` matrix giving x coordinates (in UTM eastings) of each individual over time (if an input file is not specified, pass this in manually)
+#' @param ys `n_inds x n_times` matrix giving y coordinates (in UTM northings) of each individual over time (if an input file is not specified, pass this in manually)
 #' @param timestamps vector of timestamps (if an input file is not specified, pass this in manually)
 #' @param ids data frame containing information about each individual (if an input file is not specified, pass this in manually)
 #' @param breaks vector giving indexes to breaks in the data (e.g. gaps between recording intervals), if the sequence is not continuous. breaks should specify the index associated with the beginning of each interval, starting with 1 (the first interval)
@@ -33,13 +35,13 @@
 #' @param interpolate_small_gaps whether to interpolate small gaps (`T` or `F`)
 #' @param interpolate_stationary_periods whether to interpolate stationary periods (`T` or `F`) - cannot be run unless `interpolate_small_gaps` is also `T`
 #' @param max_speed_percentile quantile to use to define the maximum speed
-#' @param max_speed maximum speed (overrides max_speed_percentile if specified)
+#' @param max_speed maximum speed (overrides max_speed_percentile if specified). This value is interpreted as the max allowable meters traveled in one time step in `timesteps`. 
 #' @param max_sd_away standard deviation of xs and ys distributions for each individual beyond which points will be removed
-#' @param max_dist_percentile quantile to use to define the maximum x and y coordinates (all those outside will be removed)
+#' @param max_dist_percentile quantile to use to define the maximum x and y coordinates of points to check for isolation (those outside and isolated will be removed)
 #' @param max_isolated_point_dist maximum isolated point distance
 #' @param max_interp_len maximum length of an `NA` gap to linearly interpolate (number of time points)
-#' @param max_move_dist maximum distance moved during a time `max_move_time` to interpolate using the average position
-#' @param max_move_time maximum time of a gap to interpolate if stationary (in timesteps)
+#' @param max_move_dist maximum distance moved during a time `max_move_time` to be considered stationary during interpolation of stationary periods (interpolated using the average position)
+#' @param max_move_time maximum time of a gap to interpolate if stationary (number of time points)
 #' @param bounding_box vector of length 4 giving a bounding box outside of which points will be removed - should be in the format `c(min_easting, max_easting, min_northing, max_northing)`
 #' @param verbose whether to print out progress and information
 #'
@@ -96,6 +98,10 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(length(timestamps) != n_times){
     stop('timestamps must be the same length as the number of columns in xs and ys matrices')
   }
+  if(is.null(nrow(ids)) || nrow(ids) != n_inds){
+    stop('ids must be a dataframe with the same number of rows as rows in xs and ys matrices')
+  }
+  
 
   if(verbose){
     print('initial NA frac:')
@@ -116,12 +122,95 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   #get number of breaks, for later usage in the for loop below
   n_breaks <- length(breaks)
 
-  #1.----Remove unrealistic speeds----
+  
+  #1.-----Remove unrealistic locations if they aren't near other points-----
+  if(remove_isolated_points){
+    
+    if(verbose){
+      cat('\n')
+      print('removing unrealistic isolated points')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
+    }
+    
+    for(i in 1:n_inds){
+      
+      xi <- xs[i,]
+      yi <- ys[i,]
+      non_nas <- which(!is.na(xi))
+      
+      max_x_i <- quantile(xi, max_dist_percentile, na.rm=T)
+      max_y_i <- quantile(yi, max_dist_percentile, na.rm=T)
+      min_x_i <- quantile(xi, 1-max_dist_percentile, na.rm=T)
+      min_y_i <- quantile(yi, 1-max_dist_percentile, na.rm=T)
+      
+      #get very large or very small values of x and y (outside their normal range)
+      bigs <- unique(c(which(xi > max_x_i), which(yi > max_y_i)))
+      smalls <- unique(c(which(xi < min_x_i), which(yi < min_y_i)))
+      extremes <- unique(c(bigs,smalls))
+      
+      if(verbose){
+        print(paste('number of extreme points found for individual ',i, '= ', length(extremes)))
+      }
+      
+      #for each extreme value, find the previous and next non-NA data point
+      #if this previous point is more than max_isolated_point_dist away, just replace the unrealistic location with NA
+      #otherwise, leave it
+      for(j in 1:length(extremes)){
+        t_idx <- extremes[j]
+        
+        #if prev_t or next_t are not available (usually because you've hit the end of the contiguous chunk, skip and don't make any changes)
+        if(length(which(non_nas < t_idx))==0){
+          next
+        }
+        if(length(which(non_nas > t_idx))==0){
+          next
+        }
+        
+        prev_t <- max(non_nas[which(non_nas < t_idx)])
+        next_t <- min(non_nas[which(non_nas > t_idx)])
+        
+        dist_prev <- sqrt( (xs[i, prev_t] - xs[i, t_idx])^2 + (ys[i, prev_t] - ys[i, t_idx])^2 )
+        dist_next <- sqrt( (xs[i, next_t] - xs[i, t_idx])^2 + (ys[i, next_t] - ys[i, t_idx])^2 )
+        
+        #if the distance is not defined, skip and don't change anything
+        if(is.na(dist_prev) | is.na(dist_next)){
+          next
+        }
+        
+        if(dist_prev > max_isolated_point_dist & dist_next > max_isolated_point_dist){
+          if(verbose)
+            print(paste('found unrealistic distance at time:',t_idx,'dist_prev = ',dist_prev,'dist_next = ',dist_next,'dt1=',(t_idx-prev_t),'dt2=',(next_t-prev_t)))
+          
+          xi[t_idx] <- NA
+          yi[t_idx] <- NA
+        }
+        
+      }
+      
+      xs[i,] <- xi
+      ys[i,] <- yi
+      
+    }
+    
+    ## count number of points changed
+
+    if(verbose){
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas_new-nas, ' changes'))
+    }
+    
+  }
+  
+  #2.----Remove unrealistic speeds----
 
   if(remove_unrealistic_speeds){
 
     if(verbose){
+      cat('\n')
       print('removing unrealistic speeds')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
     }
 
     #Find extreme speeds and replace with NAs
@@ -136,12 +225,19 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
         speeds[i,tidxs[1:(length(tidxs)-1)]] <- sqrt(diff(xs[i,tidxs])^2 + diff(ys[i,tidxs])^2)
       }
     }
-
-
+    
     #get maximum speed based on percentile unless it was specified
     if(is.null(max_speed)){
       max_speed <- quantile(speeds, max_speed_percentile, na.rm=T)
     }
+    
+    #report max speed in kph and m/s
+    if(verbose){
+      max_speed_ms <- max_speed / as.numeric(difftime(timestamps[2], timestamps[1], units = 'sec'))
+      max_speed_kph <- max_speed_ms * ((60*60)/1000)
+      print(paste0('max speed set to ', round(max_speed_kph,2), 'kph (', round(max_speed_ms,2), ' m/s)'))
+    }
+    
 
     #replace unrealistic speeds with NAs
     for(i in 1:n_inds){
@@ -153,84 +249,23 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     }
 
     if(verbose){
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas_new-nas, ' changes'))
       print('after removing unrealistic speeds, fraction of NAs:')
       print(sum(is.na(xs))/length(xs))
     }
   }
 
-  #2.-----Remove unrealistic locations if they aren't near other points-----
-  if(remove_isolated_points){
 
-    if(verbose){
-      print('removing unrealistic isolated points')
-    }
-
-    for(i in 1:n_inds){
-
-      xi <- xi_new <- xs[i,]
-      yi <- yi_new <- ys[i,]
-      non_nas <- which(!is.na(xi))
-
-      max_x_i <- quantile(xi, max_dist_percentile, na.rm=T)
-      max_y_i <- quantile(yi, max_dist_percentile, na.rm=T)
-      min_x_i <- quantile(xi, 1-max_dist_percentile, na.rm=T)
-      min_y_i <- quantile(yi, 1-max_dist_percentile, na.rm=T)
-
-      #get very large or very small values of x and y (outside their normal range)
-      bigs <- unique(c(which(xi > max_x_i), which(yi > max_y_i)))
-      smalls <- unique(c(which(xi < min_x_i), which(yi < min_y_i)))
-      extremes <- unique(c(bigs,smalls))
-
-      if(verbose){
-        print(paste('number of extreme points found for individual ',i, '= ', length(extremes)))
-      }
-
-      #for each extreme value, find the previous and next non-NA data point
-      #if this previous point is more than max_isolated_point_dist away, just replace the unrealistic location with NA
-      #otherwise, leave it
-      for(j in 1:length(extremes)){
-        t_idx <- extremes[j]
-
-        #if prev_t or next_t are not available (usually because you've hit the end of the contiguous chunk, skip and don't make any changes)
-        if(length(which(non_nas < t_idx))==0){
-          next
-        }
-        if(length(which(non_nas > t_idx))==0){
-          next
-        }
-
-        prev_t <- max(non_nas[which(non_nas < t_idx)])
-        next_t <- min(non_nas[which(non_nas > t_idx)])
-
-        dist_prev <- sqrt( (xs[i, prev_t] - xs[i, t_idx])^2 + (ys[i, prev_t] - ys[i, t_idx])^2 )
-        dist_next <- sqrt( (xs[i, next_t] - xs[i, t_idx])^2 + (ys[i, next_t] - ys[i, t_idx])^2 )
-
-        #if the distance is not defined, skip and don't change anything
-        if(is.na(dist_prev) | is.na(dist_next)){
-          next
-        }
-
-        if(dist_prev > max_isolated_point_dist & dist_next > max_isolated_point_dist){
-          if(verbose)
-            print(paste('found unrealistic distance at time:',t_idx,'dist_prev = ',dist_prev,'dist_next = ',dist_next,'dt1=',(t_idx-prev_t),'dt2=',(next_t-prev_t)))
-
-          xi_new[t_idx] <- NA
-          yi_new[t_idx] <- NA
-        }
-
-      }
-
-      xs[i,] <- xi_new
-      ys[i,] <- yi_new
-
-    }
-  }
 
   #3. Remove very unrealistic locations (beyond a maximal standard deviation from the distribution) no matter what
   if(remove_unrealistic_locations){
 
     if(verbose){
+      cat('\n')
       print('removing very unrealistic locations beyond a max standard deviation')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
     }
 
     #Find and remove super unrealistic locations (>mean + max_sd_away*sd for each ind in x or y)
@@ -253,20 +288,28 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
         }
       }
     }
+    if(verbose){
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas_new-nas, ' changes'))
+    }
+    
   }
 
   #4.--------Remove points outside of a specified bounding box, if a bounding box is entered---
   if(!is.null(bounding_box)){
 
     if(verbose){
+      cat('\n')
       print('removing points outside of bounding box')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
     }
 
     if(length(bounding_box) != 4){
       stop('bounding_box vector must be of length 4')
     }
 
-    if(bounding_box[2] < bounding_box[1] | bounding_box[3] < bounding_box[4]){
+    if(bounding_box[2] < bounding_box[1] | bounding_box[4] < bounding_box[3]){
       stop('bounding box order seems to be wrong - should be in order: min_easting, max_easting, min_northing, max_northing')
     }
 
@@ -278,6 +321,11 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
       xs[idxs_outside_box] <- NA
       ys[idxs_outside_box] <- NA
     }
+    
+    if(verbose){
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas_new-nas, ' changes'))
+    }
 
   }
 
@@ -287,7 +335,10 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(interpolate_small_gaps){
 
     if(verbose){
+      cat('\n')
       print('interpolating small gaps (and slightly longer stationary periods, if specified)')
+      ## count number of points changed
+      nas <- sum(is.na(xs))
     }
 
     #Interpolate through seqs of NAs of length < max_interp_len
@@ -336,12 +387,11 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
 
               if(interpolate_stationary_periods){
 
-                #Otherwise...if less than 5 minutes gap...
-                if((lens[j] > max_interp_len) & (lens[j] < max_move_time)){
+                #Interpolation of stationary periods shorter than max_move_time
+                if((lens[j] > max_interp_len) & (lens[j] <= max_move_time)){
 
-                  #Fill in with mean value at start and end if they are close enough ( <= max_move_dist)
+                  #Fill in with mean value at start and end if they are close enough ( < max_move_dist)
                   dist_moved <- sqrt((next_val_x - prev_val_x)^2 + (next_val_y - prev_val_y)^2)
-                  time_elapsed <- last_idx - first_idx
                   if(dist_moved < max_move_dist){
                     mean_x <- mean(c(next_val_x, prev_val_x))
                     mean_y <- mean(c(next_val_y, prev_val_y))
@@ -361,7 +411,9 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
     }
 
     if(verbose){
-      print('after interpolating:')
+      nas_new <- sum(is.na(xs))
+      print(paste0("- - - finished: made ", nas-nas_new, ' changes'))
+      print('after interpolating, fraction of NAs:')
       print(sum(is.na(xs))/length(xs))
     }
   }
@@ -374,7 +426,10 @@ preprocess_gps_level0_to_level1 <- function(input_file_path = NULL,
   if(include_breaks){
     out_list <- c(out_list, 'breaks')
   }
-  save(file = output_file_path, list = out_list)
+  
+  if(!is.null(output_file_path)){
+    save(file = output_file_path, list = out_list)
+  }
 
   #return output
   out <- list()

@@ -34,9 +34,9 @@ preprocess_gps_level0_to_level1(
 
 \item{output_file_path}{full path to the output file where the level 1 dataset will be stored, must end in .RData}
 
-\item{xs}{\verb{n_inds x n_times} matrix giving x coordinates of each individual over time (if an input file is not specified, pass this in manually)}
+\item{xs}{\verb{n_inds x n_times} matrix giving x coordinates (in UTM eastings) of each individual over time (if an input file is not specified, pass this in manually)}
 
-\item{ys}{\verb{n_inds x n_times} matrix giving y coordinates of each individual over time (if an input file is not specified, pass this in manually)}
+\item{ys}{\verb{n_inds x n_times} matrix giving y coordinates (in UTM northings) of each individual over time (if an input file is not specified, pass this in manually)}
 
 \item{timestamps}{vector of timestamps (if an input file is not specified, pass this in manually)}
 
@@ -56,19 +56,19 @@ preprocess_gps_level0_to_level1(
 
 \item{max_speed_percentile}{quantile to use to define the maximum speed}
 
-\item{max_speed}{maximum speed (overrides max_speed_percentile if specified)}
+\item{max_speed}{maximum speed (overrides max_speed_percentile if specified). This value is interpreted as the max allowable meters traveled in one time step in \code{timesteps}.}
 
 \item{max_sd_away}{standard deviation of xs and ys distributions for each individual beyond which points will be removed}
 
-\item{max_dist_percentile}{quantile to use to define the maximum x and y coordinates (all those outside will be removed)}
+\item{max_dist_percentile}{quantile to use to define the maximum x and y coordinates of points to check for isolation (those outside and isolated will be removed)}
 
 \item{max_isolated_point_dist}{maximum isolated point distance}
 
 \item{max_interp_len}{maximum length of an \code{NA} gap to linearly interpolate (number of time points)}
 
-\item{max_move_dist}{maximum distance moved during a time \code{max_move_time} to interpolate using the average position}
+\item{max_move_dist}{maximum distance moved during a time \code{max_move_time} to be considered stationary during interpolation of stationary periods (interpolated using the average position)}
 
-\item{max_move_time}{maximum time of a gap to interpolate if stationary (in timesteps)}
+\item{max_move_time}{maximum time of a gap to interpolate if stationary (number of time points)}
 
 \item{bounding_box}{vector of length 4 giving a bounding box outside of which points will be removed - should be in the format \code{c(min_easting, max_easting, min_northing, max_northing)}}
 
@@ -78,14 +78,14 @@ preprocess_gps_level0_to_level1(
 Returns a list containing new \code{xs} and \code{ys} matrices, and also saves them plus the \code{timestamps} and \code{ids} objects to an output file if specified
 }
 \description{
-This function takes in a level 0 dataset (raw GPS data) and performs minimal
-pre-processing to return a level 1 dataset.
-The function performs the following steps (in order):
+This function takes in a level 0 dataset (uncleaned location data in UTM coordinates) and performs minimal
+pre-processing to return a level 1 dataset. See \link{latlon_to_utm} to convert from lat/lon to UTM.
 }
 \details{
+The function performs the following steps (in order):
 \enumerate{
-\item If \code{remove_unrealistic_speeds = T}, removes unrealistic speeds (greater than \code{max_speed_percentile}) and replaces them with NAs (default .9995 quantile, or alternatively a max speed \code{max_speed} can be set manually.
 \item If \code{remove_isolated_points = T}, finds extreme distances \verb{> max_dist_percentile} quantile (default 99.99\%) or \verb{< 1 - max_dist_percentile} of \code{xs} or \code{ys} for each individual and, if there are no other points from that individual within \code{max_isolated_point_dist} (default 1000 m) of that point, replaces them with \code{NA}s
+\item If \code{remove_unrealistic_speeds = T}, removes unrealistic speeds (greater than \code{max_speed_percentile}) and replaces them with NAs (default .9995 quantile, or alternatively a max speed \code{max_speed} can be set manually).
 \item If \code{remove_unrealistic_locations = T}, finds extreme xs and ys above \code{mean + sd * max_sd_away} (default 10) for each ind and removes those
 \item If \code{bounding_box != NULL}, removes all points outside of a specified \code{bounding_box = c(min_easting, max_easting, min_northing, max_northing)}
 \item If \code{interpolate_small_gaps = T}, fills in missing data gaps less than length \code{max_interp_len} with linear interpolation (default 5)
