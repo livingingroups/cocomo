@@ -4,13 +4,28 @@
 \alias{synch_audio_file_labels_to_UTC}
 \title{Synch labels within audio file to UTC time}
 \usage{
-synch_audio_file_labels_to_UTC(path_to_label_file, path_to_synch_file)
+synch_audio_file_labels_to_UTC(
+  path_to_label_file,
+  path_to_synch_file,
+  min_offset_outlier = 2,
+  min_synchs = 5,
+  make_plot = T
+)
 }
 \arguments{
-\item{path_to_synch_file}{}
+\item{min_offset_outlier}{minimum offset (in seconds) between fitted times and labeled talking clock times to be considered an outlier}
+
+\item{make_plot}{whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated}
+
+\item{min_n_synchs}{minimum number of synchs (after excluding outliers) to perform a fit}
+
+\item{min_frac_spanned_by_synchs}{minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching}
 }
 \description{
 Reads in a label file (in Audition format) and a synch file, get synch points,
 and synchs all labels in the file to UTC. Outputs a table with an additional
 column specifying timestamp_UTC
+}
+\details{
+TODO: Do something with beeps
 }
