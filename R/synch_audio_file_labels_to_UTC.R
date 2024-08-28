@@ -1,10 +1,17 @@
 #' Synch labels within audio file to UTC time
 #'
-#' Reads in a label file (in Audition format) and a synch file, get synch points,
+#' Reads in a label file (in Audition format) and a synch file, gets synch points,
 #' and synchs all labels in the file to UTC. Outputs a table with an additional
-#' column specifying timestamp_UTC
+#' column specifying timestamp_UTC. Currently only designed to work with meerkat data.
 #'
-#' TODO: Do something with beeps
+#' TODO: Do something with beeps?
+#'
+#' The label file should be in the format of Audition labels. The Name column must contain
+#' labels of the form 'synch H:MM:SS' or 'synch MM:SS' to specify the times of synch calls
+#' as heard on the talking clock.
+#'
+#' @author Ariana Strandburg-Peshkin (primary author)
+#' @author NOT YET CODE REVIEWED
 #'
 #' @param path_to_label_file
 #' @param path_to_synch_file
@@ -12,13 +19,15 @@
 #' @param min_n_synchs minimum number of synchs (after excluding outliers) to perform a fit
 #' @param min_frac_spanned_by_synchs minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching
 #' @param make_plot whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated
+#'
 #' @importFrom lubridate parse_date_time
 #'
 #' @export
 synch_audio_file_labels_to_UTC <- function(path_to_label_file,
                                            path_to_synch_file,
                                            min_offset_outlier = 2,
-                                           min_synchs = 5,
+                                           min_n_synchs = 3,
+                                           min_frac_spanned_by_synchs = 0.5,
                                            make_plot = T){
 
   #commented out label file path is messed up somehow - check this file
@@ -26,7 +35,10 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #path_to_synch_file <- '~/EAS_shared/meerkat/working/METADATA/2019_synch_info_all.csv'
 
   #read in labels and get times in file
-  labels <- read.csv(path_to_label_file, sep = '\t')
+  labels <- read.csv(path_to_label_file, sep = '\t', header =T, quote = "")
+  if(ncol(labels)==1){
+    stop(paste('label file cannot be imported as normal:', path_to_label_file))
+  }
   labels$start_time_in_file <- sapply(labels$Start, FUN = function(x){return(cocomo::parse_audition_time(x))})
   labels$duration <- sapply(labels$Duration, FUN = function(x){return(cocomo::parse_audition_time(x))})
 
@@ -136,6 +148,7 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   if(n_outliers > 0){
     stop(paste0('outliers found - check file:', basename(path_to_label_file)))
   }
+
   return(labels)
 
 }

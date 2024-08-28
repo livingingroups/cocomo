@@ -8,24 +8,34 @@ synch_audio_file_labels_to_UTC(
   path_to_label_file,
   path_to_synch_file,
   min_offset_outlier = 2,
-  min_synchs = 5,
+  min_n_synchs = 3,
+  min_frac_spanned_by_synchs = 0.5,
   make_plot = T
 )
 }
 \arguments{
 \item{min_offset_outlier}{minimum offset (in seconds) between fitted times and labeled talking clock times to be considered an outlier}
 
-\item{make_plot}{whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated}
-
 \item{min_n_synchs}{minimum number of synchs (after excluding outliers) to perform a fit}
 
 \item{min_frac_spanned_by_synchs}{minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching}
+
+\item{make_plot}{whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated}
 }
 \description{
-Reads in a label file (in Audition format) and a synch file, get synch points,
+Reads in a label file (in Audition format) and a synch file, gets synch points,
 and synchs all labels in the file to UTC. Outputs a table with an additional
-column specifying timestamp_UTC
+column specifying timestamp_UTC. Currently only designed to work with meerkat data.
 }
 \details{
-TODO: Do something with beeps
+TODO: Do something with beeps?
+
+The label file should be in the format of Audition labels. The Name column must contain
+labels of the form 'synch H:MM:SS' or 'synch MM:SS' to specify the times of synch calls
+as heard on the talking clock.
+}
+\author{
+Ariana Strandburg-Peshkin (primary author)
+
+NOT YET CODE REVIEWED
 }
