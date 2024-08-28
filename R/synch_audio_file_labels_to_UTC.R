@@ -27,7 +27,7 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
                                            path_to_synch_file,
                                            min_offset_outlier = 2,
                                            min_n_synchs = 3,
-                                           min_frac_spanned_by_synchs = 0.5,
+                                           min_frac_spanned_by_synchs = 0.2,
                                            make_plot = T){
 
   #commented out label file path is messed up somehow - check this file
