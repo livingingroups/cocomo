@@ -84,9 +84,26 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   n_synchs <- sum(!is.na(synchs$talking_clock_time))
 
   #if there are two few synchs, cannot synch file
-  #need at least 2
-  if(n_synchs < 2){
+  #need at least min_n_synchs
+  if(n_synchs < min_n_synchs){
     warning(paste('cannot synch file:', path_to_label_file, '- too few synchs marked'))
+    return(NULL)
+  }
+
+  #get time span of synchs
+  if(sum(!is.na(synchs$start_time_in_file))>0){
+    span_synchs <- max(synchs$start_time_in_file, na.rm=T) - min(synchs$start_time_in_file, na.rm=T)
+  } else{
+    span_synchs <- 0
+  }
+
+  #get fraction of file covered by the span of synchs
+  span_file <- max(labels$start_time_in_file, na.rm=T) - min(labels$start_time_in_file, na.rm=T)
+  frac_span_synchs <- span_synchs / span_file
+
+  #if not enough of the file is covered by synchs, warning and return NULL
+  if(frac_span_synchs < min_frac_spanned_by_synchs){
+    warning(paste('not enough of file is spanned by synchs - file:', basename(path_to_label_file)))
     return(NULL)
   }
 
@@ -107,23 +124,8 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   outliers <- which(abs(synchs$offset) > min_offset_outlier)
   n_outliers <- length(outliers)
 
-  #get time span of remaining synchs
-  if(sum(!is.na(synchs$start_time_in_file))>0){
-    span_synchs <- max(synchs$start_time_in_file, na.rm=T) - min(synchs$start_time_in_file, na.rm=T)
-  } else{
-    span_synchs <- 0
-  }
-
-  #get fraction of file covered by the span of synchs
-  span_file <- max(labels$start_time_in_file, na.rm=T) - min(labels$start_time_in_file, na.rm=T)
-  frac_span_synchs <- span_synchs / span_file
-
-  #Convert all times in file to talking clock time, if there are enough synchs and if they span a large enough fraction of the labeled file
-  if(nrow(synchs) > min_n_synchs & frac_span_synchs > min_frac_spanned_by_synchs){
-    labels$start_time_talking_clock <- labels$start_time_in_file*slope + labels$start_time_in_file^2*slope_sq + intercept
-  } else{
-    stop('not enough synchs or not enough fraction of file covered by synchs - cannot synch file')
-  }
+  #Convert all times in file to talking clock time
+  labels$start_time_talking_clock <- labels$start_time_in_file*slope + labels$start_time_in_file^2*slope_sq + intercept
 
   #Convert all times from talking clock time to UTC using UTC offset
   labels$start_UTC <- labels$start_time_talking_clock + UTC_offset
@@ -134,7 +136,7 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #add a column for the file name
   labels$filename <- rep(basename(path_to_label_file), nrow(labels))
 
-  #if specified, make plot of synch points (including outliers) and fit
+  #if specified, make plot of synch points and fit
   if(make_plot){
     plot(synchs$start_time_in_file, synchs$talking_clock_time, xlab = 'File time (sec)', ylab = 'Talking clock time', main = basename(path_to_label_file))
     if(length(outliers)>0){
@@ -146,7 +148,8 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   }
 
   if(n_outliers > 0){
-    stop(paste0('outliers found - check file:', basename(path_to_label_file)))
+    warning(paste0('outliers found - check file:', basename(path_to_label_file)))
+    return(NULL)
   }
 
   return(labels)
