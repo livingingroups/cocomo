@@ -98,7 +98,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #get times of synchs, according to the talking clock (in sec)
   #talking clock labels are in auditon format, so can use audition parsing function
   if(nrow(synchs)>0){
-    time_labels <- gsub('[a-z\"\\]*','', synchs$Name, ignore.case=T) #remove a-z characters, slashes, and quotes
+    time_labels <- gsub('[a-z"]*','', synchs$Name, ignore.case=T) #remove a-z characters, slashes, and quotes
     synchs$talking_clock_time <- sapply(time_labels, FUN = function(x){return(cocomo::parse_audition_time(x))})
 
     #remove NA synchs

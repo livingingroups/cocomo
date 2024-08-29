@@ -18,6 +18,9 @@
 #' @export
 parse_audition_time <- function(audition_time_str){
 
+  #remove any extraneous letters and quotes
+  audition_time_str <- gsub('[a-z"]*','', audition_time_str, ignore.case=T)
+
   #if string is not in the right format, return NA
   if(!grepl('[0-9]{1,2}:[0-9]{2}', audition_time_str)){
     return(NA)
