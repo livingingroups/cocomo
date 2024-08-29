@@ -190,6 +190,14 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #Convert all times from talking clock time to UTC using UTC offset
   labels$start_UTC <- labels$start_time_talking_clock + UTC_offset
 
+  #predicted talking clock time for synchs and outliers
+  if(nrow(outliers)>0){
+    outliers$predicted_talking_clock_time <- outliers$start_time_in_file * slope + intercept
+  }
+  if(nrow(synchs)>0){
+    synchs$predicted_talking_clock_time <- synchs$start_time_in_file * slope + intercept
+  }
+
   #keep only relevant columns
   labels <- labels[,c('Name','duration','start_UTC','start_time_in_file')]
 
@@ -199,10 +207,8 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #if specified, make plot of synch points and fit
   if(make_plot){
     synchs_and_outliers <- rbind(synchs, outliers)
-    synchs_and_outliers$predicted_talking_clock_time <- synchs_and_outliers$start_time_in_file * slope + intercept
     plot(synchs_and_outliers$start_time_in_file, synchs_and_outliers$talking_clock_time - synchs_and_outliers$predicted_talking_clock_time, xlab = 'File time (sec)', ylab = 'Offset (s)', main = basename(path_to_label_file))
     if(nrow(outliers)>0){
-      outliers$predicted_talking_clock_time <- outliers$start_time_in_file * slope + intercept
       points(outliers$start_time_in_file, outliers$talking_clock_time - outliers$predicted_talking_clock_time, col = 'red', pch = 19)
     }
 
