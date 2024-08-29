@@ -30,7 +30,7 @@ for(i in 1:length(all_files)){
       outliers <- rbind(outliers, out$outliers)
     }
   } else{
-    row <- data.frame(filename = out$filename, reason = out$no_synch_reason)
+    row <- data.frame(filename = out$filename, reason = out$reason_no_synch)
     unsynched_files <- rbind(unsynched_files, row)
   }
 
