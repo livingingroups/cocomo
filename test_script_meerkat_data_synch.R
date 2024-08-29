@@ -15,13 +15,24 @@ path_to_synch_file
 
 test <- list()
 
+outliers <- data.frame()
+unsyched_files <- c()
+
 for(i in 1:length(all_files)){
   path_to_label_file <- paste0(basedir, all_files[i])
-  test[[i]] <- cocomo::meerkat_synch_audio_file_labels_to_UTC(path_to_label_file = path_to_label_file,
+  out <- cocomo::meerkat_synch_audio_file_labels_to_UTC(path_to_label_file = path_to_label_file,
                                                       path_to_synch_file = path_to_synch_file,
                                                       min_offset_outlier = min_offset_outlier,
                                                       min_n_synchs = min_n_synchs,
                                                       min_frac_spanned_by_synchs = min_frac_spanned_by_synchs,
                                                       make_plot = make_plot)
+
+  if(out$synch_completed){
+    if(nrow(out$outliers)>0){
+      outliers <- rbind(outliers, out$outliers)
+    }
+  } else{
+    unsynched_files <- c(unsynched_files, out$filename)
+  }
 
 }

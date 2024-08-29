@@ -4,8 +4,6 @@
 #' and synchs all labels in the file to UTC. Outputs a table with an additional
 #' column specifying timestamp_UTC. Currently only designed to work with meerkat data.
 #'
-#' TODO: Do something with beeps?
-#'
 #' The label file should be in the format of Audition labels. The Name column must contain
 #' labels of the form 'synch H:MM:SS' or 'synch MM:SS' to specify the times of synch calls
 #' as heard on the talking clock.
@@ -19,6 +17,12 @@
 #' @param min_n_synchs minimum number of synchs (after excluding outliers) to perform a fit
 #' @param min_frac_spanned_by_synchs minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching
 #' @param make_plot whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated
+#'
+#' @returns Returns a list containing `filename` (base name of the label file),
+#' `synch_completed` (T or F whether the synch was completed successfully - if F, no other objects are returned in the list)
+#' `labels_synched` (data frame with columns `Name`,`duration`,`start_UTC`,`start_time_in_file`,`filename`),
+#' `synchs_used` (data frame containing synch labels used in the fit, and computed information about them)
+#' and `outliers` (data frame with points labeled as outliers as well as filenames, plus some other columns)
 #'
 #' @importFrom lubridate parse_date_time
 #'
@@ -114,7 +118,11 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #need at least min_n_synchs
   if(n_synchs < min_n_synchs){
     warning(paste('cannot synch file:', path_to_label_file, '- too few synchs marked'))
-    return(NULL)
+    out <- list()
+    out$filename <- basename(path_to_label_dir)
+    out$synch_completed <- F
+    return(out)
+
   }
 
   #get time span of synchs
@@ -128,10 +136,13 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   span_file <- max(labels$start_time_in_file, na.rm=T) - min(labels$start_time_in_file, na.rm=T)
   frac_span_synchs <- span_synchs / span_file
 
-  #if not enough of the file is covered by synchs, warning and return NULL
+  #if not enough of the file is covered by synchs, warning and return
   if(frac_span_synchs < min_frac_spanned_by_synchs){
     warning(paste('not enough of file is spanned by synchs - file:', basename(path_to_label_file)))
-    return(NULL)
+    out <- list()
+    out$filename <- basename(path_to_label_dir)
+    out$synch_completed <- F
+    return(out)
   }
 
   #fit a linear function to the relationship between time in file and talking clock time for synch points
@@ -198,11 +209,14 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     abline(h=0)
   }
 
-  #if there are not enough remaining synchs, output NULL and throw a warning
+  #if there are not enough remaining synchs, return and throw a warning
   if(nrow(synchs) < min_n_synchs){
-    warn_string <- paste('not enough outlier synchs for file:', basename(path_to_label_file), '- returning NULL for this file')
+    warn_string <- paste('not enough non-outlier synchs for file:', basename(path_to_label_file))
     warning(warn_string)
-    return(NULL)
+    out <- list()
+    out$filename <- basename(path_to_label_dir)
+    out$synch_completed <- F
+    return(out)
   }
 
   #if we had to remove outliers, throw a warning
@@ -210,6 +224,27 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     warning(paste(n_outliers, 'outliers found in file:', basename(path_to_label_file)))
   }
 
-  return(labels)
+  if(nrow(outliers)>0){
+    outliers$filename <- basename(path_to_label_file)
+  }
+  synchs$filename <- basename(path_to_label_file)
+
+  #format outliers and synchs to a simpler format
+  if(nrow(outliers)>0){
+    outliers <- outliers[,c('filename','Name','Start','Duration','start_time_in_file','talking_clock_time','predicted_talking_clock_time')]
+  }
+  if(nrow(synchs)>0){
+    synchs <- synchs[,c('filename','Name','Start','Duration','start_time_in_file','talking_clock_time','predicted_talking_clock_time')]
+  }
+
+  #output
+  out <- list()
+  out$filename <- basename(path_to_label_dir)
+  out$synch_completed <- T
+  out$labels_synched <- labels
+  out$synchs_used <- synchs
+  out$outliers <- outliers
+
+  return(out)
 
 }

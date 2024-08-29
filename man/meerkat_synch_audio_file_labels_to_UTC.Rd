@@ -26,14 +26,19 @@ meerkat_synch_audio_file_labels_to_UTC(
 
 \item{make_plot}{whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated}
 }
+\value{
+Returns a list containing \code{filename} (base name of the label file),
+\code{synch_completed} (T or F whether the synch was completed successfully - if F, no other objects are returned in the list)
+\code{labels_synched} (data frame with columns \code{Name},\code{duration},\code{start_UTC},\code{start_time_in_file},\code{filename}),
+\code{synchs_used} (data frame containing synch labels used in the fit, and computed information about them)
+and \code{outliers} (data frame with points labeled as outliers as well as filenames, plus some other columns)
+}
 \description{
 Reads in a label file (in Audition format) and a synch file, gets synch points,
 and synchs all labels in the file to UTC. Outputs a table with an additional
 column specifying timestamp_UTC. Currently only designed to work with meerkat data.
 }
 \details{
-TODO: Do something with beeps?
-
 The label file should be in the format of Audition labels. The Name column must contain
 labels of the form 'synch H:MM:SS' or 'synch MM:SS' to specify the times of synch calls
 as heard on the talking clock.
