@@ -13,8 +13,8 @@
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED
 #'
-#' @param path_to_label_file
-#' @param path_to_synch_file
+#' @param path_to_label_file path to the label file from Audition
+#' @param path_to_synch_file path to the synch file
 #' @param min_offset_outlier minimum offset (in seconds) between fitted times and labeled talking clock times to be considered an outlier
 #' @param min_n_synchs minimum number of synchs (after excluding outliers) to perform a fit
 #' @param min_frac_spanned_by_synchs minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching
@@ -24,8 +24,8 @@
 #'
 #' @export
 synch_audio_file_labels_to_UTC <- function(path_to_label_file,
-                                           path_to_synch_file,
-                                           min_offset_outlier = 2,
+                                           path_to_synch_file = '~/EAS_shared/meerkat/working/METADATA/total_synch_info.csv',
+                                           min_offset_outlier = 0.5,
                                            min_n_synchs = 3,
                                            min_frac_spanned_by_synchs = 0.2,
                                            make_plot = T){
@@ -39,6 +39,11 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   if(ncol(labels)==1){
     stop(paste('label file cannot be imported as normal:', path_to_label_file))
   }
+
+  #rename colnames in case they get messed up
+  colnames(labels) <- c('Name','Start','Duration','Time.Format','Type','Description')
+
+  #get start time and duration in sec into file
   labels$start_time_in_file <- sapply(labels$Start, FUN = function(x){return(cocomo::parse_audition_time(x))})
   labels$duration <- sapply(labels$Duration, FUN = function(x){return(cocomo::parse_audition_time(x))})
 
@@ -64,6 +69,23 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   if(nrow(synch_info_curr)>1){
     synch_info_curr <- synch_info_curr[which(synch_info_curr$comments == '')[1],]
   }
+
+  #TODO: FROM BAPTISTE'S SCRIPT
+  #first we need to find in the synchInfo table the GPS time at which the talking clock was started
+  #for certain days there are several entries in the synchInfo table for various reasons, so we need to select the appropriate one:
+  # if( (date == "20190712" & indCode %in% c("VCVM001","VHMM007","VHMM008")) |  # day when there was a group split and the two sub-groups were followed with different talking clocks
+  #     (date=="20170809" & (grepl("clockGap",file) | nbrFile>3)) |  # day when the synch calls were restarted mid-session
+  #     (date == "20170825" & grepl("clockGap",file))){ # day when the talking clock was accidentally paused
+  #   #in such cases we take the second line
+  #   synchStart <- as.POSIXct(synchInfo$GPS.Time.UTC[match(date,synchInfo$Date)+1],tz="UTC") - as.difftime (substr(synchInfo$Speaker.Time[match(date,synchInfo$Date)+1],12,19))
+  # }else{
+  #   #otherwise it is the first line
+  #   synchStart <- as.POSIXct(synchInfo$GPS.Time.UTC[match(date,synchInfo$Date)],tz="UTC") - as.difftime (substr(synchInfo$Speaker.Time[match(date,synchInfo$Date)],12,19))
+  # }
+
+  #TODO: throw out non multiples of 90 s
+
+  #TODO: what to do if only one synch call?
 
   #get UTC offset from talking clock
   talking_clock_reference_time <- strsplit(synch_info_curr$Speaker.Time, ' ')[[1]][2]
@@ -120,9 +142,12 @@ synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   synchs$predicted_start_time_talking_clock <- synchs$start_time_in_file*slope + synchs$start_time_in_file^2*slope_sq + intercept
   synchs$offset <- synchs$predicted_start_time_talking_clock - synchs$talking_clock_time
 
-  #Check whether the fit is good enough - how many outliers are there
+  #Find outliers
   outliers <- which(abs(synchs$offset) > min_offset_outlier)
   n_outliers <- length(outliers)
+  print('outliers found')
+  print(path_to_label_file)
+  print(n_outliers)
 
   #Convert all times in file to talking clock time
   labels$start_time_talking_clock <- labels$start_time_in_file*slope + labels$start_time_in_file^2*slope_sq + intercept
