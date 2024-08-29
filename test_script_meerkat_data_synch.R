@@ -3,7 +3,7 @@ library(devtools)
 install_github('livingingroups/cocomo', force = T)
 library(cocomo)
 
-basedir <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2019/2_labels_verified/'
+basedir <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2017/2_labels_verified/'
 path_to_synch_file <- '~/EAS_shared/meerkat/working/METADATA/total_synch_info.csv'
 min_n_synchs <- 3
 min_offset_outlier <- 0.5
@@ -14,7 +14,7 @@ all_files <- list.files(basedir, recursive = T)
 path_to_synch_file
 
 outliers <- data.frame()
-unsynched_files <- c()
+unsynched_files <- data.frame()
 
 for(i in 1:length(all_files)){
   path_to_label_file <- paste0(basedir, all_files[i])
@@ -30,7 +30,8 @@ for(i in 1:length(all_files)){
       outliers <- rbind(outliers, out$outliers)
     }
   } else{
-    unsynched_files <- c(unsynched_files, out$filename)
+    row <- data.frame(filename = out$filename, reason = out$no_synch_reason)
+    unsynched_files <- rbind(unsynched_files, row)
   }
 
 }

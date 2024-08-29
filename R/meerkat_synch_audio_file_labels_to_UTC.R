@@ -121,6 +121,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     out <- list()
     out$filename <- basename(path_to_label_file)
     out$synch_completed <- F
+    out$reason_no_synch <- paste('too few synchs:', n_synchs)
     return(out)
 
   }
@@ -142,6 +143,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     out <- list()
     out$filename <- basename(path_to_label_file)
     out$synch_completed <- F
+    out$reason_no_synch <- paste('not enough of file is spanned by synchs:', frac_span_synchs)
     return(out)
   }
 
@@ -222,6 +224,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     out <- list()
     out$filename <- basename(path_to_label_file)
     out$synch_completed <- F
+    out$reason_no_synch <- paste('not enough non_outlier synchs:', nrow(synchs))
     return(out)
   }
 
@@ -247,6 +250,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   out <- list()
   out$filename <- basename(path_to_label_file)
   out$synch_completed <- T
+  out$reason_no_synch <- NA
   out$labels_synched <- labels
   out$synchs_used <- synchs
   out$outliers <- outliers
