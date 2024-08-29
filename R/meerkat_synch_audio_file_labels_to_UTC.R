@@ -95,17 +95,16 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #find synchs
   synchs <- labels[grep('sync', labels$Name, ignore.case = T),]
 
-  #create some fake synchs to test code
-  synchs$Name[1] <- 'synch 01:46:30'
-  synchs$Name[5] <- 'synch 49:30'
-
   #get times of synchs, according to the talking clock (in sec)
   #talking clock labels are in auditon format, so can use audition parsing function
-  #TODO Fix regular expression to extract only the numbers and colons, or only things in time format
   if(nrow(synchs)>0){
-    time_labels <- gsub('[A-Z]*','', synchs$Name, ignore.case=T) #remove a-z characters
-    time_labels <- gsub('"', '', time_labels)
+    time_labels <- gsub('[a-z\"\\]*','', synchs$Name, ignore.case=T) #remove a-z characters, slashes, and quotes
     synchs$talking_clock_time <- sapply(time_labels, FUN = function(x){return(cocomo::parse_audition_time(x))})
+
+    #remove NA synchs
+    if(sum(is.na(synchs$talking_clock_time))>0){
+      synchs <- synchs[!is.na(synchs$talking_clock_time),]
+    }
   }
 
   #count up how many synchs there are, and what fraction of the file duration they span
@@ -142,6 +141,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   redo_fit <- T
   n_non_nas <- sum(!is.na(synchs$talking_clock_time))
   outliers <- data.frame()
+  n_outliers <- 0
   while(redo_fit & (n_non_nas - n_outliers) >= min_n_synchs){
 
     #perform the fit
@@ -174,7 +174,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   }
 
   #Convert all times in file to talking clock time
-  labels$start_time_talking_clock <- labels$start_time_in_file*slope + labels$start_time_in_file^2*slope_sq + intercept
+  labels$start_time_talking_clock <- labels$start_time_in_file*slope + intercept
 
   #Convert all times from talking clock time to UTC using UTC offset
   labels$start_UTC <- labels$start_time_talking_clock + UTC_offset
@@ -188,13 +188,26 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #if specified, make plot of synch points and fit
   if(make_plot){
     synchs_and_outliers <- rbind(synchs, outliers)
-    plot(synchs_and_outliers$start_time_in_file, synchs_and_outliers$talking_clock_time - synchs_and_outliers$start_time_in_file, xlab = 'File time (sec)', ylab = 'Talking clock time', main = basename(path_to_label_file))
+    synchs_and_outliers$predicted_talking_clock_time <- synchs_and_outliers$start_time_in_file * slope + intercept
+    plot(synchs_and_outliers$start_time_in_file, synchs_and_outliers$talking_clock_time - synchs_and_outliers$predicted_talking_clock_time, xlab = 'File time (sec)', ylab = 'Offset (s)', main = basename(path_to_label_file))
     if(nrow(outliers)>0){
-      points(outliers$start_time_in_file, outliers$talking_clock_time - outliers$start_time_in_file, col = 'red', pch = 19)
+      outliers$predicted_talking_clock_time <- outliers$start_time_in_file * slope + intercept
+      points(outliers$start_time_in_file, outliers$talking_clock_time - outliers$predicted_talking_clock_time, col = 'red', pch = 19)
     }
-    x_fit <- seq(min(labels$start_time_in_file, na.rm=T), max(labels$start_time_in_file, na.rm=T), length.out=1000)
-    y_fit <- intercept + x_fit*slope
-    lines(x_fit, y_fit)
+
+    abline(h=0)
+  }
+
+  #if there are not enough remaining synchs, output NULL and throw a warning
+  if(nrow(synchs) < min_n_synchs){
+    warn_string <- paste('not enough outlier synchs for file:', basename(path_to_label_file), '- returning NULL for this file')
+    warning(warn_string)
+    return(NULL)
+  }
+
+  #if we had to remove outliers, throw a warning
+  if(n_outliers > 0){
+    warning(paste(n_outliers, 'outliers found in file:', basename(path_to_label_file)))
   }
 
   return(labels)
