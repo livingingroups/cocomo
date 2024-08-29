@@ -23,7 +23,7 @@
 #'
 #' @importFrom lubridate hour
 #' @export
-import_meerkat_gps_data <- function(input_dir, output_dir,
+meerkat_import_meerkat_gps_data <- function(input_dir, output_dir,
                                     metadata_dir = '~/EAS_shared/meerkat/working/METADATA/',
                                     tag_type,
                                     start_date = NULL, end_date = NULL,
