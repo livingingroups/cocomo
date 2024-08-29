@@ -13,10 +13,8 @@ make_plot <- T
 all_files <- list.files(basedir, recursive = T)
 path_to_synch_file
 
-test <- list()
-
 outliers <- data.frame()
-unsyched_files <- c()
+unsynched_files <- c()
 
 for(i in 1:length(all_files)){
   path_to_label_file <- paste0(basedir, all_files[i])
