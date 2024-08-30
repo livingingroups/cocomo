@@ -10,7 +10,8 @@ meerkat_synch_audio_file_labels_to_UTC(
   min_offset_outlier = 0.5,
   min_n_synchs = 3,
   min_frac_spanned_by_synchs = 0.2,
-  make_plot = T
+  make_plot = T,
+  handle_special_cases = T
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ meerkat_synch_audio_file_labels_to_UTC(
 \item{min_frac_spanned_by_synchs}{minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching}
 
 \item{make_plot}{whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated}
+
+\item{handle_special_cases}{whether (\code{T} or \code{F}) to handle a few special cases in the synch info table, such as when the synch clock stopped or when two synch clocks were around due to a group split with rovers - these cases had to be hardcoded in. this parameter should always be set to \code{T} for meerkat data}
 }
 \value{
 Returns a list containing \code{filename} (base name of the label file),

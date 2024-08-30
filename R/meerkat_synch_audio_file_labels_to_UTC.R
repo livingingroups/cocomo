@@ -17,6 +17,7 @@
 #' @param min_n_synchs minimum number of synchs (after excluding outliers) to perform a fit
 #' @param min_frac_spanned_by_synchs minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching
 #' @param make_plot whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated
+#' @param handle_special_cases whether (`T` or `F`) to handle a few special cases in the synch info table, such as when the synch clock stopped or when two synch clocks were around due to a group split with rovers - these cases had to be hardcoded in. this parameter should always be set to `T` for meerkat data
 #'
 #' @returns Returns a list containing `filename` (base name of the label file),
 #' `synch_completed` (T or F whether the synch was completed successfully - if F, no other objects are returned in the list)
@@ -32,11 +33,8 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
                                            min_offset_outlier = 0.5,
                                            min_n_synchs = 3,
                                            min_frac_spanned_by_synchs = 0.2,
-                                           make_plot = T){
-
-  #commented out label file path is messed up somehow - check this file
-  #path_to_label_file <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2019/2_labels_verified/20190625/HM_VHMF015_RTTB_R25_20190618-20190629_file_8_(2019_06_25-07_44_59)_255944_LL_BA.csv'
-  #path_to_synch_file <- '~/EAS_shared/meerkat/working/METADATA/2019_synch_info_all.csv'
+                                           make_plot = T,
+                                           handle_special_cases = T){
 
   #read in labels and get times in file
   labels <- read.csv(path_to_label_file, sep = '\t', header =T, quote = "")
@@ -65,13 +63,46 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   #get synch info for the given date
   synch_info_curr <- synch_info[which(synch_info$Date == label_file_date[1,1]),]
+
   #if there is no synch info for that date, throw error
   if(nrow(synch_info_curr)==0){
     stop(paste('synch info not found for specified date:', label_file_date))
   }
-  #this is to deal with cases where there are comments indicating some lines relate to rover follows instead of group follows
-  if(nrow(synch_info_curr)>1){
-    synch_info_curr <- synch_info_curr[which(synch_info_curr$comments == '')[1],]
+
+  #handle some special cases from 2017 and 2019 when synch clock stopped or two synch clocks were present during a group split
+  if(handle_special_cases){
+    id_code <- strsplit(basename(path_to_label_file), '_')[[1]][2]
+
+    # day when there was a group split and the two sub-groups were followed with different talking clocks - here there are two lines and we need to choose the correct one
+    if(label_file_date[1,1] == '20190712'){
+      if(id_code %in% c('VCVM001','VHMM007','VHMM008')){
+        synch_info_curr <- synch_info_curr[2,]
+      } else{
+        synch_info_curr <- synch_info_curr[1,]
+      }
+    }
+
+    # one of the days, the synch clock was reset midway through - I decided to not synch any labels in this date for now as it is too complicated
+    if(label_file_date[1,1] == '20170809'){
+      warning(paste('cannot synch file:', path_to_label_file, '- files from 20170809 had an issue with synch calls'))
+      out <- list()
+      out$filename <- basename(path_to_label_file)
+      out$synch_completed <- F
+      out$reason_no_synch <- paste('synch clock restarted midway through - cannot synch')
+      return(out)
+    }
+
+    #one of the days, synch calls were erroneous other than in a middle window - we will not consider synch calls recorded outside this window (see also below)
+    if(label_file_date[1,1] == '20170825'){
+      min_talking_clock_time <- 40*60 #minimum talking clock time is 40 minutes for this day only!
+      max_talking_clock_time <- 2*60*60 + 40*60 #maximum talking clock time is 2 hr 40 min for this day only
+      synch_info_curr <- synch_info_curr[1,] #the first synch in the table is the relevant one
+    }
+  } else{
+    #otherwise, if there are multiple rows, just take the first one (but this should not happen outside of special cases)
+    if(nrow(synch_info_curr)>1){
+      synch_info_curr <- synch_info_curr[1,]
+    }
   }
 
   #TODO: FROM BAPTISTE'S SCRIPT
@@ -86,10 +117,6 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #   #otherwise it is the first line
   #   synchStart <- as.POSIXct(synchInfo$GPS.Time.UTC[match(date,synchInfo$Date)],tz="UTC") - as.difftime (substr(synchInfo$Speaker.Time[match(date,synchInfo$Date)],12,19))
   # }
-
-  #TODO: throw out non multiples of 90 s
-
-  #TODO: what to do if only one synch call?
 
   #get UTC offset from talking clock
   talking_clock_reference_time <- strsplit(synch_info_curr$Speaker.Time, ' ')[[1]][2]
@@ -108,6 +135,14 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     #remove NA synchs
     if(sum(is.na(synchs$talking_clock_time))>0){
       synchs <- synchs[!is.na(synchs$talking_clock_time),]
+    }
+  }
+
+  #if handling special cases, deal with the issue on 20170825
+  #need to remove synchs from outside of the time window specified by min_talking_clock_time and max_talking_clock_time
+  if(handle_special_cases){
+    if(label_file_date[1,1] == '20170825'){
+      synchs <- synchs[which(synchs$talking_clock_time >= min_talking_clock_time & synchs$talking_clock_time <= max_talking_clock_time),]
     }
   }
 
@@ -241,9 +276,11 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #format outliers and synchs to a simpler format
   if(nrow(outliers)>0){
     outliers <- outliers[,c('filename','Name','Start','Duration','start_time_in_file','talking_clock_time','predicted_talking_clock_time')]
+    outliers$offset <- outliers$talking_clock_time - outliers$predicted_talking_clock_time
   }
   if(nrow(synchs)>0){
     synchs <- synchs[,c('filename','Name','Start','Duration','start_time_in_file','talking_clock_time','predicted_talking_clock_time')]
+    synchs$offset <- synchs$talking_clock_time - synchs$predicted_talking_clock_time
   }
 
   #output
