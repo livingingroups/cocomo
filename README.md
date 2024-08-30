@@ -40,6 +40,10 @@ Some functions also take in time series of calls. These should be formatted as a
 
 Note that times should generally be in UTC, however most functions would also work with local time. The user should verify that the same time zone is used for both GPS and audio data.
 
+## Specific datasets
+
+While most functions in this package are intended to be general, it also contains some functions used for processing data from specific species datasets maintained by the CoCoMo group / EAS department. These functions may also interface with the file structure on the EAS data server. All functions that are species-specific begin with the species name, e.g. `meerkat_import_GPS_data`. In addition, there are some species-specific scripts in the scripts folder.
+
 ## Code review
 
 Our eventual goal is to have all functions in the package code reviewed by at least one other person than the person who wrote the code. Code reviewers are credited in the function documentation under "Author(s)" (they are indicated as code reviewers). Functions that have not yet been code reviewed specify "NOT YET CODE REVIEWED" under "Author(s)" in the documentation. At the time of writing, most functions have no yet been code reviewed. **If you would like to contribute to this package by code revieweing any of the functions, please contact Ari.**

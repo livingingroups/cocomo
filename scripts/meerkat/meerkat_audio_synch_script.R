@@ -8,7 +8,7 @@ install_github('livingingroups/cocomo', force = T)
 library(cocomo)
 
 #path to folder containing files to synch
-basedir <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2017/2_labels_verified/'
+basedir <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2019/2_labels_verified/'
 
 #path to synch metadata file
 path_to_synch_file <- '~/EAS_shared/meerkat/working/METADATA/total_synch_info.csv'
