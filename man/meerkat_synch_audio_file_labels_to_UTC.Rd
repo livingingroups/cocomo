@@ -30,11 +30,23 @@ meerkat_synch_audio_file_labels_to_UTC(
 \item{handle_special_cases}{whether (\code{T} or \code{F}) to handle a few special cases in the synch info table, such as when the synch clock stopped or when two synch clocks were around due to a group split with rovers - these cases had to be hardcoded in. this parameter should always be set to \code{T} for meerkat data}
 }
 \value{
-Returns a list containing \code{filename} (base name of the label file),
-\code{synch_completed} (T or F whether the synch was completed successfully - if F, no other objects are returned in the list)
-\code{labels_synched} (data frame with columns \code{Name},\code{duration},\code{start_UTC},\code{start_time_in_file},\code{filename}),
-\code{synchs_used} (data frame containing synch labels used in the fit, and computed information about them)
-and \code{outliers} (data frame with points labeled as outliers as well as filenames, plus some other columns)
+Returns a list containing:
+
+\code{filename}: basename of the label file
+
+\code{synch_completed}: T or F, whether the synch was completed successfully
+
+If \code{synch_completed == T}, also output:
+
+\code{labels_synched}: data frame with columns \code{Name} (original label),\code{duration} (duration of call/label),\code{start_UTC} (start time in UTC),\code{start_time_in_file} (start time in file - sec),\code{filename} (name of the label file)
+
+\code{synchs_used}: data frame containing synch labels used in the fit, and computed information about them
+
+\code{outliers}: data frame with points labeled as outliers as well as filenames, plus some other columns of info
+
+If \code{synch_completed == F}, also output:
+
+\code{reason_no_synch}: a string explaining why the file could not be synched
 }
 \description{
 Reads in a label file (in Audition format) and a synch file, gets synch points,

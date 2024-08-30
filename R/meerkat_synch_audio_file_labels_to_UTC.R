@@ -19,11 +19,23 @@
 #' @param make_plot whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated
 #' @param handle_special_cases whether (`T` or `F`) to handle a few special cases in the synch info table, such as when the synch clock stopped or when two synch clocks were around due to a group split with rovers - these cases had to be hardcoded in. this parameter should always be set to `T` for meerkat data
 #'
-#' @returns Returns a list containing `filename` (base name of the label file),
-#' `synch_completed` (T or F whether the synch was completed successfully - if F, no other objects are returned in the list)
-#' `labels_synched` (data frame with columns `Name`,`duration`,`start_UTC`,`start_time_in_file`,`filename`),
-#' `synchs_used` (data frame containing synch labels used in the fit, and computed information about them)
-#' and `outliers` (data frame with points labeled as outliers as well as filenames, plus some other columns)
+#' @returns Returns a list containing:
+#'
+#' `filename`: basename of the label file
+#'
+#' `synch_completed`: T or F, whether the synch was completed successfully
+#'
+#' If `synch_completed == T`, also output:
+#'
+#' `labels_synched`: data frame with columns `Name` (original label),`duration` (duration of call/label),`start_UTC` (start time in UTC),`start_time_in_file` (start time in file - sec),`filename` (name of the label file)
+#'
+#' `synchs_used`: data frame containing synch labels used in the fit, and computed information about them
+#'
+#' `outliers`: data frame with points labeled as outliers as well as filenames, plus some other columns of info
+#'
+#' If `synch_completed == F`, also output:
+#'
+#' `reason_no_synch`: a string explaining why the file could not be synched
 #'
 #' @importFrom lubridate parse_date_time
 #'

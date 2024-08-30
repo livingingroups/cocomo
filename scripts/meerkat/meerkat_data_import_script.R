@@ -1,4 +1,5 @@
 #Script to read in meerkat GPS data from EAS data server
+#Currently outputs files to Ari's individual folder
 
 library(devtools)
 install_github('livingingroups/cocomo', force = T)
