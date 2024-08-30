@@ -196,6 +196,8 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
   img_idx <- 1
   for(t in time_steps){
 
+    print(t)
+
     #get xs and ys for current positions, x_t and y_t vectors
     x_t <- xs[,t]
     y_t <- ys[,t]
@@ -225,8 +227,10 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
     plot(NULL,xlim=c(xmin,xmax),ylim=c(ymin,ymax),xaxt='n',yaxt='n',xlab='',ylab='',bg=bg_color,asp=1)
 
     #plot "tails" (past locations)
-    for(i in 1:n_inds){
-      lines(x_past[i,],y_past[i,],col=colors_inds[i],lwd=2)
+    if(tail_time > 0){
+      for(i in 1:n_inds){
+          lines(x_past[i,],y_past[i,],col=colors_inds[i],lwd=2)
+      }
     }
 
     #plot a legend if specified
