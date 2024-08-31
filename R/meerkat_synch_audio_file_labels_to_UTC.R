@@ -13,6 +13,7 @@
 #'
 #' @param path_to_label_file path to the label file from Audition
 #' @param path_to_synch_file path to the synch file
+#' @param path_to_rawdata_dir path to directory where raw data is stored (for matching wav file names)
 #' @param min_offset_outlier minimum offset (in seconds) between fitted times and labeled talking clock times to be considered an outlier
 #' @param min_n_synchs minimum number of synchs (after excluding outliers) to perform a fit
 #' @param min_frac_spanned_by_synchs minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching
@@ -27,7 +28,29 @@
 #'
 #' If `synch_completed == T`, also output:
 #'
-#' `labels_synched`: data frame with columns `Name` (original label),`duration` (duration of call/label),`start_UTC` (start time in UTC),`start_time_in_file` (start time in file - sec),`filename` (name of the label file)
+#' `labels_synched`: data frame with columns:
+#'
+#' `$label_unique_id` (unique id associated with a particular lable, constructed from `wav_file|label_name|t0_file|duration`)
+#'
+#' `$wav_file` (raw wav file name, without file extension)
+#'
+#' `$csv_file` (csv label file name without file extension)
+#'
+#' `$label_name` (name of the label)
+#'
+#' `$date` (date in format YYYYMMDD)
+#'
+#' `$id_code` (individual ID code, e.g. 'VCVM001')
+#'
+#' `$t0_file` (start time of label marker in file, in seconds into the file)
+#'
+#' `$duration` (label marker duration, in seconds)
+#'
+#' `$t0_UTC` (synched time of the label marker start in UTC)
+#'
+#' `$tmid_UTC` (synched time of the label marker midpoint in UTC)
+#'
+#' `$tf_UTC` (synched time of the label marker end in UTC)
 #'
 #' `synchs_used`: data frame containing synch labels used in the fit, and computed information about them
 #'
@@ -42,11 +65,14 @@
 #' @export
 meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
                                            path_to_synch_file = '~/EAS_shared/meerkat/working/METADATA/total_synch_info.csv',
+                                           path_to_rawdata_dir = '~/EAS_shared/meerkat/archive/rawdata/',
                                            min_offset_outlier = 0.5,
                                            min_n_synchs = 3,
                                            min_frac_spanned_by_synchs = 0.2,
                                            make_plot = T,
                                            handle_special_cases = T){
+
+  #----READ IN LABELS----
 
   #read in labels and get times in file
   labels <- read.csv(path_to_label_file, sep = '\t', header =T, quote = "")
@@ -54,27 +80,68 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     stop(paste('label file cannot be imported as normal:', path_to_label_file))
   }
 
-  #rename colnames in case they get messed up
+  #rename colnames in case they get messed up on import
   colnames(labels) <- c('Name','Start','Duration','Time.Format','Type','Description')
+
+  #remove any extraneous quotes and white space in label names
+  labels$Name <- gsub('"', '', labels$Name, fixed = T)
+  labels$Name <- trimws(labels$Name)
+
+  #----GET LABEL FILE INFO----
+
+  #get base name (without path) of label file
+  label_file_name <- basename(path_to_label_file)
+
+  #get date of label file
+  if(grepl('SOUNDFOC', label_file_name)){
+    label_file_date <- stringr::str_match(label_file_name, '20[0-9]{6}')
+    label_file_date <- label_file_date[1,1]
+  } else{
+    label_file_date <- stringr::str_match(label_file_name, '\\(20[0-9][0-9]_[0-9][0-9]_[0-9][0-9]')
+    label_file_date <- gsub('\\(', '', label_file_date)
+    label_file_date <- gsub('\\_', '', label_file_date)[1,1]
+  }
+
+  #get info from file name
+  label_file_name_no_ext <- gsub('.csv', '', label_file_name, fixed = T)
+  label_file_split <- strsplit(label_file_name_no_ext, '_')[[1]]
+
+  group_code <- label_file_split[1]
+  id_code <- label_file_split[2]
+
+  #get list of all wav files in the current year's raw data
+  rawdata_subdir <- paste0('meerkat_movecomm_', label_file_date[1:4])
+  wav_files <- c(wav_files, list.files(paste0(path_to_rawdata_dir, '/', rawdata_subdir), recursive = T, pattern = 'wav$', ignore.case = T))
+  wav_files <- basename(wav_files)
+  wav_files <- gsub('.wav', '', wav_files, fixed = T)
+  wav_files <- gsub('.WAV', '', wav_files, fixed = T)
+
+  #find matching wav file that corresponds to this label file
+  #if can't find, wav_file_name will be NA
+  wav_file_name <- NA
+  for(i in 1:length(wav_files)){
+    if(grepl(wav_files[i], label_file_name_no_ext, fixed = T)){
+      wav_file_name <- wav_files[i]
+      break
+    }
+  }
+
+  #if can't find matching wave file, throw a warning
+  if(is.na(wav_file_name)){
+    warning(paste('cannot find corresponding wav file for label file:', label_file_name))
+  }
 
   #get start time and duration in sec into file
   labels$start_time_in_file <- sapply(labels$Start, FUN = function(x){return(cocomo::parse_audition_time(x))})
   labels$duration <- sapply(labels$Duration, FUN = function(x){return(cocomo::parse_audition_time(x))})
 
-  #get date of label file
-  if(grepl('SOUNDFOC', basename(path_to_label_file))){
-    label_file_date <- stringr::str_match(basename(path_to_label_file), '20[0-9]{6}')
-  } else{
-    label_file_date <- stringr::str_match(basename(path_to_label_file), '\\(20[0-9][0-9]_[0-9][0-9]_[0-9][0-9]')
-    label_file_date <- gsub('\\(', '', label_file_date)
-    label_file_date <- gsub('\\_', '', label_file_date)
-  }
+  #----GET SYNCH INFO----
 
   #read in synch file
   synch_info <- read.csv(path_to_synch_file, sep = ',')
 
   #get synch info for the given date
-  synch_info_curr <- synch_info[which(synch_info$Date == label_file_date[1,1]),]
+  synch_info_curr <- synch_info[which(synch_info$Date == label_file_date),]
 
   #if there is no synch info for that date, throw error
   if(nrow(synch_info_curr)==0){
@@ -83,10 +150,8 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   #handle some special cases from 2017 and 2019 when synch clock stopped or two synch clocks were present during a group split
   if(handle_special_cases){
-    id_code <- strsplit(basename(path_to_label_file), '_')[[1]][2]
-
     # day when there was a group split and the two sub-groups were followed with different talking clocks - here there are two lines and we need to choose the correct one
-    if(label_file_date[1,1] == '20190712'){
+    if(label_file_date == '20190712'){
       if(id_code %in% c('VCVM001','VHMM007','VHMM008')){
         synch_info_curr <- synch_info_curr[2,]
       } else{
@@ -95,17 +160,17 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     }
 
     # one of the days, the synch clock was reset midway through - I decided to not synch any labels in this date for now as it is too complicated
-    if(label_file_date[1,1] == '20170809'){
+    if(label_file_date == '20170809'){
       warning(paste('cannot synch file:', path_to_label_file, '- files from 20170809 had an issue with synch calls'))
       out <- list()
-      out$filename <- basename(path_to_label_file)
+      out$filename <- label_file_name
       out$synch_completed <- F
       out$reason_no_synch <- paste('synch clock restarted midway through - cannot synch')
       return(out)
     }
 
     #one of the days, synch calls were erroneous other than in a middle window - we will not consider synch calls recorded outside this window (see also below)
-    if(label_file_date[1,1] == '20170825'){
+    if(label_file_date == '20170825'){
       min_talking_clock_time <- 40*60 #minimum talking clock time is 40 minutes for this day only!
       max_talking_clock_time <- 2*60*60 + 40*60 #maximum talking clock time is 2 hr 40 min for this day only
       synch_info_curr <- synch_info_curr[1,] #the first synch in the table is the relevant one
@@ -116,19 +181,6 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
       synch_info_curr <- synch_info_curr[1,]
     }
   }
-
-  #TODO: FROM BAPTISTE'S SCRIPT
-  #first we need to find in the synchInfo table the GPS time at which the talking clock was started
-  #for certain days there are several entries in the synchInfo table for various reasons, so we need to select the appropriate one:
-  # if( (date == "20190712" & indCode %in% c("VCVM001","VHMM007","VHMM008")) |  # day when there was a group split and the two sub-groups were followed with different talking clocks
-  #     (date=="20170809" & (grepl("clockGap",file) | nbrFile>3)) |  # day when the synch calls were restarted mid-session
-  #     (date == "20170825" & grepl("clockGap",file))){ # day when the talking clock was accidentally paused
-  #   #in such cases we take the second line
-  #   synchStart <- as.POSIXct(synchInfo$GPS.Time.UTC[match(date,synchInfo$Date)+1],tz="UTC") - as.difftime (substr(synchInfo$Speaker.Time[match(date,synchInfo$Date)+1],12,19))
-  # }else{
-  #   #otherwise it is the first line
-  #   synchStart <- as.POSIXct(synchInfo$GPS.Time.UTC[match(date,synchInfo$Date)],tz="UTC") - as.difftime (substr(synchInfo$Speaker.Time[match(date,synchInfo$Date)],12,19))
-  # }
 
   #get UTC offset from talking clock
   talking_clock_reference_time <- strsplit(synch_info_curr$Speaker.Time, ' ')[[1]][2]
@@ -153,7 +205,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #if handling special cases, deal with the issue on 20170825
   #need to remove synchs from outside of the time window specified by min_talking_clock_time and max_talking_clock_time
   if(handle_special_cases){
-    if(label_file_date[1,1] == '20170825'){
+    if(label_file_date == '20170825'){
       synchs <- synchs[which(synchs$talking_clock_time >= min_talking_clock_time & synchs$talking_clock_time <= max_talking_clock_time),]
     }
   }
@@ -166,7 +218,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   if(n_synchs < min_n_synchs){
     warning(paste('cannot synch file:', path_to_label_file, '- too few synchs marked'))
     out <- list()
-    out$filename <- basename(path_to_label_file)
+    out$filename <- label_file_name
     out$synch_completed <- F
     out$reason_no_synch <- paste('too few synchs:', n_synchs)
     return(out)
@@ -186,17 +238,17 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   #if not enough of the file is covered by synchs, warning and return
   if(frac_span_synchs < min_frac_spanned_by_synchs){
-    warning(paste('not enough of file is spanned by synchs - file:', basename(path_to_label_file)))
+    warning(paste('not enough of file is spanned by synchs - file:', label_file_name))
     out <- list()
-    out$filename <- basename(path_to_label_file)
+    out$filename <- label_file_name
     out$synch_completed <- F
     out$reason_no_synch <- paste('not enough of file is spanned by synchs:', frac_span_synchs)
     return(out)
   }
 
-  #fit a linear function to the relationship between time in file and talking clock time for synch points
-  #synchs$start_time_in_file_sq <- synchs$start_time_in_file^2
+  #----FITTING SYNCH----
 
+  #fit a linear function to the relationship between time in file and talking clock time for synch points
   #remove outliers sequentially until there are no more
   redo_fit <- T
   n_non_nas <- sum(!is.na(synchs$talking_clock_time))
@@ -233,11 +285,13 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   }
 
+  #----SYNCH LABEL FILE----
+
   #Convert all times in file to talking clock time
   labels$start_time_talking_clock <- labels$start_time_in_file*slope + intercept
 
   #Convert all times from talking clock time to UTC using UTC offset
-  labels$start_UTC <- labels$start_time_talking_clock + UTC_offset
+  labels$t0_UTC <- labels$start_time_talking_clock + UTC_offset
 
   #predicted talking clock time for synchs and outliers
   if(nrow(outliers)>0){
@@ -247,16 +301,27 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     synchs$predicted_talking_clock_time <- synchs$start_time_in_file * slope + intercept
   }
 
-  #keep only relevant columns
-  labels <- labels[,c('Name','duration','start_UTC','start_time_in_file')]
+  #create relevant columns and name them
+  labels$csv_file <- gsub('.csv$','',label_file_name, fixed = T)
+  labels$wav_file <- wav_file_name
+  labels$label_name <- labels$Name
+  labels$date <- label_file_date
+  labels$id_code <- id_code
+  labels$group_code <- group_code
+  labels$label_unique_id <- paste(labels$wav_file, labels$label_name, labels$start_time_in_file, labels$duration, sep = '|')
+  labels$tf_UTC <- labels$t0_UTC + labels$duration
+  labels$tmid_UTC <- labels$t0_UTC + (labels$duration / 2)
+  labels$t0_file <- labels$start_time_in_file
 
-  #add a column for the file name
-  labels$filename <- rep(basename(path_to_label_file), nrow(labels))
+  #keep only relevant columns
+  labels <- labels[,c('label_unique_id','wav_file','csv_file','label_name','date','id_code','t0_file','duration','t0_UTC','tmid_UTC','tf_UTC')]
+
+  #----PLOTTING----
 
   #if specified, make plot of synch points and fit
   if(make_plot){
     synchs_and_outliers <- rbind(synchs, outliers)
-    plot(synchs_and_outliers$start_time_in_file, synchs_and_outliers$talking_clock_time - synchs_and_outliers$predicted_talking_clock_time, xlab = 'File time (sec)', ylab = 'Offset (s)', main = basename(path_to_label_file))
+    plot(synchs_and_outliers$start_time_in_file, synchs_and_outliers$talking_clock_time - synchs_and_outliers$predicted_talking_clock_time, xlab = 'File time (sec)', ylab = 'Offset (s)', main = label_file_name)
     if(nrow(outliers)>0){
       points(outliers$start_time_in_file, outliers$talking_clock_time - outliers$predicted_talking_clock_time, col = 'red', pch = 19)
     }
@@ -264,12 +329,14 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     abline(h=0)
   }
 
+  #----OUTPUT----
+
   #if there are not enough remaining synchs, return and throw a warning
   if(nrow(synchs) < min_n_synchs){
-    warn_string <- paste('not enough non-outlier synchs for file:', basename(path_to_label_file))
+    warn_string <- paste('not enough non-outlier synchs for file:', label_file_name)
     warning(warn_string)
     out <- list()
-    out$filename <- basename(path_to_label_file)
+    out$filename <- label_file_name
     out$synch_completed <- F
     out$reason_no_synch <- paste('not enough non_outlier synchs:', nrow(synchs))
     return(out)
@@ -277,13 +344,13 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   #if we had to remove outliers, throw a warning
   if(n_outliers > 0){
-    warning(paste(n_outliers, 'outliers found in file:', basename(path_to_label_file)))
+    warning(paste(n_outliers, 'outliers found in file:', label_file_name))
   }
 
   if(nrow(outliers)>0){
-    outliers$filename <- basename(path_to_label_file)
+    outliers$filename <- label_file_name
   }
-  synchs$filename <- basename(path_to_label_file)
+  synchs$filename <- label_file_name
 
   #format outliers and synchs to a simpler format
   if(nrow(outliers)>0){
@@ -297,7 +364,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   #output
   out <- list()
-  out$filename <- basename(path_to_label_file)
+  out$filename <- label_file_name
   out$synch_completed <- T
   out$reason_no_synch <- NA
   out$labels_synched <- labels

@@ -7,6 +7,7 @@
 meerkat_synch_audio_file_labels_to_UTC(
   path_to_label_file,
   path_to_synch_file = "~/EAS_shared/meerkat/working/METADATA/total_synch_info.csv",
+  path_to_rawdata_dir = "~/EAS_shared/meerkat/archive/rawdata/",
   min_offset_outlier = 0.5,
   min_n_synchs = 3,
   min_frac_spanned_by_synchs = 0.2,
@@ -18,6 +19,8 @@ meerkat_synch_audio_file_labels_to_UTC(
 \item{path_to_label_file}{path to the label file from Audition}
 
 \item{path_to_synch_file}{path to the synch file}
+
+\item{path_to_rawdata_dir}{path to directory where raw data is stored (for matching wav file names)}
 
 \item{min_offset_outlier}{minimum offset (in seconds) between fitted times and labeled talking clock times to be considered an outlier}
 
@@ -38,7 +41,29 @@ Returns a list containing:
 
 If \code{synch_completed == T}, also output:
 
-\code{labels_synched}: data frame with columns \code{Name} (original label),\code{duration} (duration of call/label),\code{start_UTC} (start time in UTC),\code{start_time_in_file} (start time in file - sec),\code{filename} (name of the label file)
+\code{labels_synched}: data frame with columns:
+
+\verb{$label_unique_id} (unique id associated with a particular lable, constructed from \code{wav_file|label_name|t0_file|duration})
+
+\verb{$wav_file} (raw wav file name, without file extension)
+
+\verb{$csv_file} (csv label file name without file extension)
+
+\verb{$label_name} (name of the label)
+
+\verb{$date} (date in format YYYYMMDD)
+
+\verb{$id_code} (individual ID code, e.g. 'VCVM001')
+
+\verb{$t0_file} (start time of label marker in file, in seconds into the file)
+
+\verb{$duration} (label marker duration, in seconds)
+
+\verb{$t0_UTC} (synched time of the label marker start in UTC)
+
+\verb{$tmid_UTC} (synched time of the label marker midpoint in UTC)
+
+\verb{$tf_UTC} (synched time of the label marker end in UTC)
 
 \code{synchs_used}: data frame containing synch labels used in the fit, and computed information about them
 
