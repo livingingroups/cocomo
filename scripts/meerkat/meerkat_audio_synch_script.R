@@ -13,6 +13,9 @@ basedir <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2019/2_labels_veri
 #path to synch metadata file
 path_to_synch_file <- '~/EAS_shared/meerkat/working/METADATA/total_synch_info.csv'
 
+#path to rawdata directory
+path_to_rawdata_dir <- '~/EAS_shared/meerkat/archive/rawdata/'
+
 #parameters
 min_n_synchs <- 3
 min_offset_outlier <- 0.5
@@ -34,6 +37,7 @@ for(i in 1:length(all_files)){
   path_to_label_file <- paste0(basedir, all_files[i])
   out <- cocomo::meerkat_synch_audio_file_labels_to_UTC(path_to_label_file = path_to_label_file,
                                                       path_to_synch_file = path_to_synch_file,
+                                                      path_to_rawdata_dir = path_to_rawdata_dir,
                                                       min_offset_outlier = min_offset_outlier,
                                                       min_n_synchs = min_n_synchs,
                                                       min_frac_spanned_by_synchs = min_frac_spanned_by_synchs,

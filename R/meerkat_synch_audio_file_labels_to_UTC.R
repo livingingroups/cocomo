@@ -111,7 +111,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   #get list of all wav files in the current year's raw data
   rawdata_subdir <- paste0('meerkat_movecomm_', label_file_date[1:4])
-  wav_files <- c(wav_files, list.files(paste0(path_to_rawdata_dir, '/', rawdata_subdir), recursive = T, pattern = 'wav$', ignore.case = T))
+  wav_files <- list.files(paste0(path_to_rawdata_dir, '/', rawdata_subdir), recursive = T, pattern = 'wav$', ignore.case = T)
   wav_files <- basename(wav_files)
   wav_files <- gsub('.wav', '', wav_files, fixed = T)
   wav_files <- gsub('.WAV', '', wav_files, fixed = T)
