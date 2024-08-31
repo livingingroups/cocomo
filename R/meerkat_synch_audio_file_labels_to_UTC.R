@@ -296,10 +296,15 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #predicted talking clock time for synchs and outliers
   if(nrow(outliers)>0){
     outliers$predicted_talking_clock_time <- outliers$start_time_in_file * slope + intercept
+    outliers$offset <- outliers$talking_clock_time - outliers$predicted_talking_clock_time
   }
   if(nrow(synchs)>0){
     synchs$predicted_talking_clock_time <- synchs$start_time_in_file * slope + intercept
+    synchs$offset <- synchs$talking_clock_time - synchs$predicted_talking_clock_time
   }
+
+  #get offsets
+
 
   #create relevant columns and name them
   labels$csv_file <- gsub('.csv$','',label_file_name, fixed = T)
@@ -321,12 +326,15 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #if specified, make plot of synch points and fit
   if(make_plot){
     synchs_and_outliers <- rbind(synchs, outliers)
-    plot(synchs_and_outliers$start_time_in_file, synchs_and_outliers$talking_clock_time - synchs_and_outliers$predicted_talking_clock_time, xlab = 'File time (sec)', ylab = 'Offset (s)', main = label_file_name)
+    yrange <- max(c(abs(synchs_and_outliers$offset), min_offset_outlier), na.rm=T)
+    plot(synchs_and_outliers$start_time_in_file, synchs_and_outliers$talking_clock_time - synchs_and_outliers$predicted_talking_clock_time, xlab = 'File time (sec)', ylab = 'Offset (s)', main = label_file_name, ylim = c(-yrange, yrange))
     if(nrow(outliers)>0){
       points(outliers$start_time_in_file, outliers$talking_clock_time - outliers$predicted_talking_clock_time, col = 'red', pch = 19)
     }
 
     abline(h=0)
+    abline(h=min_offset_outlier, col = 'red')
+    abline(h=-min_offset_outlier, col = 'red')
   }
 
   #----OUTPUT----
@@ -354,12 +362,10 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   #format outliers and synchs to a simpler format
   if(nrow(outliers)>0){
-    outliers <- outliers[,c('filename','Name','Start','Duration','start_time_in_file','talking_clock_time','predicted_talking_clock_time')]
-    outliers$offset <- outliers$talking_clock_time - outliers$predicted_talking_clock_time
+    outliers <- outliers[,c('filename','Name','Start','Duration','start_time_in_file','talking_clock_time','predicted_talking_clock_time','offset')]
   }
   if(nrow(synchs)>0){
-    synchs <- synchs[,c('filename','Name','Start','Duration','start_time_in_file','talking_clock_time','predicted_talking_clock_time')]
-    synchs$offset <- synchs$talking_clock_time - synchs$predicted_talking_clock_time
+    synchs <- synchs[,c('filename','Name','Start','Duration','start_time_in_file','talking_clock_time','predicted_talking_clock_time','offset')]
   }
 
   #output
