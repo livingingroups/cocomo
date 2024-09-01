@@ -19,6 +19,7 @@
 #' @param min_frac_spanned_by_synchs minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching
 #' @param make_plot whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated
 #' @param handle_special_cases whether (`T` or `F`) to handle a few special cases in the synch info table, such as when the synch clock stopped or when two synch clocks were around due to a group split with rovers - these cases had to be hardcoded in. this parameter should always be set to `T` for meerkat data
+#' @param quadratic_fit whether (`T` or `F`) to perform a quadratic fit to the synchs - default is `F` because this is not recommended
 #'
 #' @returns Returns a list containing:
 #'
@@ -70,7 +71,8 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
                                            min_n_synchs = 3,
                                            min_frac_spanned_by_synchs = 0.2,
                                            make_plot = T,
-                                           handle_special_cases = T){
+                                           handle_special_cases = T,
+                                           quadratic_fit = F){
 
   #----READ IN LABELS----
 
@@ -248,31 +250,46 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   #----FITTING SYNCH----
 
-  #fit a linear function to the relationship between time in file and talking clock time for synch points
+  #fit a linear or quadratic function to the relationship between time in file and talking clock time for synch points
   #remove outliers sequentially until there are no more
+
+  if(quadratic_fit){
+    synchs$start_time_in_file_sq <- synchs$start_time_in_file^2
+  }
+
   redo_fit <- T
-  n_non_nas <- sum(!is.na(synchs$talking_clock_time))
   outliers <- data.frame()
   n_outliers <- 0
-  while(redo_fit & (n_non_nas - n_outliers) >= min_n_synchs){
+  while(redo_fit & nrow(synchs) >= min_n_synchs){
 
     #perform the fit
-    synch_fit <- lm('talking_clock_time ~ start_time_in_file', data = synchs)
+    if(quadratic_fit){
+      synch_fit <- lm('talking_clock_time ~ start_time_in_file + start_time_in_file_sq', data = synchs)
+    } else{
+      synch_fit <- lm('talking_clock_time ~ start_time_in_file', data = synchs)
+    }
 
     #get coefficients
     intercept <- synch_fit$coefficients[1]
     slope <- synch_fit$coefficients[2]
-    #slope_sq <- synch_fit$coefficients[3]
+
+    if(quadratic_fit){
+      slope_sq <- synch_fit$coefficients[3]
+    }
 
     #predict times of synchs based on fit and calculate offsets
-    synchs$predicted_start_time_talking_clock <- synchs$start_time_in_file*slope + intercept
+    if(quadratic_fit){
+      synchs$predicted_start_time_talking_clock <- synchs$start_time_in_file*slope + intercept
+    } else{
+      synchs$predicted_start_time_talking_clock <- synchs$start_time_in_file_sq*slope_sq + synchs$start_time_in_file*slope + intercept
+    }
     synchs$offset <- synchs$predicted_start_time_talking_clock - synchs$talking_clock_time
 
     #Find most extreme offset
     max_offset <- max(abs(synchs$offset), na.rm=T)
     max_offset_idx <- which(abs(synchs$offset) == max_offset)[1]
 
-    #if the offset is greater than a threshold (indicating outliers), remove it and try again, and store it in the outliers table
+    #if the offset for a synch is greater than a threshold (indicating outliers), remove it and try again, and store it in the outliers table
     redo_fit <- F
     if(max_offset > min_offset_outlier){
       outliers <- rbind(outliers, synchs[max_offset_idx,])
@@ -283,6 +300,16 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     #number of outliers
     n_outliers <- nrow(outliers)
 
+  }
+
+  #if there were still outliers after remvoing the maximum number of synchs possible, file cannot be synched
+  if(redo_fit){
+    warning(paste('not enough synchs after removal of outliers - file:', label_file_name))
+    out <- list()
+    out$filename <- label_file_name
+    out$synch_completed <- F
+    out$reason_no_synch <- paste('not enough synchs (n =', nrow(synchs), ') after removal of outliers (n = ', (n_outliers),')')
+    return(out)
   }
 
   #----SYNCH LABEL FILE----
@@ -327,7 +354,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   if(make_plot){
     synchs_and_outliers <- rbind(synchs, outliers)
     yrange <- max(c(abs(synchs_and_outliers$offset), min_offset_outlier), na.rm=T)
-    plot(synchs_and_outliers$start_time_in_file, synchs_and_outliers$talking_clock_time - synchs_and_outliers$predicted_talking_clock_time, xlab = 'File time (sec)', ylab = 'Offset (s)', main = label_file_name, ylim = c(-yrange, yrange))
+    plot(synchs_and_outliers$start_time_in_file, synchs_and_outliers$talking_clock_time - synchs_and_outliers$predicted_talking_clock_time, xlab = 'File time (sec)', ylab = 'Offset (s)', main = label_file_name, ylim = c(-yrange, yrange), cex.main = 0.5)
     if(nrow(outliers)>0){
       points(outliers$start_time_in_file, outliers$talking_clock_time - outliers$predicted_talking_clock_time, col = 'red', pch = 19)
     }
@@ -348,11 +375,6 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     out$synch_completed <- F
     out$reason_no_synch <- paste('not enough non_outlier synchs:', nrow(synchs))
     return(out)
-  }
-
-  #if we had to remove outliers, throw a warning
-  if(n_outliers > 0){
-    warning(paste(n_outliers, 'outliers found in file:', label_file_name))
   }
 
   if(nrow(outliers)>0){

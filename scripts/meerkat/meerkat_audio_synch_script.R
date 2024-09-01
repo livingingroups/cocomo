@@ -16,9 +16,14 @@ path_to_synch_file <- '~/EAS_shared/meerkat/working/METADATA/total_synch_info.cs
 #path to rawdata directory
 path_to_rawdata_dir <- '~/EAS_shared/meerkat/archive/rawdata/'
 
+path_to_label_file <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2019/2_labels_verified/20190719/HM_VHMF015_RTTB_R05_20190707-20190719_file_13_(2019_07_19-11_44_59)_195944_HB_VD.csv'
+path_to_label_file <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2019/2_labels_verified/20190716/HM_VHMM023_MBLS_R02_20190707-20190719_file_10_(2019_07_16-11_44_59)_165944_HB_VD.csv'
+path_to_label_file <- 'HM_VHMM021_MBLT_R01_20190707-20190719_file_10_(2019_07_16-11_44_59)_165944_HB_VD.csv'
+path_to_label_file <- 'HM_VHMM014_LSTB_R19_20190707-20190719_file_10_(2019_07_16-11_44_59)_165944_LL_VD.csv'
+
 #parameters
 min_n_synchs <- 3
-min_offset_outlier <- 0.5
+min_offset_outlier <- 0.2
 min_frac_spanned_by_synchs = 0.2
 make_plot <- T
 handle_special_cases <- T
