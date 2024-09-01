@@ -37,6 +37,9 @@ outliers <- data.frame()
 #initialize data frame to hold unsynched files
 unsynched_files <- data.frame()
 
+#all labels
+labels_synched <- data.frame()
+
 #loop over files and try to synch them - currently not saving output anywhere
 for(i in 1:length(all_files)){
   path_to_label_file <- paste0(basedir, all_files[i])
@@ -52,6 +55,7 @@ for(i in 1:length(all_files)){
   if(out$synch_completed){
     if(nrow(out$outliers)>0){
       outliers <- rbind(outliers, out$outliers)
+      labels_synched <- rbind(labels_synched, out$labels_synched)
     }
   } else{
     row <- data.frame(filename = out$filename, reason = out$reason_no_synch)

@@ -279,9 +279,9 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
     #predict times of synchs based on fit and calculate offsets
     if(quadratic_fit){
-      synchs$predicted_start_time_talking_clock <- synchs$start_time_in_file*slope + intercept
-    } else{
       synchs$predicted_start_time_talking_clock <- synchs$start_time_in_file_sq*slope_sq + synchs$start_time_in_file*slope + intercept
+    } else{
+      synchs$predicted_start_time_talking_clock <- synchs$start_time_in_file*slope + intercept
     }
     synchs$offset <- synchs$predicted_start_time_talking_clock - synchs$talking_clock_time
 
