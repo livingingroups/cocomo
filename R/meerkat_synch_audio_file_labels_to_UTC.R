@@ -174,7 +174,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
     #one of the days, synch calls were erroneous other than in a middle window - we will not consider synch calls recorded outside this window (see also below)
     if(label_file_date == '20170825'){
       min_talking_clock_time <- 40*60 #minimum talking clock time is 40 minutes for this day only!
-      max_talking_clock_time <- 2*60*60 + 40*60 #maximum talking clock time is 2 hr 40 min for this day only
+      max_talking_clock_time <- 2*60*60 + 50*60 #maximum talking clock time is 2 hr 40 min for this day only
       synch_info_curr <- synch_info_curr[1,] #the first synch in the table is the relevant one
     }
   } else{

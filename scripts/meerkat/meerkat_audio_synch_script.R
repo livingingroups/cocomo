@@ -8,18 +8,13 @@ install_github('livingingroups/cocomo', force = T)
 library(cocomo)
 
 #path to folder containing files to synch
-basedir <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2019/2_labels_verified/'
+basedir <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2017/2_labels_verified/'
 
 #path to synch metadata file
 path_to_synch_file <- '~/EAS_shared/meerkat/working/METADATA/total_synch_info.csv'
 
 #path to rawdata directory
 path_to_rawdata_dir <- '~/EAS_shared/meerkat/archive/rawdata/'
-
-path_to_label_file <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2019/2_labels_verified/20190719/HM_VHMF015_RTTB_R05_20190707-20190719_file_13_(2019_07_19-11_44_59)_195944_HB_VD.csv'
-path_to_label_file <- '~/EAS_shared/meerkat/working/processed/acoustic/HM2019/2_labels_verified/20190716/HM_VHMM023_MBLS_R02_20190707-20190719_file_10_(2019_07_16-11_44_59)_165944_HB_VD.csv'
-path_to_label_file <- 'HM_VHMM021_MBLT_R01_20190707-20190719_file_10_(2019_07_16-11_44_59)_165944_HB_VD.csv'
-path_to_label_file <- 'HM_VHMM014_LSTB_R19_20190707-20190719_file_10_(2019_07_16-11_44_59)_165944_LL_VD.csv'
 
 #parameters
 min_n_synchs <- 3
@@ -55,11 +50,12 @@ for(i in 1:length(all_files)){
   if(out$synch_completed){
     if(nrow(out$outliers)>0){
       outliers <- rbind(outliers, out$outliers)
-      labels_synched <- rbind(labels_synched, out$labels_synched)
     }
+    labels_synched <- rbind(labels_synched, out$labels_synched)
   } else{
     row <- data.frame(filename = out$filename, reason = out$reason_no_synch)
     unsynched_files <- rbind(unsynched_files, row)
   }
 
 }
+
