@@ -181,8 +181,10 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
 
   #round call times to the nearest time step that will be plotted
   calls <- calls[which(calls$time_idx >= start_time & calls$time_idx <= end_time),]
-  for(i in 1:nrow(calls)){
-    calls$time_idx[i] <- time_steps[which.min(abs(time_steps - calls$time_idx[i]))]
+  if(nrow(calls) > 0){
+    for(i in 1:nrow(calls)){
+      calls$time_idx[i] <- time_steps[which.min(abs(time_steps - calls$time_idx[i]))]
+    }
   }
 
   #create directory in which to store images
