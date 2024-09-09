@@ -103,7 +103,7 @@ between the two thresholds (1), or below the lower threshold \code{thresh_l} (0)
 then identify contiguous periods of time where the dyadic distance went from
 2-111111(any number of ones)-0 (i.e. high-mid-low) for a fusion or 0-1111...-2
 (i.e. low-mid-high) for a fission. If there are multiple possible time periods
-detected within the window, we choose the one that is closest to \code{tidx}. (See also
+detected within the window, we choose the one where the start time is closest to \code{tidx}. (See also
 subtlety 1 below).
 
 \emph{How are the before and after times identified?}
