@@ -33,7 +33,7 @@
 #' then identify contiguous periods of time where the dyadic distance went from
 #' 2-111111(any number of ones)-0 (i.e. high-mid-low) for a fusion or 0-1111...-2
 #' (i.e. low-mid-high) for a fission. If there are multiple possible time periods
-#' detected within the window, we choose the one that is closest to `tidx`. (See also
+#' detected within the window, we choose the one where the start time is closest to `tidx`. (See also
 #' subtlety 1 below).
 #'
 #' *How are the before and after times identified?*
@@ -333,17 +333,20 @@ analyze_split_or_merge_event <- function(events, i,
   end_time <- event_loc$end_time
 
   #if there is more than one start time, go with the closest to the originally identified fission or fusion point
-  #TODO: look into this because in theory this could result in a start time after an end time, in a weird edge case
   if(length(start_time)>1){
     ff_time <- events$tidx[i]
     time_diff <- abs(start_time-ff_time)
     start_time <- start_time[which(time_diff==min(time_diff))]
   }
-  #same for end time
+
+  #if they were equidistant, just choose the first one
+  if(length(start_time)>1){
+    start_time <- start_time[1]
+  }
+
+  #for end time, if there were two of them, choose the first one after start time
   if(length(end_time)>1){
-    ff_time <- events$tidx[i]
-    time_diff <- abs(end_time-ff_time)
-    end_time <- end_time[which(time_diff==min(time_diff))]
+    end_time <- end_time[which(end_time >= start_time)][1]
   }
 
   #if start time not found (NULL) change to NA
