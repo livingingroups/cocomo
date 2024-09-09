@@ -294,6 +294,9 @@ analyze_split_or_merge_event <- function(events, i,
     lower <- thresh_l
   }
 
+  #middle threshold is average of upper and lower (modified from earlier, used to be average of original thresh_l and thresh_h)
+  thresh_m <- (upper + lower)/2
+
   #get category of each moment in time
   #0 = below lower, 1 = middle, 2 = above upper
   category <- rep(NA, length(dyad_dist_event))
@@ -330,6 +333,7 @@ analyze_split_or_merge_event <- function(events, i,
   end_time <- event_loc$end_time
 
   #if there is more than one start time, go with the closest to the originally identified fission or fusion point
+  #TODO: look into this because in theory this could result in a start time after an end time, in a weird edge case
   if(length(start_time)>1){
     ff_time <- events$tidx[i]
     time_diff <- abs(start_time-ff_time)
@@ -370,8 +374,6 @@ analyze_split_or_merge_event <- function(events, i,
 
     #by default, the after_time is time_window steps after the end_time
     max_after_time <- end_time + time_window
-
-    thresh_m <- (upper + lower)/2 #middle threshold is average of upper and lower (modified from earlier, used to be average of original thresh_l and thresh_h)
 
     #go backward in time until the two groups cross thresh_m or until the time window has elapsed
     for(t in seq(start_time, min_before_time, -1)){
