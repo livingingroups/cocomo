@@ -626,7 +626,7 @@ analyze_split_or_merge_event <- function(events, i,
         }
 
         #otherwise, add their absolute time difference and angle to the calculation
-        outtime_diff_tot <- time_diff_tot + abs(depart_or_arrive_times[i] - depart_or_arrive_times[j])*seconds_per_time_step
+        time_diff_tot <- time_diff_tot + abs(depart_or_arrive_times[i] - depart_or_arrive_times[j])*seconds_per_time_step
         ang_diff_tot <- ang_diff_tot + acos(cos(depart_or_arrive_headings[i])*cos(depart_or_arrive_headings[j]) +
                                       sin(depart_or_arrive_headings[i])*sin(depart_or_arrive_headings[j]))
         n_comparisons <- n_comparisons + 1
