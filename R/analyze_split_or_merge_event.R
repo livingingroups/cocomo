@@ -82,7 +82,7 @@
 #' To calculate the departure time difference and angular difference, we start by computing
 #' the centroid of the full group at the event _start time_ - call this the _group start position_.
 #' We then determine, for each individual in each subgroup, a _departure time_ that is defined
-#' as the first time after _start time_ when that individual crossed a threshold distance (`departure_arrival_radius`)
+#' as the first time after _start time_ when that individual crossed a threshold distance (`depart_or_arrive_radius`)
 #' from the _start position_. We then compute the _departure heading_ for each individual as the
 #' vector pointing from the _group start position_ to the position of the individual at its _departure time_.
 #'
@@ -97,7 +97,7 @@
 #' as the centroid of the combined group at the `end_time`, and use this position as the reference point
 #' for all the other calculations. Looking backward in time, we find the _arrival time_ for each individual,
 #' defined as the latest time before the _end time_ where that individual remained outside a threshold
-#' distance of `departure_arrival_radius`. The headings and time differences are then computed as above, and the
+#' distance of `depart_or_arrive_radius`. The headings and time differences are then computed as above, and the
 #' differences between times and angles as well.
 #'
 #' To avoid having different column names for all of the above variables in the code, we create the columns:
@@ -106,8 +106,6 @@
 #' `depart_or_arrive_headings` which is a lsit of _departure headings_ (in the case of fissions) or _arrival headings_ (in the case of fusions),
 #' `depart_or_arrive_time_diff` which is a single number representing the _departure time difference_ (for fissions) or _arrival time difference_ (for fusions), and
 #' `depart_or_arrive_heading_diff` which is a single number representing the _departure heading difference_ (for fissions) or _arrival heading difference_ (for fusions).
-#'
-#'
 #'
 #' *SUBTLETIES*:
 #'
@@ -167,6 +165,7 @@
 #' @param max_time maximum time steps forward and back to look for the start and end of the event (units are timesteps, not seconds)
 #' @param thresh_h upper threshold for determining when subgroups are "apart" (default 50)
 #' @param thresh_l lower threshold for determining when subgroups are "together" (default 15)
+#' @param depart_or_arrive_radius threshold for determining what an individual has departed (for fissions) or arrived (for fusions) at the group, used in computing departure/arrival times and headings
 #' @param time_window time steps to move backward or forward in time to identify the before and after times (units are timesteps, not seconds)
 #' @param seconds_per_time_step seconds per time step (default 1)
 #' @param breaks indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides `break_by_day`
@@ -189,12 +188,24 @@
 #'   time intervals (columns). Rows and columns are named for easy access.
 #'
 #' `speeds`: same format as `disps` matrix, but with speeds, in m / s
+#'
 #' `split_angle`: split angle in degrees, description above
+#'
 #' `turn_angle_A`: turning angle for subgroup A in degrees, description above
+#'
 #' `turn_angle_B`: turn angle for subgroup B in degrees, description above
-
+#'
+#' `depart_or_arrive_times`: vector of departure (fission) or arrival (fusion) times for each individual in big_group_idxs (from original events table)
+#'
+#' `depart_or_arrive_headings`: vector of departure (fission) or arrival (fusion) headings for each individual in big_group_idxs (from original events table)
+#'
+#' `depart_or_arrive_time_diff`: mean departure (fission) or arrival (fusion) time difference across all individuals not in the same subgroup
+#'
+#' `depart_or_arrive_heading_diff`: mean departure (fission) or arrival (fusion) heading difference across all individuals not in the same subgroup
+#'
 #' The plot shows (top) dyadic distance over time with lines showing the identified times
-#'and (bottom) a visualization of trajectories of the two subgroups,
+#' and (bottom) a visualization of trajectories of the two subgroups.
+#'
 #' @importFrom stringr str_locate_all
 #' @importFrom lubridate date
 #'@export
@@ -202,6 +213,7 @@ analyze_split_or_merge_event <- function(events, i,
                                          xs, ys, timestamps,
                                          max_time = 600,
                                          thresh_h = 50, thresh_l = 15,
+                                         depart_or_arrive_radius = 15,
                                          time_window = 300,
                                          seconds_per_time_step = 1,
                                          breaks = NULL, break_by_day = F,
@@ -442,8 +454,7 @@ analyze_split_or_merge_event <- function(events, i,
     #subgroups crossing the threshold thresh_m
     before_time <- t
 
-    #if the before time is on a different date, make it NA
-    #TODO: fix this to use breaks instead
+    #if the before time is in a different chunk, make it NA
     if(!is.na(before_time)){
       start_chunk <- max(which(breaks <= start_time))
       before_chunk <- max(which(breaks <= before_time))
@@ -563,6 +574,74 @@ analyze_split_or_merge_event <- function(events, i,
     out$start_time <- out$end_time <- out$before_time <- out$after_time <- NA
     out$turn_angle_A <- out$turn_angle_B <- out$split_angle <- NA
     out$disps <- out$speeds <- NULL
+  }
+
+  #GET DEPARTURE OR ARRIVAL TIMES AND HEADINGS FOR ALL INDIVIDUALS, AND TIME / HEADING DIFFERENCES FOR FULL EVENT
+  big_group_idxs <- events$big_group_idxs[i][[1]]
+  if(!is.na(start_time) & !is.na(end_time)){
+    if(event_type == 'fission'){
+      group_start_or_end_position_x <- mean(xs[big_group_idxs, start_time], na.rm=T)
+      group_start_or_end_position_y <- mean(ys[big_group_idxs, start_time], na.rm=T)
+    }
+    if(event_type == 'fusion'){
+      group_start_or_end_position_x <- mean(xs[big_group_idxs, end_time], na.rm=T)
+      group_start_or_end_position_y <- mean(ys[big_group_idxs, end_time], na.rm=T)
+    }
+
+    #get distances of all individuals in the big group from the group_start_or_end_position
+    dists_from_group_start_or_end_position <- sqrt((xs[big_group_idxs,] - group_start_or_end_position_x)^2 + (ys[big_group_idxs,] - group_start_or_end_position_y)^2)
+
+    #get departure or arrival times for all individuals in the big group
+    depart_or_arrive_times <- rep(NA, length(big_group_idxs))
+    for(ind in 1:length(big_group_idxs)){
+      times_outside <- which(dists_from_group_start_or_end_position[ind,] > depart_or_arrive_radius)
+      if(event_type == 'fission'){
+        depart_or_arrive_times[ind] <- min(times_outside[which(times_outside > start_time)])
+      }
+      if(event_type == 'fusion'){
+        depart_or_arrive_times[ind] <- max(times_outside[which(times_outside < end_time)])
+      }
+    }
+
+    #get departure or arrival headings for each individual
+    if(event_type == 'fission'){
+      dxs <- xs[cbind(big_group_idxs, depart_or_arrive_times)] - group_start_or_end_position_x
+      dys <- ys[cbind(big_group_idxs, depart_or_arrive_times)] - group_start_or_end_position_y
+    }
+    if(event_type == 'fusion'){
+      dxs <- -xs[cbind(big_group_idxs, depart_or_arrive_times)] + group_start_or_end_position_x
+      dys <- -ys[cbind(big_group_idxs, depart_or_arrive_times)] + group_start_or_end_position_y
+    }
+    depart_or_arrive_headings <- atan2(dys, dxs)
+
+    #make a matrix determining whether each pair of individuals is in the same subgroup or not, for computing time and heading diffs
+    time_diff_tot <- ang_diff_tot <- n_comparisons <- 0
+    for(i in 1:(length(big_group_idxs)-1)){
+      for(j in i:length(big_group_idxs)){
+
+        #if the individuals are in the same subgroup, don't include them
+        if((big_group_idxs[i] %in% group_A & big_group_idxs[j] %in% group_A) |
+           (big_group_idxs[i] %in% group_B & big_group_idxs[j] %in% group_B)){
+          next
+        }
+
+        #otherwise, add their absolute time difference and angle to the calculation
+        outtime_diff_tot <- time_diff_tot + abs(depart_or_arrive_times[i] - depart_or_arrive_times[j])*seconds_per_time_step
+        ang_diff_tot <- ang_diff_tot + acos(cos(depart_or_arrive_headings[i])*cos(depart_or_arrive_headings[j]) +
+                                      sin(depart_or_arrive_headings[i])*sin(depart_or_arrive_headings[j]))
+        n_comparisons <- n_comparisons + 1
+
+      }
+    }
+    time_diff <- time_diff_tot / n_comparisons
+    ang_diff <- ang_diff_tot / n_comparisons
+
+    out$depart_or_arrive_times <- depart_or_arrive_times
+    out$depart_or_arrive_headings <- depart_or_arrive_headings
+    out$depart_or_arrive_time_diff <- time_diff
+    out$depart_or_arrive_a
+
+
   }
 
   #make a plot if desired

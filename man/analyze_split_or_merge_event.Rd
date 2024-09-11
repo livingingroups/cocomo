@@ -13,6 +13,7 @@ analyze_split_or_merge_event(
   max_time = 600,
   thresh_h = 50,
   thresh_l = 15,
+  depart_or_arrive_radius = 15,
   time_window = 300,
   seconds_per_time_step = 1,
   breaks = NULL,
@@ -36,6 +37,8 @@ analyze_split_or_merge_event(
 \item{thresh_h}{upper threshold for determining when subgroups are "apart" (default 50)}
 
 \item{thresh_l}{lower threshold for determining when subgroups are "together" (default 15)}
+
+\item{depart_or_arrive_radius}{threshold for determining what an individual has departed (for fissions) or arrived (for fusions) at the group, used in computing departure/arrival times and headings}
 
 \item{time_window}{time steps to move backward or forward in time to identify the before and after times (units are timesteps, not seconds)}
 
@@ -64,11 +67,23 @@ The list contains:
 time intervals (columns). Rows and columns are named for easy access.
 
 \code{speeds}: same format as \code{disps} matrix, but with speeds, in m / s
+
 \code{split_angle}: split angle in degrees, description above
+
 \code{turn_angle_A}: turning angle for subgroup A in degrees, description above
+
 \code{turn_angle_B}: turn angle for subgroup B in degrees, description above
+
+\code{depart_or_arrive_times}: vector of departure (fission) or arrival (fusion) times for each individual in big_group_idxs (from original events table)
+
+\code{depart_or_arrive_headings}: vector of departure (fission) or arrival (fusion) headings for each individual in big_group_idxs (from original events table)
+
+\code{depart_or_arrive_time_diff}: mean departure (fission) or arrival (fusion) time difference across all individuals not in the same subgroup
+
+\code{depart_or_arrive_heading_diff}: mean departure (fission) or arrival (fusion) heading difference across all individuals not in the same subgroup
+
 The plot shows (top) dyadic distance over time with lines showing the identified times
-and (bottom) a visualization of trajectories of the two subgroups,
+and (bottom) a visualization of trajectories of the two subgroups.
 }
 \description{
 Analyze (and, if \code{make_plot=T} make a visualization of) a fission-fusion event.
@@ -152,7 +167,7 @@ Note that all angles use the point \code{p_AB(start_time)} as their central poin
 To calculate the departure time difference and angular difference, we start by computing
 the centroid of the full group at the event \emph{start time} - call this the \emph{group start position}.
 We then determine, for each individual in each subgroup, a \emph{departure time} that is defined
-as the first time after \emph{start time} when that individual crossed a threshold distance (\code{departure_arrival_radius})
+as the first time after \emph{start time} when that individual crossed a threshold distance (\code{depart_or_arrive_radius})
 from the \emph{start position}. We then compute the \emph{departure heading} for each individual as the
 vector pointing from the \emph{group start position} to the position of the individual at its \emph{departure time}.
 
@@ -167,7 +182,7 @@ We can do the equivalent calculations for fusion events. Here, we define the \em
 as the centroid of the combined group at the \code{end_time}, and use this position as the reference point
 for all the other calculations. Looking backward in time, we find the \emph{arrival time} for each individual,
 defined as the latest time before the \emph{end time} where that individual remained outside a threshold
-distance of \code{departure_arrival_radius}. The headings and time differences are then computed as above, and the
+distance of \code{depart_or_arrive_radius}. The headings and time differences are then computed as above, and the
 differences between times and angles as well.
 
 To avoid having different column names for all of the above variables in the code, we create the columns:
