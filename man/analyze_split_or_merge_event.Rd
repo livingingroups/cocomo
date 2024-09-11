@@ -172,11 +172,11 @@ from the \emph{start position}. We then compute the \emph{departure heading} for
 vector pointing from the \emph{group start position} to the position of the individual at its \emph{departure time}.
 
 Once we have computed \emph{departure times} and \emph{departure headings} for each individual, we compute
-an aggregated metric of the disagreement in times and headings for the entire event. For departure time, we take the difference between the \code{departure_time} of each pair of individuals
-that are in different subgroups, and then take the mean of these. This is defined as the \emph{departure time difference}.
-Similarly, for departure heading, we take the difference in headings (angle between vectors) of each pair
-of individuals in different subgroups, then take the mean of these to get the \emph{departure heading difference}. The angle between vectors is defined between
-0 and 180 degrees for each pair of individuals. The time difference is defined in seconds.
+an aggregated metric of the disagreement in times and headings for the entire event. For departure time, we
+calculate the \emph{departure time difference} as the absolute difference between the mean \code{departure_time} of each subgroup.
+Similarly, for departure heading, we calculate the \emph{departure heading difference} as the angle between
+the (vector) mean heading of each subgroup. The angle between vectors is defined between
+0 and pi radians. The time difference is defined in seconds.
 
 We can do the equivalent calculations for fusion events. Here, we define the \emph{group end position}
 as the centroid of the combined group at the \code{end_time}, and use this position as the reference point

@@ -87,11 +87,11 @@
 #' vector pointing from the _group start position_ to the position of the individual at its _departure time_.
 #'
 #' Once we have computed _departure times_ and _departure headings_ for each individual, we compute
-#' an aggregated metric of the disagreement in times and headings for the entire event. For departure time, we take the difference between the `departure_time` of each pair of individuals
-#' that are in different subgroups, and then take the mean of these. This is defined as the _departure time difference_.
-#' Similarly, for departure heading, we take the difference in headings (angle between vectors) of each pair
-#' of individuals in different subgroups, then take the mean of these to get the _departure heading difference_. The angle between vectors is defined between
-#' 0 and 180 degrees for each pair of individuals. The time difference is defined in seconds.
+#' an aggregated metric of the disagreement in times and headings for the entire event. For departure time, we
+#' calculate the _departure time difference_ as the absolute difference between the mean `departure_time` of each subgroup.
+#' Similarly, for departure heading, we calculate the _departure heading difference_ as the angle between
+#' the (vector) mean heading of each subgroup. The angle between vectors is defined between
+#' 0 and pi radians. The time difference is defined in seconds.
 #'
 #' We can do the equivalent calculations for fusion events. Here, we define the _group end position_
 #' as the centroid of the combined group at the `end_time`, and use this position as the reference point
@@ -623,29 +623,43 @@ analyze_split_or_merge_event <- function(events, i,
     }
     depart_or_arrive_headings <- atan2(dys, dxs)
 
-    #get total of all time differences and heading differences between individuals in different groups
-    time_diff_tot <- ang_diff_tot <- n_comparisons <- 0
-    for(ind1 in 1:(length(big_group_idxs)-1)){
-      for(ind2 in ind1:length(big_group_idxs)){
+    # #get total of all time differences and heading differences between individuals in different groups
+    # time_diff_tot <- ang_diff_tot <- n_comparisons <- 0
+    # for(ind1 in 1:(length(big_group_idxs)-1)){
+    #   for(ind2 in ind1:length(big_group_idxs)){
+    #
+    #     #if the individuals are in the same subgroup, don't include them
+    #     if((big_group_idxs[ind1] %in% group_A & big_group_idxs[ind2] %in% group_A) |
+    #        (big_group_idxs[ind1] %in% group_B & big_group_idxs[ind2] %in% group_B)){
+    #       next
+    #     }
+    #
+    #     #otherwise, add their absolute time difference and angle to the calculation
+    #     time_diff_tot <- time_diff_tot + abs(depart_or_arrive_times[ind1] - depart_or_arrive_times[ind2])*seconds_per_time_step
+    #     ang_diff_tot <- ang_diff_tot + acos(cos(depart_or_arrive_headings[ind1])*cos(depart_or_arrive_headings[ind2]) +
+    #                                   sin(depart_or_arrive_headings[ind1])*sin(depart_or_arrive_headings[ind2]))
+    #     n_comparisons <- n_comparisons + 1
+    #
+    #   }
+    # }
+    #
+    # #divide by number of comparisons to get the mean
+    # time_diff <- time_diff_tot / n_comparisons
+    # ang_diff <- ang_diff_tot / n_comparisons
 
-        #if the individuals are in the same subgroup, don't include them
-        if((big_group_idxs[ind1] %in% group_A & big_group_idxs[ind2] %in% group_A) |
-           (big_group_idxs[ind1] %in% group_B & big_group_idxs[ind2] %in% group_B)){
-          next
-        }
+    #Get mean time of departure and mean (vector) heading of each subgroup
+    idxs_A <- which(big_group_idxs %in% group_A)
+    idxs_B <- which(big_group_idxs %in% group_B)
+    mean_depart_arrive_time_A <- mean(depart_or_arrive_times[idxs_A], na.rm=T)
+    mean_depart_arrive_time_B <- mean(depart_or_arrive_times[idxs_B], na.rm=T)
+    mean_dpeart_arrive_heading_A <- atan2(mean(cos(depart_or_arrive_headings[idxs_A]),na.rm=T),
+                                          mean(sin(depart_or_arrive_headings[idxs_A]),na.rm=T))
+    mean_dpeart_arrive_heading_B <- atan2(mean(cos(depart_or_arrive_headings[idxs_B]),na.rm=T),
+                                          mean(sin(depart_or_arrive_headings[idxs_B]),na.rm=T))
 
-        #otherwise, add their absolute time difference and angle to the calculation
-        time_diff_tot <- time_diff_tot + abs(depart_or_arrive_times[ind1] - depart_or_arrive_times[ind2])*seconds_per_time_step
-        ang_diff_tot <- ang_diff_tot + acos(cos(depart_or_arrive_headings[ind1])*cos(depart_or_arrive_headings[ind2]) +
-                                      sin(depart_or_arrive_headings[ind1])*sin(depart_or_arrive_headings[ind2]))
-        n_comparisons <- n_comparisons + 1
-
-      }
-    }
-
-    #divide by number of comparisons to get the mean
-    time_diff <- time_diff_tot / n_comparisons
-    ang_diff <- ang_diff_tot / n_comparisons
+    #get absolute difference between mean departure / arrival times of the two groups and angle between mean departure / arrival angles of the two groups
+    time_diff <- abs(mean_depart_arrive_time_B - mean_depart_arrive_time_A)*seconds_per_time_step
+    ang_diff <- acos(cos(mean_depart_arrive_heading_A)*cos(mean_depart_arrive_heading_B) + sin(mean_depart_arrive_heading_A)*sin(mean_depart_arrive_heading_B))
 
     out$depart_or_arrive_times <- depart_or_arrive_times
     out$depart_or_arrive_headings <- depart_or_arrive_headings
