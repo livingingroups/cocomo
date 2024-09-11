@@ -77,6 +77,37 @@
 #' turn_angle_B: likewise for subgroup B
 #' Note that all angles use the point `p_AB(start_time)` as their central point
 #'
+#' *How are departure time difference and departure angular difference calculated?*
+#'
+#' To calculate the departure time difference and angular difference, we start by computing
+#' the centroid of the full group at the event _start time_ - call this the _group start position_.
+#' We then determine, for each individual in each subgroup, a _departure time_ that is defined
+#' as the first time after _start time_ when that individual crossed a threshold distance (`departure_arrival_radius`)
+#' from the _start position_. We then compute the _departure heading_ for each individual as the
+#' vector pointing from the _group start position_ to the position of the individual at its _departure time_.
+#'
+#' Once we have computed _departure times_ and _departure headings_ for each individual, we compute
+#' an aggregated metric of the disagreement in times and headings for the entire event. For departure time, we take the difference between the `departure_time` of each pair of individuals
+#' that are in different subgroups, and then take the mean of these. This is defined as the _departure time difference_.
+#' Similarly, for departure heading, we take the difference in headings (angle between vectors) of each pair
+#' of individuals in different subgroups, then take the mean of these to get the _departure heading difference_. The angle between vectors is defined between
+#' 0 and 180 degrees for each pair of individuals. The time difference is defined in seconds.
+#'
+#' We can do the equivalent calculations for fusion events. Here, we define the _group end position_
+#' as the centroid of the combined group at the `end_time`, and use this position as the reference point
+#' for all the other calculations. Looking backward in time, we find the _arrival time_ for each individual,
+#' defined as the latest time before the _end time_ where that individual remained outside a threshold
+#' distance of `departure_arrival_radius`. The headings and time differences are then computed as above, and the
+#' differences between times and angles as well.
+#'
+#' To avoid having different column names for all of the above variables in the code, we create the columns:
+#' `group_start_or_end_position` which is defined as the _group start position_ for a fission and the _group end position_ for a fusion,
+#' `depart_or_arrive_times` which is a list of _departure times_ (in the case of fissions) or _arrival times_ (in the case of fusions),
+#' `depart_or_arrive_headings` which is a lsit of _departure headings_ (in the case of fissions) or _arrival headings_ (in the case of fusions),
+#' `depart_or_arrive_time_diff` which is a single number representing the _departure time difference_ (for fissions) or _arrival time difference_ (for fusions), and
+#' `depart_or_arrive_heading_diff` which is a single number representing the _departure heading difference_ (for fissions) or _arrival heading difference_ (for fusions).
+#'
+#'
 #'
 #' *SUBTLETIES*:
 #'

@@ -147,6 +147,36 @@ formed by the points \code{p_AB(before_time)}, \code{p_AB(start_time)}, and \cod
 turn_angle_B: likewise for subgroup B
 Note that all angles use the point \code{p_AB(start_time)} as their central point
 
+\emph{How are departure time difference and departure angular difference calculated?}
+
+To calculate the departure time difference and angular difference, we start by computing
+the centroid of the full group at the event \emph{start time} - call this the \emph{group start position}.
+We then determine, for each individual in each subgroup, a \emph{departure time} that is defined
+as the first time after \emph{start time} when that individual crossed a threshold distance (\code{departure_arrival_radius})
+from the \emph{start position}. We then compute the \emph{departure heading} for each individual as the
+vector pointing from the \emph{group start position} to the position of the individual at its \emph{departure time}.
+
+Once we have computed \emph{departure times} and \emph{departure headings} for each individual, we compute
+an aggregated metric of the disagreement in times and headings for the entire event. For departure time, we take the difference between the \code{departure_time} of each pair of individuals
+that are in different subgroups, and then take the mean of these. This is defined as the \emph{departure time difference}.
+Similarly, for departure heading, we take the difference in headings (angle between vectors) of each pair
+of individuals in different subgroups, then take the mean of these to get the \emph{departure heading difference}. The angle between vectors is defined between
+0 and 180 degrees for each pair of individuals. The time difference is defined in seconds.
+
+We can do the equivalent calculations for fusion events. Here, we define the \emph{group end position}
+as the centroid of the combined group at the \code{end_time}, and use this position as the reference point
+for all the other calculations. Looking backward in time, we find the \emph{arrival time} for each individual,
+defined as the latest time before the \emph{end time} where that individual remained outside a threshold
+distance of \code{departure_arrival_radius}. The headings and time differences are then computed as above, and the
+differences between times and angles as well.
+
+To avoid having different column names for all of the above variables in the code, we create the columns:
+\code{group_start_or_end_position} which is defined as the \emph{group start position} for a fission and the \emph{group end position} for a fusion,
+\code{depart_or_arrive_times} which is a list of \emph{departure times} (in the case of fissions) or \emph{arrival times} (in the case of fusions),
+\code{depart_or_arrive_headings} which is a lsit of \emph{departure headings} (in the case of fissions) or \emph{arrival headings} (in the case of fusions),
+\code{depart_or_arrive_time_diff} which is a single number representing the \emph{departure time difference} (for fissions) or \emph{arrival time difference} (for fusions), and
+\code{depart_or_arrive_heading_diff} which is a single number representing the \emph{departure heading difference} (for fissions) or \emph{arrival heading difference} (for fusions).
+
 \emph{SUBTLETIES}:
 
 \emph{Subtlety 1}: Sometimes, due to the multi-scale nature of these events and the
