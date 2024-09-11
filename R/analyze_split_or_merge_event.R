@@ -639,7 +639,7 @@ analyze_split_or_merge_event <- function(events, i,
     out$depart_or_arrive_times <- depart_or_arrive_times
     out$depart_or_arrive_headings <- depart_or_arrive_headings
     out$depart_or_arrive_time_diff <- time_diff
-    out$depart_or_arrive_a
+    out$depart_or_arrive_heading_diff <- ang_diff
 
 
   }
