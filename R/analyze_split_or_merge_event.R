@@ -652,9 +652,9 @@ analyze_split_or_merge_event <- function(events, i,
     idxs_B <- which(big_group_idxs %in% group_B)
     mean_depart_arrive_time_A <- mean(depart_or_arrive_times[idxs_A], na.rm=T)
     mean_depart_arrive_time_B <- mean(depart_or_arrive_times[idxs_B], na.rm=T)
-    mean_dpeart_arrive_heading_A <- atan2(mean(cos(depart_or_arrive_headings[idxs_A]),na.rm=T),
+    mean_depart_arrive_heading_A <- atan2(mean(cos(depart_or_arrive_headings[idxs_A]),na.rm=T),
                                           mean(sin(depart_or_arrive_headings[idxs_A]),na.rm=T))
-    mean_dpeart_arrive_heading_B <- atan2(mean(cos(depart_or_arrive_headings[idxs_B]),na.rm=T),
+    mean_depart_arrive_heading_B <- atan2(mean(cos(depart_or_arrive_headings[idxs_B]),na.rm=T),
                                           mean(sin(depart_or_arrive_headings[idxs_B]),na.rm=T))
 
     #get absolute difference between mean departure / arrival times of the two groups and angle between mean departure / arrival angles of the two groups
