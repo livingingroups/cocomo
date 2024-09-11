@@ -226,6 +226,7 @@ analyze_split_or_merge_event <- function(events, i,
   group_A_names <- events$group_A[i] #group A names
   group_B_names <- events$group_B[i] #group B names
   event_type <- events$event_type[i] #event type - fission, fusion, or shuffle
+  big_group_idxs <- events$big_group_idxs[i][[1]] #all individuals involved in the event
 
   if(!(event_type %in% c('fission','fusion'))){
     stop('event must be a fission or fusion')
@@ -237,6 +238,7 @@ analyze_split_or_merge_event <- function(events, i,
   nA <- length(group_A) #number of individuals in subgroup A
   nB <- length(group_B) #number of individuals in subgroup B
   nT <- ncol(xs) #number of time points overall
+
 
   if(break_by_day){
     days <- lubridate::date(timestamps)
@@ -392,7 +394,7 @@ analyze_split_or_merge_event <- function(events, i,
     end_time <- end_time[which(end_time >= start_time)][1]
   }
 
-  #if start time not found (NULL) change to NA
+  #if start time or end time not found (NULL) change to NA
   if(is.null(start_time)){start_time <- NA}
   if(is.null(end_time)){end_time <- NA}
 
@@ -577,7 +579,8 @@ analyze_split_or_merge_event <- function(events, i,
   }
 
   #GET DEPARTURE OR ARRIVAL TIMES AND HEADINGS FOR ALL INDIVIDUALS, AND TIME / HEADING DIFFERENCES FOR FULL EVENT
-  big_group_idxs <- events$big_group_idxs[i][[1]]
+
+  #get initial (for a fission) or final (for a fusion) position of the full group (i.e. all individuals involved in the event, big_group_idxs)
   if(!is.na(start_time) & !is.na(end_time)){
     if(event_type == 'fission'){
       group_start_or_end_position_x <- mean(xs[big_group_idxs, start_time], na.rm=T)
@@ -596,10 +599,16 @@ analyze_split_or_merge_event <- function(events, i,
     for(ind in 1:length(big_group_idxs)){
       times_outside <- which(dists_from_group_start_or_end_position[ind,] > depart_or_arrive_radius)
       if(event_type == 'fission'){
-        depart_or_arrive_times[ind] <- min(times_outside[which(times_outside > start_time)])
+        times_outside_after_start <- times_outside[which(times_outside > start_time)]
+        if(length(times_outside_after_start) > 0){
+          depart_or_arrive_times[ind] <- min(times_outside_after_start)
+        }
       }
       if(event_type == 'fusion'){
-        depart_or_arrive_times[ind] <- max(times_outside[which(times_outside < end_time)])
+        times_outside_before_end <- times_outside[which(times_outside < end_time)]
+        if(length(times_outside_before_end) > 0){
+          depart_or_arrive_times[ind] <- max(times_outside_before_end)
+        }
       }
     }
 
@@ -614,25 +623,27 @@ analyze_split_or_merge_event <- function(events, i,
     }
     depart_or_arrive_headings <- atan2(dys, dxs)
 
-    #make a matrix determining whether each pair of individuals is in the same subgroup or not, for computing time and heading diffs
+    #get total of all time differences and heading differences between individuals in different groups
     time_diff_tot <- ang_diff_tot <- n_comparisons <- 0
-    for(i in 1:(length(big_group_idxs)-1)){
-      for(j in i:length(big_group_idxs)){
+    for(ind1 in 1:(length(big_group_idxs)-1)){
+      for(ind2 in ind1:length(big_group_idxs)){
 
         #if the individuals are in the same subgroup, don't include them
-        if((big_group_idxs[i] %in% group_A & big_group_idxs[j] %in% group_A) |
-           (big_group_idxs[i] %in% group_B & big_group_idxs[j] %in% group_B)){
+        if((big_group_idxs[ind1] %in% group_A & big_group_idxs[ind2] %in% group_A) |
+           (big_group_idxs[ind1] %in% group_B & big_group_idxs[ind2] %in% group_B)){
           next
         }
 
         #otherwise, add their absolute time difference and angle to the calculation
-        time_diff_tot <- time_diff_tot + abs(depart_or_arrive_times[i] - depart_or_arrive_times[j])*seconds_per_time_step
-        ang_diff_tot <- ang_diff_tot + acos(cos(depart_or_arrive_headings[i])*cos(depart_or_arrive_headings[j]) +
-                                      sin(depart_or_arrive_headings[i])*sin(depart_or_arrive_headings[j]))
+        time_diff_tot <- time_diff_tot + abs(depart_or_arrive_times[ind1] - depart_or_arrive_times[ind2])*seconds_per_time_step
+        ang_diff_tot <- ang_diff_tot + acos(cos(depart_or_arrive_headings[ind1])*cos(depart_or_arrive_headings[ind2]) +
+                                      sin(depart_or_arrive_headings[ind1])*sin(depart_or_arrive_headings[ind2]))
         n_comparisons <- n_comparisons + 1
 
       }
     }
+
+    #divide by number of comparisons to get the mean
     time_diff <- time_diff_tot / n_comparisons
     ang_diff <- ang_diff_tot / n_comparisons
 
