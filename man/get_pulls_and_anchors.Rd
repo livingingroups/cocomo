@@ -25,7 +25,7 @@ get_pulls_and_anchors(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_results = F)
 }
 \value{
 Returns a data frame  containing dyadic interactions between a and b.
-Contains columns: \code{t1}, \code{t2}, \code{t3}, \code{leader}, \code{follower}, \code{event_type}, \code{disparity}, \code{strength},\code{disparity_additive}, and \code{strength_additive}.
+Contains columns: \code{t1}, \code{t2}, \code{t3}, \code{leader}, \code{follower}, \code{type}, \code{disparity}, \code{strength},\code{disparity_additive}, and \code{strength_additive}.
 The \code{disparity} and \code{strength} are as defined in Strandburg-Peshkin et al. 2015, whereas
 \code{disparity_additive} and \code{strength_additive} are alternative formulations of these metrics that add the components together instead of multiplying them.
 }

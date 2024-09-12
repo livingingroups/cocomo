@@ -16,7 +16,7 @@
 #'
 #' @returns
 #' Returns a data frame  containing dyadic interactions between a and b.
-#' Contains columns: `t1`, `t2`, `t3`, `leader`, `follower`, `event_type`, `disparity`, `strength`,`disparity_additive`, and `strength_additive`.
+#' Contains columns: `t1`, `t2`, `t3`, `leader`, `follower`, `type`, `disparity`, `strength`,`disparity_additive`, and `strength_additive`.
 #' The `disparity` and `strength` are as defined in Strandburg-Peshkin et al. 2015, whereas
 #' `disparity_additive` and `strength_additive` are alternative formulations of these metrics that add the components together instead of multiplying them.
 #'
@@ -177,7 +177,7 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
     (((dyad_dist[min_max_min$t2] + dyad_dist[min_max_min$t1]) + (dyad_dist[min_max_min$t2] + dyad_dist[min_max_min$t3])))
 
   #remove un-needed columns
-  events <- min_max_min[,c(1,2,3,8,9,10,11,12)]
+  events <- min_max_min[,c('t1','t2','t3','leader','follower','type','disparity','strength','disparity_additive','strength_additive'),]
 
   #get some additional info - x and y coordinates at the relevant points
   events$leader_x1 <- xs[cbind(events$leader, events$t1)]
