@@ -78,9 +78,9 @@ time intervals (columns). Rows and columns are named for easy access.
 
 \code{depart_or_arrive_headings}: vector of departure (fission) or arrival (fusion) headings for each individual in big_group_idxs (from original events table)
 
-\code{depart_or_arrive_time_diff}: mean departure (fission) or arrival (fusion) time difference across all individuals not in the same subgroup
+\code{depart_or_arrive_time_diff}: difference between the mean departure (fission) or arrival (fusion) time across the two subgroups
 
-\code{depart_or_arrive_heading_diff}: mean departure (fission) or arrival (fusion) heading difference across all individuals not in the same subgroup
+\code{depart_or_arrive_heading_diff}: difference between the mean vector departure (fission) or arrival (fusion) heading across the two subgroups
 
 The plot shows (top) dyadic distance over time with lines showing the identified times
 and (bottom) a visualization of trajectories of the two subgroups.
@@ -173,8 +173,8 @@ vector pointing from the \emph{group start position} to the position of the indi
 
 Once we have computed \emph{departure times} and \emph{departure headings} for each individual, we compute
 an aggregated metric of the disagreement in times and headings for the entire event. For departure time, we
-calculate the \emph{departure time difference} as the absolute difference between the mean \code{departure_time} of each subgroup.
-Similarly, for departure heading, we calculate the \emph{departure heading difference} as the angle between
+calculate the \emph{time disagreement} as the absolute difference between the mean \code{departure_time} of each subgroup.
+Similarly, for departure heading, we calculate the \emph{directional disagreement} as the angle between
 the (vector) mean heading of each subgroup. The angle between vectors is defined between
 0 and pi radians. The time difference is defined in seconds.
 
@@ -189,8 +189,8 @@ To avoid having different column names for all of the above variables in the cod
 \code{group_start_or_end_position} which is defined as the \emph{group start position} for a fission and the \emph{group end position} for a fusion,
 \code{depart_or_arrive_times} which is a list of \emph{departure times} (in the case of fissions) or \emph{arrival times} (in the case of fusions),
 \code{depart_or_arrive_headings} which is a lsit of \emph{departure headings} (in the case of fissions) or \emph{arrival headings} (in the case of fusions),
-\code{depart_or_arrive_time_diff} which is a single number representing the \emph{departure time difference} (for fissions) or \emph{arrival time difference} (for fusions), and
-\code{depart_or_arrive_heading_diff} which is a single number representing the \emph{departure heading difference} (for fissions) or \emph{arrival heading difference} (for fusions).
+\code{depart_or_arrive_time_diff} which is a single number representing the \emph{time disagreement} of departure (for fissions) or arrival (for fusions) times,
+\code{depart_or_arrive_heading_diff} which is a single number representing the \emph{directional disagreement} of departure (for fissions) or arrival (for fusions) headings.
 
 \emph{SUBTLETIES}:
 

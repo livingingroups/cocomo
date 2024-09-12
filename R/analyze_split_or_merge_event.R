@@ -88,8 +88,8 @@
 #'
 #' Once we have computed _departure times_ and _departure headings_ for each individual, we compute
 #' an aggregated metric of the disagreement in times and headings for the entire event. For departure time, we
-#' calculate the _departure time difference_ as the absolute difference between the mean `departure_time` of each subgroup.
-#' Similarly, for departure heading, we calculate the _departure heading difference_ as the angle between
+#' calculate the _time disagreement_ as the absolute difference between the mean `departure_time` of each subgroup.
+#' Similarly, for departure heading, we calculate the _directional disagreement_ as the angle between
 #' the (vector) mean heading of each subgroup. The angle between vectors is defined between
 #' 0 and pi radians. The time difference is defined in seconds.
 #'
@@ -104,8 +104,8 @@
 #' `group_start_or_end_position` which is defined as the _group start position_ for a fission and the _group end position_ for a fusion,
 #' `depart_or_arrive_times` which is a list of _departure times_ (in the case of fissions) or _arrival times_ (in the case of fusions),
 #' `depart_or_arrive_headings` which is a lsit of _departure headings_ (in the case of fissions) or _arrival headings_ (in the case of fusions),
-#' `depart_or_arrive_time_diff` which is a single number representing the _departure time difference_ (for fissions) or _arrival time difference_ (for fusions), and
-#' `depart_or_arrive_heading_diff` which is a single number representing the _departure heading difference_ (for fissions) or _arrival heading difference_ (for fusions).
+#' `depart_or_arrive_time_diff` which is a single number representing the _time disagreement_ of departure (for fissions) or arrival (for fusions) times,
+#' `depart_or_arrive_heading_diff` which is a single number representing the _directional disagreement_ of departure (for fissions) or arrival (for fusions) headings.
 #'
 #' *SUBTLETIES*:
 #'
@@ -199,9 +199,9 @@
 #'
 #' `depart_or_arrive_headings`: vector of departure (fission) or arrival (fusion) headings for each individual in big_group_idxs (from original events table)
 #'
-#' `depart_or_arrive_time_diff`: mean departure (fission) or arrival (fusion) time difference across all individuals not in the same subgroup
+#' `depart_or_arrive_time_diff`: difference between the mean departure (fission) or arrival (fusion) time across the two subgroups
 #'
-#' `depart_or_arrive_heading_diff`: mean departure (fission) or arrival (fusion) heading difference across all individuals not in the same subgroup
+#' `depart_or_arrive_heading_diff`: difference between the mean vector departure (fission) or arrival (fusion) heading across the two subgroups
 #'
 #' The plot shows (top) dyadic distance over time with lines showing the identified times
 #' and (bottom) a visualization of trajectories of the two subgroups.
