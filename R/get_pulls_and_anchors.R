@@ -211,6 +211,8 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
     #remove un-needed columns
     events <- min_max_min[,c('t1','t2','t3','leader','follower','type','disparity','strength','disparity_additive','strength_additive'),]
 
+  } else{
+    events <- NULL
   }
 
   #if including half events, get the equivalent info for them
@@ -238,11 +240,16 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
     #remove un-needed columns
     half_events <- half_events[,c('t1','t2','t3','leader','follower','type','disparity','strength','disparity_additive','strength_additive'),]
 
-    #combine the two events tables
-    events <- rbind(events, half_events)
+    #combine the two events tables (if the first one was not empty) otherwise just use the half events table
+    if(!is.null(events)){
+      events <- rbind(events, half_events)
+    } else{
+      events <- half_events
+    }
 
   }
 
+  #return all events
   return(events)
 
 }
