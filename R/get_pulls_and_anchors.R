@@ -231,7 +231,7 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
     half_events$disparity_additive <- abs(half_events$disp_a_1 - half_events$disp_b_1) / (half_events$disp_a_1 + half_events$disp_b_1)
 
     #get the strength of each event
-    half_events$strength <- abs(dyad_dist[half_events$t2] - dyad_dist[half_events$t1])/(dyad_dist[half_events$t2] + dyad_dist[half_events$t1])
+    half_events$strength <- (dyad_dist[half_events$t2] - dyad_dist[half_events$t1])^2/(dyad_dist[half_events$t2] + dyad_dist[half_events$t1])^2
     half_events$strength_additive <- abs(dyad_dist[half_events$t2] - dyad_dist[half_events$t1])/ (dyad_dist[half_events$t2] + dyad_dist[half_events$t1])
 
     #add columns with NAs to make equivalent to min_max_min table
