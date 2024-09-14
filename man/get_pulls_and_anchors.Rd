@@ -4,7 +4,17 @@
 \alias{get_pulls_and_anchors}
 \title{Get pulls and anchors}
 \usage{
-get_pulls_and_anchors(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_results = F)
+get_pulls_and_anchors(
+  xa,
+  xb,
+  ya,
+  yb,
+  a,
+  b,
+  noise_thresh = 5,
+  plot_results = F,
+  include_half_events = F
+)
 }
 \arguments{
 \item{xa:}{x coordinates for individual a (vector of length \code{n_times})- must be continuous data (no NAs)}
@@ -22,6 +32,8 @@ get_pulls_and_anchors(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_results = F)
 \item{noise_thresh:}{noise threshold (defaults to 5 m)}
 
 \item{plot_results:}{whether to plot results or not}
+
+\item{include_half_events:}{if T, the function will also output "half events" at the beginning and end of the sequence. This is used in conjunction with fission-fusion analyses. In most use cases, this should be set to false. See below for details.}
 }
 \value{
 Returns a data frame  containing dyadic interactions between a and b.
