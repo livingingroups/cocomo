@@ -16,7 +16,7 @@
 #' @param include_half_events: if T, the function will also output "half events" at the beginning and end of the sequence. This is used in conjunction with fission-fusion analyses. In most use cases, this should be set to false. See below for details.
 #'
 #'
-#' @section Details on half events
+#' @section Details on half events:
 #'
 #' If `include_half_events` is set to T, the script will also return the
 #' "half events" defined by the beginning of the sequence and the first minimum
@@ -31,8 +31,8 @@
 #' of two individuals in a fission-fusion analysis, it can be set to T to return
 #' the times and initiators of the initial fusion and eventual fission event.
 #' In the case of half events, there are only two time points return (`t1` and `t2`).
-#' `t3` is defined as `NA`. The `leader` is defined as the individual with the greater
-#' displacement during the period `t1` to `t2` and the `follower` is the other
+#' `t3` is defined as `NA`. The `initiator` is defined as the individual with the greater
+#' displacement during the period `t1` to `t2` and the `responder` is the other
 #' individual. The `strength` and `disparity` are defined in parallel to those for
 #' pulls and anchors, but using only the one time period (`t1` to `t2`). To make the
 #' values somewhat comparable to pulls and anchors, these values are squared.
@@ -40,7 +40,7 @@
 #'
 #' @returns
 #' Returns a data frame  containing dyadic interactions between a and b.
-#' Contains columns: `t1`, `t2`, `t3`, `leader`, `follower`, `type`, `disparity`, `strength`,`disparity_additive`, and `strength_additive`.
+#' Contains columns: `t1`, `t2`, `t3`, `initiator`, `responder`, `type`, `disparity`, `strength`,`disparity_additive`, and `strength_additive`.
 #' The `disparity` and `strength` are as defined in Strandburg-Peshkin et al. 2015, whereas
 #' `disparity_additive` and `strength_additive` are alternative formulations of these metrics that add the components together instead of multiplying them.
 #'
@@ -187,16 +187,16 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
     min_max_min$disp_b_1 <- sqrt((xb[min_max_min$t2] - xb[min_max_min$t1])^2 + (yb[min_max_min$t2] - yb[min_max_min$t1])^2)
     min_max_min$disp_b_2 <- sqrt((xb[min_max_min$t3] - xb[min_max_min$t2])^2 + (yb[min_max_min$t3] - yb[min_max_min$t2])^2)
 
-    #the leader is the one who moves more during the first time interval, the follower the one that moves less
-    min_max_min$leader <- a
-    min_max_min$follower <- b
-    min_max_min$leader[which(min_max_min$disp_b_1 > min_max_min$disp_a_1)] <- b
-    min_max_min$follower[which(min_max_min$disp_b_1 > min_max_min$disp_a_1)] <- a
+    #the initiator is the one who moves more during the first time interval, the responder the one that moves less
+    min_max_min$initiator <- a
+    min_max_min$responder <- b
+    min_max_min$initiator[which(min_max_min$disp_b_1 > min_max_min$disp_a_1)] <- b
+    min_max_min$responder[which(min_max_min$disp_b_1 > min_max_min$disp_a_1)] <- a
 
-    #it's a pull if the leader moves less during the second time interval
+    #it's a pull if the initiator moves less during the second time interval
     min_max_min$type <- 'pull'
-    min_max_min$type[which((min_max_min$leader == a) & (min_max_min$disp_a_2 > min_max_min$disp_b_2))] <- 'anchor'
-    min_max_min$type[which((min_max_min$leader == b) & (min_max_min$disp_b_2 > min_max_min$disp_a_2))] <- 'anchor'
+    min_max_min$type[which((min_max_min$initiator == a) & (min_max_min$disp_a_2 > min_max_min$disp_b_2))] <- 'anchor'
+    min_max_min$type[which((min_max_min$initiator == b) & (min_max_min$disp_b_2 > min_max_min$disp_a_2))] <- 'anchor'
 
     #get the disparity of each event
     min_max_min$disparity <- (abs(min_max_min$disp_a_1 - min_max_min$disp_b_1) * abs(min_max_min$disp_a_2 - min_max_min$disp_b_2))/((min_max_min$disp_a_1 + min_max_min$disp_b_1)*(min_max_min$disp_a_2 + min_max_min$disp_b_2))
@@ -209,7 +209,7 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
       (((dyad_dist[min_max_min$t2] + dyad_dist[min_max_min$t1]) + (dyad_dist[min_max_min$t2] + dyad_dist[min_max_min$t3])))
 
     #remove un-needed columns
-    events <- min_max_min[,c('t1','t2','t3','leader','follower','type','disparity','strength','disparity_additive','strength_additive'),]
+    events <- min_max_min[,c('t1','t2','t3','initiator','responder','type','disparity','strength','disparity_additive','strength_additive'),]
 
   } else{
     events <- NULL
@@ -220,11 +220,11 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
     half_events$disp_a_1 <- sqrt((xa[half_events$t2] - xa[half_events$t1])^2 + (ya[half_events$t2] - ya[half_events$t1])^2)
     half_events$disp_b_1 <- sqrt((xb[half_events$t2] - xb[half_events$t1])^2 + (yb[half_events$t2] - yb[half_events$t1])^2)
 
-    #the leader is the one who moves more during the first time interval, the follower the one that moves less
-    half_events$leader <- a
-    half_events$follower <- b
-    half_events$leader[which(half_events$disp_b_1 > half_events$disp_a_1)] <- b
-    half_events$follower[which(half_events$disp_b_1 > half_events$disp_a_1)] <- a
+    #the initiator is the one who moves more during the first time interval, the responder the one that moves less
+    half_events$initiator <- a
+    half_events$responder <- b
+    half_events$initiator[which(half_events$disp_b_1 > half_events$disp_a_1)] <- b
+    half_events$responder[which(half_events$disp_b_1 > half_events$disp_a_1)] <- a
 
     #get the disparity of each event
     half_events$disparity <- (half_events$disp_a_1 - half_events$disp_b_1)^2/(half_events$disp_a_1 + half_events$disp_b_1)^2
@@ -238,7 +238,7 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
     half_events$t3 <- NA
 
     #remove un-needed columns
-    half_events <- half_events[,c('t1','t2','t3','leader','follower','type','disparity','strength','disparity_additive','strength_additive'),]
+    half_events <- half_events[,c('t1','t2','t3','initiator','responder','type','disparity','strength','disparity_additive','strength_additive'),]
 
     #combine the two events tables (if the first one was not empty) otherwise just use the half events table
     if(!is.null(events)){
