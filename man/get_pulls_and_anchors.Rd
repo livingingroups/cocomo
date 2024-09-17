@@ -13,7 +13,8 @@ get_pulls_and_anchors(
   b,
   noise_thresh = 5,
   plot_results = F,
-  include_half_events = F
+  include_initial_fusion = F,
+  include_final_fission = F
 )
 }
 \arguments{
@@ -33,7 +34,9 @@ get_pulls_and_anchors(
 
 \item{plot_results:}{whether to plot results or not}
 
-\item{include_half_events:}{if T, the function will also output "half events" at the beginning and end of the sequence. This is used in conjunction with fission-fusion analyses. In most use cases, this should be set to false. See below for details.}
+\item{include_initial_fusion:}{if T, the function will also output an initial fusion event. In most use cases, this should be set to false. See below for details.}
+
+\item{include_final_fission:}{if T, the funciton will also output a final fission event. In most use cases, this should be set to false. See below for details.}
 }
 \value{
 Returns a data frame  containing dyadic interactions between a and b.
@@ -44,22 +47,22 @@ The \code{disparity} and \code{strength} are as defined in Strandburg-Peshkin et
 \description{
 Get successful ('pull') and failed ('anchor') dyadic interactions between individuals a and b.
 }
-\section{Details on half events}{
+\section{Details on fission and fusion events}{
 
 
-If \code{include_half_events} is set to T, the script will also return the
-"half events" defined by the beginning of the sequence and the first minimum
-(if the first max/min value is a minimum), and the end of the sequence and
-the last minimum (if the last max/min value is a minimum). If the first or
+If \code{include_initial_fusion} is set to T, the script will also return the
+"fusion" defined by the beginning of the sequence and the first minimum.
+If \code{include_final_fission} is set to T, the script will also return the
+"fission" defined by the last minimum and the end of the sequence. If the first or
 last min/max values are not minima, half events will not be returned for them.
 The purpose of this option is that if this code is used on a sequence where two
 individuals come together and then split apart (in fission-fusion analyses), the
-first and last "half events" represent a fusion and fission event, so these
+first and last "half events" represent fusion and fission events, so these
 are extracted. In normal use cases, this value should be set to F (default).
 However in cases where this analysis is being run on the "together periods"
-of two individuals in a fission-fusion analysis, it can be set to T to return
+of two individuals in a fission-fusion analysis, these values can be set to T to return
 the times and initiators of the initial fusion and eventual fission event.
-In the case of half events, there are only two time points return (\code{t1} and \code{t2}).
+In the case of fission and fusion events, there are only two time points return (\code{t1} and \code{t2}).
 \code{t3} is defined as \code{NA}. The \code{initiator} is defined as the individual with the greater
 displacement during the period \code{t1} to \code{t2} and the \code{responder} is the other
 individual. The \code{strength} and \code{disparity} are defined in parallel to those for

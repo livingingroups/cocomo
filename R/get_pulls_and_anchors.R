@@ -13,24 +13,24 @@
 #' @param	b: index of the second individual
 #' @param	noise_thresh: noise threshold (defaults to 5 m)
 #' @param plot_results: whether to plot results or not
-#' @param include_half_events: if T, the function will also output "half events" at the beginning and end of the sequence. This is used in conjunction with fission-fusion analyses. In most use cases, this should be set to false. See below for details.
+#' @param include_initial_fusion: if T, the function will also output an initial fusion event. In most use cases, this should be set to false. See below for details.
+#' @param include_final_fission: if T, the funciton will also output a final fission event. In most use cases, this should be set to false. See below for details.
 #'
+#' @section Details on fission and fusion events:
 #'
-#' @section Details on half events:
-#'
-#' If `include_half_events` is set to T, the script will also return the
-#' "half events" defined by the beginning of the sequence and the first minimum
-#' (if the first max/min value is a minimum), and the end of the sequence and
-#' the last minimum (if the last max/min value is a minimum). If the first or
+#' If `include_initial_fusion` is set to T, the script will also return the
+#' "fusion" defined by the beginning of the sequence and the first minimum.
+#' If `include_final_fission` is set to T, the script will also return the
+#' "fission" defined by the last minimum and the end of the sequence. If the first or
 #' last min/max values are not minima, half events will not be returned for them.
 #' The purpose of this option is that if this code is used on a sequence where two
 #' individuals come together and then split apart (in fission-fusion analyses), the
-#' first and last "half events" represent a fusion and fission event, so these
+#' first and last "half events" represent fusion and fission events, so these
 #' are extracted. In normal use cases, this value should be set to F (default).
 #' However in cases where this analysis is being run on the "together periods"
-#' of two individuals in a fission-fusion analysis, it can be set to T to return
+#' of two individuals in a fission-fusion analysis, these values can be set to T to return
 #' the times and initiators of the initial fusion and eventual fission event.
-#' In the case of half events, there are only two time points return (`t1` and `t2`).
+#' In the case of fission and fusion events, there are only two time points return (`t1` and `t2`).
 #' `t3` is defined as `NA`. The `initiator` is defined as the individual with the greater
 #' displacement during the period `t1` to `t2` and the `responder` is the other
 #' individual. The `strength` and `disparity` are defined in parallel to those for
@@ -45,7 +45,7 @@
 #' `disparity_additive` and `strength_additive` are alternative formulations of these metrics that add the components together instead of multiplying them.
 #'
 #' @export
-get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_results = F, include_half_events = F){
+get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_results = F, include_initial_fusion = F, include_final_fission = F){
 
   #get the number of times
   n_times <- length(xa)
@@ -64,7 +64,7 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
   i <- 1
   curr_min <- 1
   found = F
-  while(found == F & i < length(dyad_dist)){
+  while(found == F & i <= length(dyad_dist)){
     dist_change <- dyad_dist[i] - dyad_dist[1]
     if(dyad_dist[i]<dyad_dist[curr_min]){
       curr_min <- i
@@ -94,12 +94,11 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
   } else{
     curr_min <- 1
     found <- F
-    while(i < n_times & !found){
+    while(i <= n_times & !found){
       dist_diff <- dyad_dist[i] - dyad_dist[curr_min]
       if(dist_diff < 0){
         curr_min <- i
-      }
-      else{
+      } else{
         if(dist_diff > noise_thresh){
           found <- T
           first <- curr_min
@@ -162,19 +161,25 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
     }
   }
 
-  #extract half events (if specified)
-  #the first half event runs from 1 to the first minimum found, and is a fusion
-  if(include_half_events){
+  #extract fission and fusion events (if specified)
+  #the initial fusion runs from 1 to the first minimum found
+  ff_events <- data.frame()
+  if(include_initial_fusion){
     fusion <- data.frame(t1 = 1, t2 = min_max_min$t1[1], type = 'fusion')
+    ff_events <- rbind(ff_events, fusion)
+  }
+
+  #the final fission runs from the last minimum found to the final time in the sequence
+  if(include_final_fission){
     fission <- data.frame(t1 = min_max_min$t1[nrow(min_max_min)], t2 = n_times, type = 'fission')
-    half_events <- rbind(fusion, fission)
+    ff_events <- rbind(ff_events, fission)
   }
 
   #exclude any half events (missing t3) from the main events table
   min_max_min <- min_max_min[which(!is.na(min_max_min$t3)),]
 
   #if no min_max_min sequences were found, and not including half events, return NULL
-  if(nrow(min_max_min)==0 & !include_half_events){
+  if(nrow(min_max_min)==0 & !include_initial_fusion & !include_final_fission){
     return(NULL)
   }
 
@@ -215,36 +220,36 @@ get_pulls_and_anchors <- function(xa, xb, ya, yb, a, b, noise_thresh = 5, plot_r
     events <- NULL
   }
 
-  #if including half events, get the equivalent info for them
-  if(include_half_events){
-    half_events$disp_a_1 <- sqrt((xa[half_events$t2] - xa[half_events$t1])^2 + (ya[half_events$t2] - ya[half_events$t1])^2)
-    half_events$disp_b_1 <- sqrt((xb[half_events$t2] - xb[half_events$t1])^2 + (yb[half_events$t2] - yb[half_events$t1])^2)
+  #if including ff events, get the equivalent info for them
+  if(include_initial_fusion | include_final_fission){
+    ff_events$disp_a_1 <- sqrt((xa[ff_events$t2] - xa[ff_events$t1])^2 + (ya[ff_events$t2] - ya[ff_events$t1])^2)
+    ff_events$disp_b_1 <- sqrt((xb[ff_events$t2] - xb[ff_events$t1])^2 + (yb[ff_events$t2] - yb[ff_events$t1])^2)
 
     #the initiator is the one who moves more during the first time interval, the responder the one that moves less
-    half_events$initiator <- a
-    half_events$responder <- b
-    half_events$initiator[which(half_events$disp_b_1 > half_events$disp_a_1)] <- b
-    half_events$responder[which(half_events$disp_b_1 > half_events$disp_a_1)] <- a
+    ff_events$initiator <- a
+    ff_events$responder <- b
+    ff_events$initiator[which(ff_events$disp_b_1 > ff_events$disp_a_1)] <- b
+    ff_events$responder[which(ff_events$disp_b_1 > ff_events$disp_a_1)] <- a
 
     #get the disparity of each event
-    half_events$disparity <- (half_events$disp_a_1 - half_events$disp_b_1)^2/(half_events$disp_a_1 + half_events$disp_b_1)^2
-    half_events$disparity_additive <- abs(half_events$disp_a_1 - half_events$disp_b_1) / (half_events$disp_a_1 + half_events$disp_b_1)
+    ff_events$disparity <- (ff_events$disp_a_1 - ff_events$disp_b_1)^2/(ff_events$disp_a_1 + ff_events$disp_b_1)^2
+    ff_events$disparity_additive <- abs(ff_events$disp_a_1 - ff_events$disp_b_1) / (ff_events$disp_a_1 + ff_events$disp_b_1)
 
     #get the strength of each event
-    half_events$strength <- (dyad_dist[half_events$t2] - dyad_dist[half_events$t1])^2/(dyad_dist[half_events$t2] + dyad_dist[half_events$t1])^2
-    half_events$strength_additive <- abs(dyad_dist[half_events$t2] - dyad_dist[half_events$t1])/ (dyad_dist[half_events$t2] + dyad_dist[half_events$t1])
+    ff_events$strength <- (dyad_dist[ff_events$t2] - dyad_dist[ff_events$t1])^2/(dyad_dist[ff_events$t2] + dyad_dist[ff_events$t1])^2
+    ff_events$strength_additive <- abs(dyad_dist[ff_events$t2] - dyad_dist[ff_events$t1])/ (dyad_dist[ff_events$t2] + dyad_dist[ff_events$t1])
 
     #add columns with NAs to make equivalent to min_max_min table
-    half_events$t3 <- NA
+    ff_events$t3 <- NA
 
     #remove un-needed columns
-    half_events <- half_events[,c('t1','t2','t3','initiator','responder','type','disparity','strength','disparity_additive','strength_additive'),]
+    ff_events <- ff_events[,c('t1','t2','t3','initiator','responder','type','disparity','strength','disparity_additive','strength_additive'),]
 
     #combine the two events tables (if the first one was not empty) otherwise just use the half events table
     if(!is.null(events)){
-      events <- rbind(events, half_events)
+      events <- rbind(events, ff_events)
     } else{
-      events <- half_events
+      events <- ff_events
     }
 
   }
