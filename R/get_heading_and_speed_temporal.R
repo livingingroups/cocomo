@@ -6,7 +6,7 @@
 #' Headings are defined as `x_head = dx / (dx^2 + dy^2)` and `y_head = dy / (dx^2 + dy^2)`
 #' where, `dx[t] = x_i[t + t_window] - x_i[t]` and `dy[t] = y_i[t + t_window] - y_i[t]` for `forward = T`
 #' and `dx[t] = x_i[t] - x_i[t - t_window]` and `dy[t] = y_i[t] - y_i[t - t_window]` for `forward = F`
-#' Speeds are defined as `speed = dx^2 + dy^2 / t_window`.
+#' Speeds are defined as `speed = sqrt(dx^2 + dy^2) / t_window`.
 #'
 #'
 #' @author Ariana Strandburg-Peshkin
@@ -23,6 +23,13 @@
 #'
 #' @export
 get_heading_and_speed_temporal <- function(x_i, y_i, t_window = 1, forward = T, seconds_per_time_step = 1){
+  checkmate::assert_numeric(x_i)
+  checkmate::assert_numeric(y_i)
+  checkmate::assert_int(t_window, lower = 1, upper = length(x_i))
+  checkmate::assert_logical(forward, len = 1)
+  checkmate::assert_numeric(seconds_per_time_step, lower = 0, len = 1)
+
+
 
   #check that x_i and y_i are the same length
   if(length(x_i) != length(y_i)){

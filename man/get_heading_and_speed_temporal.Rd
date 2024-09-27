@@ -35,7 +35,7 @@ and can compute them based on future movement (\code{forward = T}) or past movem
 Headings are defined as \code{x_head = dx / (dx^2 + dy^2)} and \code{y_head = dy / (dx^2 + dy^2)}
 where, \code{dx[t] = x_i[t + t_window] - x_i[t]} and \code{dy[t] = y_i[t + t_window] - y_i[t]} for \code{forward = T}
 and \code{dx[t] = x_i[t] - x_i[t - t_window]} and \code{dy[t] = y_i[t] - y_i[t - t_window]} for \code{forward = F}
-Speeds are defined as \code{speed = dx^2 + dy^2 / t_window}.
+Speeds are defined as \code{speed = sqrt(dx^2 + dy^2) / t_window}.
 }
 \author{
 Ariana Strandburg-Peshkin

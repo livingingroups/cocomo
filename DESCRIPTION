@@ -2,20 +2,24 @@ Package: cocomo
 Type: Package
 Title: Communication and Collective Movement Package
 Version: 0.1.0
-Author: Ariana Strandburg-Peshkin and Ecology of Animal Societies Department, Max Planck Institute of Animal Behavior
+Author: Ariana Strandburg-Peshkin and Ecology of Animal Societies
+        Department, Max Planck Institute of Animal Behavior
 Maintainer: Ariana Strandburg-Peshkin <astrandburg@ab.mpg.de>
 Description: This is a package developed in the CoCoMo group and the Department for the 
     Ecology of Animal Societies at the Max Planck Institute of Animal Behavior to analyze 
     communication and movement data of animal groups.
-License: GNU GPLv3
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Imports:
+Imports: 
+  checkmate,
   dbscan,
   lubridate,
   sf,
   fields,
   stringr,
   magrittr
+Suggests: 
+    tinytest
