@@ -35,6 +35,8 @@
 #' @param scalebar_offset scalebar offset from the edge (fraction of entire width)
 #' @param ind_names vector of names of the individuals
 #' @param bg_color background color
+#' @param ind_point_size size of the individual points
+#' @param call_point_size size of the points for calls
 #'
 #' @export
 generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
@@ -48,7 +50,9 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
                                                      show_time = T,
                                                      show_scalebar = T, scalebar_size = 100, scalebar_loc = 'bottomleft', scalebar_offset = 20,
                                                      ind_names = NULL,
-                                                     bg_color = 'black'
+                                                     bg_color = 'black',
+                                                     ind_point_size = NULL,
+                                                     call_point_size = NULL
                                                      ){
 
   #---CHECKS---
@@ -76,6 +80,14 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
   }
   if(length(timestamps) != ncol(xs)){
     stop('timestamps must have the same dimensions as the columns of xs and ys or lons and lats')
+  }
+
+  if(is.null(ind_point_size)){
+    ind_point_size <- 2
+  }
+
+  if(is.null(call_point_size)){
+    call_point_size <- 2
   }
 
   #---SETTING UP---
@@ -266,7 +278,7 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
     }
 
     #plot current locations
-    points(x_t, y_t, pch = pchs_inds, cex=2, col=colors_inds, bg=colors_inds)
+    points(x_t, y_t, pch = pchs_inds, cex=ind_point_size, col=colors_inds, bg=colors_inds)
 
     #plot calls in the past
     if(!is.null(calls) & call_persist_time > 0){
@@ -275,7 +287,7 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
                ys[cbind(calls_past$ind_idx, calls_past$time_idx)],
                col = colors_calls[match(calls_past$call_type, call_types)],
                pch = pchs_calls[match(calls_past$call_type, call_types)],
-               cex = 1)
+               cex = call_point_size / 3)
       }
     }
 
@@ -286,7 +298,7 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
              ys[cbind(calls_now$ind_idx, calls_now$time_idx)],
              col = colors_calls[match(calls_now$call_type, call_types)],
              pch = pchs_calls[match(calls_now$call_type, call_types)],
-             cex = 2)
+             cex = call_point_size)
       }
     }
 

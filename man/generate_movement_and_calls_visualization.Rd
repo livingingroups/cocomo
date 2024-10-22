@@ -28,7 +28,9 @@ generate_movement_and_calls_visualization(
   scalebar_loc = "bottomleft",
   scalebar_offset = 20,
   ind_names = NULL,
-  bg_color = "black"
+  bg_color = "black",
+  ind_point_size = NULL,
+  call_point_size = NULL
 )
 }
 \arguments{
@@ -79,6 +81,10 @@ generate_movement_and_calls_visualization(
 \item{ind_names}{vector of names of the individuals}
 
 \item{bg_color}{background color}
+
+\item{ind_point_size}{size of the individual points}
+
+\item{call_point_size}{size of the points for calls}
 }
 \description{
 Generate a bunch of images (PNGs) showing trajectory data over a given time period, optionally on top of a Google Earth map,
