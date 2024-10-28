@@ -37,6 +37,7 @@
 #' @param bg_color background color
 #' @param ind_point_size size of the individual points
 #' @param call_point_size size of the points for calls
+#' @param events data frame with columns `event_id`, `inds_involved`, `start_time_idx`,`end_time_idx`
 #'
 #' @export
 generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
@@ -52,7 +53,9 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
                                                      ind_names = NULL,
                                                      bg_color = 'black',
                                                      ind_point_size = NULL,
-                                                     call_point_size = NULL
+                                                     call_point_size = NULL,
+                                                     events = NULL,
+                                                     event_pad = 0
                                                      ){
 
   #---CHECKS---
@@ -160,6 +163,12 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
   xrange <- xmax - xmin
   yrange <- ymax - ymin
 
+  #pad the min and max a little bit
+  xmin <- xmin - xrange / 20
+  xmax <- xmax + xrange / 20
+  ymin <- ymin - yrange / 20
+  ymax <- ymax + yrange / 20
+
   #get coordinates of scale bar and scale bar text
   if(show_scalebar){
 
@@ -231,14 +240,42 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
     calls_now <- calls[which(calls$time_idx == t),]
     calls_past <- calls[which(calls$time_idx < t & calls$time_idx >= (t - call_persist_time)),]
 
+    #if plotting events, get info about events
+    in_event <- F
+    if(!is.null(events)){
+      curr_event_idx <- which((events$start_time_idx-event_pad) <= t & (events$end_time_idx+event_pad) >= t)
+      if(length(curr_event_idx)>0){
+        in_event <- T
+        inds_involved <- events$inds_involved[curr_event_idx][[1]]
+        start_time_idx <- events$start_time_idx[curr_event_idx]
+        end_time_idx <- events$end_time_idx[curr_event_idx]
+        xs_event <- xs[inds_involved, start_time_idx:end_time_idx]
+        ys_event <- ys[inds_involved, start_time_idx:end_time_idx]
+        x_max_event <- max(xs_event, na.rm=T)
+        y_max_event <- max(ys_event, na.rm=T)
+        x_min_event <- min(xs_event, na.rm=T)
+        y_min_event <- min(ys_event, na.rm=T)
+
+      }
+    }
+
     #make figure
     filename = paste0(img_idx,'.png')
-    png(file=filename,width=10,height=4,units='in',res=300)
-    par(mar=c(0,0,0,0))
+    png(file=filename,width=10,height=6,units='in',res=300)
+    par(mar=c(0,0,2,0))
     par(bg = bg_color)
 
     #initialize plot
-    plot(NULL,xlim=c(xmin,xmax),ylim=c(ymin,ymax),xaxt='n',yaxt='n',xlab='',ylab='',bg=bg_color,asp=1)
+    if(in_event){
+      plot(NULL,xlim=c(xmin,xmax),ylim=c(ymin,ymax),xaxt='n',yaxt='n',xlab='',ylab='',bg=bg_color,asp=1, main = '!!!', col.main = 'red')
+    } else{
+      plot(NULL,xlim=c(xmin,xmax),ylim=c(ymin,ymax),xaxt='n',yaxt='n',xlab='',ylab='',bg=bg_color,asp=1)
+    }
+
+    #plot event box
+    if(in_event){
+      lines(c(x_min_event,x_min_event,x_max_event,x_max_event,x_min_event),c(y_min_event,y_max_event,y_max_event,y_min_event,y_min_event), lwd = 2, col = 'red')
+    }
 
     #plot "tails" (past locations)
     if(tail_time > 0){
@@ -287,7 +324,7 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
                ys[cbind(calls_past$ind_idx, calls_past$time_idx)],
                col = colors_calls[match(calls_past$call_type, call_types)],
                pch = pchs_calls[match(calls_past$call_type, call_types)],
-               cex = call_point_size / 3)
+               cex = call_point_size)
       }
     }
 
