@@ -37,7 +37,7 @@
 #' @param bg_color background color
 #' @param ind_point_size size of the individual points
 #' @param call_point_size size of the points for calls
-#' @param events data frame with columns `event_id`, `inds_involved`, `start_time_idx`,`end_time_idx`
+#' @param events data frame with columns `event_id`, `inds_involved`, `start_time_idx`,`end_time_idx`,`highlight_time_idx`,`inds_highlighted`,`initiator`
 #'
 #' @export
 generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
@@ -54,8 +54,7 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
                                                      bg_color = 'black',
                                                      ind_point_size = NULL,
                                                      call_point_size = NULL,
-                                                     events = NULL,
-                                                     event_pad = 0
+                                                     events = NULL
                                                      ){
 
   #---CHECKS---
@@ -243,19 +242,21 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
     #if plotting events, get info about events
     in_event <- F
     if(!is.null(events)){
-      curr_event_idx <- which((events$start_time_idx-event_pad) <= t & (events$end_time_idx+event_pad) >= t)
+      curr_event_idx <- which(events$start_time_idx <= t & events$end_time_idx >= t)
       if(length(curr_event_idx)>0){
         in_event <- T
         inds_involved <- events$inds_involved[curr_event_idx][[1]]
+        inds_highlighted <- events$inds_highlighted[curr_event_idx][[1]]
+        initiator <- events$initiator[curr_event_idx]
         start_time_idx <- events$start_time_idx[curr_event_idx]
         end_time_idx <- events$end_time_idx[curr_event_idx]
+        highlighted_time_idx <- events$highlighted_time_idx[curr_event_idx]
         xs_event <- xs[inds_involved, start_time_idx:end_time_idx]
         ys_event <- ys[inds_involved, start_time_idx:end_time_idx]
         x_max_event <- max(xs_event, na.rm=T)
         y_max_event <- max(ys_event, na.rm=T)
         x_min_event <- min(xs_event, na.rm=T)
         y_min_event <- min(ys_event, na.rm=T)
-
       }
     }
 
@@ -274,7 +275,13 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
 
     #plot event box
     if(in_event){
-      lines(c(x_min_event,x_min_event,x_max_event,x_max_event,x_min_event),c(y_min_event,y_max_event,y_max_event,y_min_event,y_min_event), lwd = 2, col = 'red')
+      col_box <- 'red'
+      lwd_box <- 1
+      #if(abs(t - highlighted_time_idx) <= 3){
+      #  col_box <- '#FFBB00'
+      #  lwd_box <- 6
+      #}
+      lines(c(x_min_event,x_min_event,x_max_event,x_max_event,x_min_event),c(y_min_event,y_max_event,y_max_event,y_min_event,y_min_event), lwd = lwd_box, col = col_box)
     }
 
     #plot "tails" (past locations)
@@ -316,6 +323,22 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
 
     #plot current locations
     points(x_t, y_t, pch = pchs_inds, cex=ind_point_size, col=colors_inds, bg=colors_inds)
+
+    #if it's time to highlight individuals, do so
+    if(in_event){
+      if(abs(t - highlighted_time_idx) <= 5){
+        points(x_t[inds_highlighted], y_t[inds_highlighted], pch = pchs_inds[inds_highlighted], cex = ind_point_size, col = '#FFBB00', bg = '#FFBB00')
+        text(mean(x_t[inds_highlighted]), y = mean(y_t[inds_highlighted]), labels=c(length(inds_highlighted)),cex=3,col='#FFBB00')
+
+        #r <- 200
+        #thetas <- seq(0,2*pi,length.out=100)
+        #x_circ <- r*cos(thetas) + x_t[initiator]
+        #y_circ <- r*sin(thetas) + y_t[initiator]
+        #lines(x_circ, y_circ, col = '#FFBB00',lwd=3)
+      }
+      points(x_t[initiator],y_t[initiator],pch=pchs_inds[initiator], cex = ind_point_size, col = '#FFBB00', bg = '#FFBB00')
+
+    }
 
     #plot calls in the past
     if(!is.null(calls) & call_persist_time > 0){
