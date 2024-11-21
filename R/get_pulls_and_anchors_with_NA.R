@@ -3,7 +3,7 @@
 #' Create a list of time blocks using NAs in the dataset as seperation points, then run the `get_pulls_and_anchors` function on each of these blocks separately.
 #'
 #' Time blocks are created by splitting the dataset at the indexes of NAs. If the length of the NA-chain is below "NA_tolerance", then the script will ignore these NAs and not split at that position.
-#' Instead, these NAs will be filled in with the value of the next (non-NA) position in the vector. TODO: check this - this seems to be what it's doing, but is this correct and is this the desired behavior?
+#' Instead, the script will fill the gap with an interpolation of values between the previous and next existing measured value entry.
 #' This results in the datapoints staying connected/in a single time block for small breaks. If the NA-chain in the dataset is longer than "NA_tolerance",
 #' then the values before and after that chain are split into separate time blocks.
 #' If "min_time" != NULL, then the script will remove all time blocks shorter than the specified value (usually time steps), resulting only in time blocks of relevant lengths.
@@ -82,6 +82,19 @@ get_pulls_and_anchors_with_NA <- function(xa, xb, ya, yb, a, b, noise_thresh = 5
       }
       else {
         if(i!=1 & skip_count<=NA_tolerance){ #check if NAs have already been tolerated/skipped the set max amount of times
+          filler <- seq(xa_blocks[[length(xa_blocks)]][length(xa_blocks[[length(xa_blocks)]])], xa[(breakpts[i]+1)], length.out=skip_count+2) #create a vector that interpolates the values between the last existing value and the next existing value to fill the gap of NAs
+          xa_blocks[[length(xa_blocks)]] <- append(xa_blocks[[length(xa_blocks)]], filler[2:(length(filler)-1)]) #connect the filler to last entry in list to bridge the gap between measured values
+          
+          filler <- seq(xb_blocks[[length(xb_blocks)]][length(xb_blocks[[length(xb_blocks)]])], xb[(breakpts[i]+1)], length.out=skip_count+2)
+          xb_blocks[[length(xb_blocks)]] <- append(xb_blocks[[length(xb_blocks)]], filler[2:(length(filler)-1)])
+          
+          filler <- seq(ya_blocks[[length(ya_blocks)]][length(ya_blocks[[length(ya_blocks)]])], ya[(breakpts[i]+1)], length.out=skip_count+2)
+          ya_blocks[[length(ya_blocks)]] <- append(ya_blocks[[length(ya_blocks)]], filler[2:(length(filler)-1)])
+          
+          filler <- seq(yb_blocks[[length(yb_blocks)]][length(yb_blocks[[length(yb_blocks)]])], yb[(breakpts[i]+1)], length.out=skip_count+2)
+          yb_blocks[[length(yb_blocks)]] <- append(yb_blocks[[length(yb_blocks)]], filler[2:(length(filler)-1)])
+
+          
           xa_blocks[[length(xa_blocks)]] <- append(xa_blocks[[length(xa_blocks)]], xa[(breakpts[i]+1):(breakpts[i+1]-1)]) #attach data to last entry in list to connect data
           xb_blocks[[length(xb_blocks)]] <- append(xb_blocks[[length(xb_blocks)]], xb[(breakpts[i]+1):(breakpts[i+1]-1)])
           ya_blocks[[length(ya_blocks)]] <- append(ya_blocks[[length(ya_blocks)]], ya[(breakpts[i]+1):(breakpts[i+1]-1)])
@@ -93,7 +106,6 @@ get_pulls_and_anchors_with_NA <- function(xa, xb, ya, yb, a, b, noise_thresh = 5
           ya_blocks <- append(ya_blocks, list(ya[(breakpts[i]+1):(breakpts[i+1]-1)]))
           yb_blocks <- append(yb_blocks, list(yb[(breakpts[i]+1):(breakpts[i+1]-1)]))
 
-          tol_count <- 0 #TODO Check this, I don't think this code is doing anything
           indexes <- c(indexes, breakpts[i]+1) #save the starting index of time block
         }
         NA_gaps <- c(NA_gaps, skip_count) #append number of skipped NAs
