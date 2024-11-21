@@ -38,6 +38,7 @@
 #' @param ind_point_size size of the individual points
 #' @param call_point_size size of the points for calls
 #' @param events data frame with columns `event_id`, `inds_involved`, `start_time_idx`,`end_time_idx`,`highlight_time_idx`,`inds_highlighted`,`initiator`
+#' @param highlighted_radius radius of the highlighted location (usually an epicenter from hyena whoop analysis)
 #'
 #' @export
 generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
@@ -54,7 +55,8 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
                                                      bg_color = 'black',
                                                      ind_point_size = NULL,
                                                      call_point_size = NULL,
-                                                     events = NULL
+                                                     events = NULL,
+                                                     highlighted_radius = 1000
                                                      ){
 
   #---CHECKS---
@@ -257,6 +259,10 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
         y_max_event <- max(ys_event, na.rm=T)
         x_min_event <- min(xs_event, na.rm=T)
         y_min_event <- min(ys_event, na.rm=T)
+
+        #highlighted (i.e. epicenter in hyena analyses) location
+        highlighted_loc_x <- mean(xs[inds_highlighted, highlighted_time_idx], na.rm=T)
+        highlighted_loc_y <- mean(ys[inds_highlighted, highlighted_time_idx], na.rm=T)
       }
     }
 
@@ -273,15 +279,12 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
       plot(NULL,xlim=c(xmin,xmax),ylim=c(ymin,ymax),xaxt='n',yaxt='n',xlab='',ylab='',bg=bg_color,asp=1)
     }
 
-    #plot event box
+    #plot event highlighted location (epicenter)
     if(in_event){
-      col_box <- 'red'
-      lwd_box <- 1
-      #if(abs(t - highlighted_time_idx) <= 3){
-      #  col_box <- '#FFBB00'
-      #  lwd_box <- 6
-      #}
-      lines(c(x_min_event,x_min_event,x_max_event,x_max_event,x_min_event),c(y_min_event,y_max_event,y_max_event,y_min_event,y_min_event), lwd = lwd_box, col = col_box)
+      ang_bins <- seq(0,2*pi,length.out=100)
+      x_circ <- highlighted_radius*cos(ang_bins) + highlighted_loc_x
+      y_circ <- highlighted_radius*sin(ang_bins) + highlighted_loc_y
+      lines(x_circ,y_circ, lwd = 1, col = 'red')
     }
 
     #plot "tails" (past locations)
@@ -328,15 +331,10 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
     if(in_event){
       if(abs(t - highlighted_time_idx) <= 5){
         points(x_t[inds_highlighted], y_t[inds_highlighted], pch = pchs_inds[inds_highlighted], cex = ind_point_size, col = '#FFBB00', bg = '#FFBB00')
-        text(mean(x_t[inds_highlighted]), y = mean(y_t[inds_highlighted]), labels=c(length(inds_highlighted)),cex=3,col='#FFBB00')
-
-        #r <- 200
-        #thetas <- seq(0,2*pi,length.out=100)
-        #x_circ <- r*cos(thetas) + x_t[initiator]
-        #y_circ <- r*sin(thetas) + y_t[initiator]
-        #lines(x_circ, y_circ, col = '#FFBB00',lwd=3)
+        text(x = highlighted_loc_x, y = highlighted_loc_y, labels=c(length(inds_highlighted)),cex=3,col='#FFBB00')
+        lines(x_circ, y_circ, col = '#FFBB00',lwd=3)
       }
-      points(x_t[initiator],y_t[initiator],pch=pchs_inds[initiator], cex = ind_point_size, col = '#FFBB00', bg = '#FFBB00')
+      points(x_t[initiator],y_t[initiator],pch=pchs_inds[initiator], cex = ind_point_size, col = '#FFBB00', bg = '#FFBB00',lwd=2)
 
     }
 
