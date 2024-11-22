@@ -7,12 +7,10 @@
 #' This results in the datapoints staying connected/in a single time block for small breaks. If the NA-chain in the dataset is longer than "NA_tolerance",
 #' then the values before and after that chain are split into separate time blocks.
 #' If "min_time" != NULL, then the script will remove all time blocks shorter than the specified value (usually time steps), resulting only in time blocks of relevant lengths.
-#'
+#' If filtering by "min_time" leaves no time blocks to analyze, then the script will return "NULL".
+#' 
 #' Note that if either `include_initial_fusion` or `include_final_fission` are true, this function will treat each time block separately. In other words,
-#' a fission and/or fusion might be detected for each time block. TODO: I added this. Please check for correctness.
-#'
-#' If "Error in xa_blocks[[i]] : subscript out of bounds" appears, then the min_time set excludes all time blocks, leaving no events to analyse.
-#' TODO: We might want to check this within the function and have it return NULL instead of throwing an error. This is what the main function does if there are no events.
+#' a fission and/or fusion might be detected for each time block.
 #'
 #'
 #' @author Dario Walser
@@ -124,21 +122,27 @@ get_pulls_and_anchors_with_NA <- function(xa, xb, ya, yb, a, b, noise_thresh = 5
       yb_blocks <- yb_blocks[-which(lapply(xa_blocks,length)<min_time)]
       xa_blocks <- xa_blocks[-which(lapply(xa_blocks,length)<min_time)]
     }
-    events <- list()
-    for (i in 1:length(xa_blocks)) {
-      event <- get_pulls_and_anchors(xa=xa_blocks[[i]], xb=xb_blocks[[i]], ya=ya_blocks[[i]], yb=yb_blocks[[i]], a=a, b=b,
-                                     noise_thresh = noise_thresh, plot_results = plot_results,
-                                     include_initial_fusion = include_initial_fusion, include_final_fission = include_final_fission)
-      event[,1:3] <- event[,1:3]+indexes[i]
-      events <- append(events, list(event))
+    if(length(xa_blocks)==0){
+      events <- NULL
+      if(verbose==TRUE){
+        cat("No time blocks left, due to filtering by min_time variable.")
+      }
     }
-    events <- do.call(rbind.data.frame, events)
+    else{
+      events <- list()
+      for (i in 1:length(xa_blocks)) {
+        event <- get_pulls_and_anchors(xa=xa_blocks[[i]], xb=xb_blocks[[i]], ya=ya_blocks[[i]], yb=yb_blocks[[i]], a=a, b=b,
+                                       noise_thresh = noise_thresh, plot_results = plot_results,
+                                       include_initial_fusion = include_initial_fusion, include_final_fission = include_final_fission)
+        event[,1:3] <- event[,1:3]+indexes[i]
+        events <- append(events, list(event))
+      }
+      events <- do.call(rbind.data.frame, events)
+    }
     if(verbose==TRUE){
       cat("NA gaps:", NA_gaps)
     }
     return(events)
-
-
   }
   else{ #if there are no NAs, run the function normally
 
