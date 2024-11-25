@@ -22,8 +22,8 @@ plot_pull_or_anchor_event <- function(xs, ys, events, event_idx, ids=NULL){
   t2 <- events$t2[event_idx]
   t3 <- events$t3[event_idx]
   event_type <- events$type[event_idx]
-  leader <- events$initiator[event_idx]
-  follower <- events$responder[event_idx]
+  initiator <- events$initiator[event_idx]
+  responder <- events$responder[event_idx]
   if(is.character(initiator) | is.character(responder)){
     if(is.null(ids)){
       stop("Define 'ids' so the initiator and responder character strings can be matched with an index value.")
