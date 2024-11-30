@@ -58,16 +58,14 @@ Create a list of time blocks using NAs in the dataset as seperation points, then
 }
 \details{
 Time blocks are created by splitting the dataset at the indexes of NAs. If the length of the NA-chain is below "NA_tolerance", then the script will ignore these NAs and not split at that position.
-Instead, these NAs will be filled in with the value of the next (non-NA) position in the vector. TODO: check this - this seems to be what it's doing, but is this correct and is this the desired behavior?
+Instead, the script will fill the gap with an interpolation of values between the previous and next existing measured value entry.
 This results in the datapoints staying connected/in a single time block for small breaks. If the NA-chain in the dataset is longer than "NA_tolerance",
 then the values before and after that chain are split into separate time blocks.
 If "min_time" != NULL, then the script will remove all time blocks shorter than the specified value (usually time steps), resulting only in time blocks of relevant lengths.
+If filtering by "min_time" leaves no time blocks to analyze, then the script will return "NULL".
 
 Note that if either \code{include_initial_fusion} or \code{include_final_fission} are true, this function will treat each time block separately. In other words,
-a fission and/or fusion might be detected for each time block. TODO: I added this. Please check for correctness.
-
-If "Error in xa_blocks[\link{i}] : subscript out of bounds" appears, then the min_time set excludes all time blocks, leaving no events to analyse.
-TODO: We might want to check this within the function and have it return NULL instead of throwing an error. This is what the main function does if there are no events.
+a fission and/or fusion might be detected for each time block.
 }
 \author{
 Dario Walser

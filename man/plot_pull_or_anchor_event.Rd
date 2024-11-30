@@ -4,7 +4,7 @@
 \alias{plot_pull_or_anchor_event}
 \title{Plot pull or anchor event}
 \usage{
-plot_pull_or_anchor_event(xs, ys, events, event_idx)
+plot_pull_or_anchor_event(xs, ys, events, event_idx, ids = NULL)
 }
 \arguments{
 \item{xs:}{\verb{n_inds x n_times} matrix of x positions}
@@ -14,12 +14,14 @@ plot_pull_or_anchor_event(xs, ys, events, event_idx)
 \item{events:}{events table output from \code{get_pulls_and_anchors}}
 
 \item{event_idx:}{row in the table to plot}
+
+\item{ids:}{ids table output from \code{reformat_movebank_to_matrix}}
 }
 \value{
-Returns a plot of the event with the leader in blue and the follower in red
+Returns a plot of the event with the initiator in blue and the responder in red
 }
 \description{
-Plots a pull or anchor event, with the initiator colored blue and the (potential) follower colored red.
+Plots a pull or anchor event, with the initiator colored blue and the responder colored red.
 Panels show the positions at \code{t1},\code{t2}, and \code{t3} respectively.
 }
 \author{

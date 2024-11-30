@@ -121,11 +121,15 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #find matching wav file that corresponds to this label file
   #if can't find, wav_file_name will be NA
   wav_file_name <- NA
-  for(i in 1:length(wav_files)){
-    if(grepl(wav_files[i], label_file_name_no_ext, fixed = T)){
-      wav_file_name <- wav_files[i]
-      break
+  if(length(wav_files)>0){
+    for(i in 1:length(wav_files)){
+      if(grepl(wav_files[i], label_file_name_no_ext, fixed = T)){
+        wav_file_name <- wav_files[i]
+        break
+      }
     }
+  } else{
+    warning(paste('cannot find wav files in the specified directory'))
   }
 
   #if can't find matching wave file, throw a warning
