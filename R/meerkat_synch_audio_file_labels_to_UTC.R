@@ -19,7 +19,7 @@
 #' @param min_frac_spanned_by_synchs minimum fraction of the total file length (between first and last label time) spanned by synch calls to complete the synching
 #' @param make_plot whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated
 #' @param handle_special_cases whether (`T` or `F`) to handle a few special cases in the synch info table, such as when the synch clock stopped or when two synch clocks were around due to a group split with rovers - these cases had to be hardcoded in. this parameter should always be set to `T` for meerkat data
-#' @param quadratic_fit whether (`T` or `F`) to perform a quadratic fit to the synchs - default is `F` because this is not recommended
+#' @param quadratic_fit whether (`T` or `F`) to perform a quadratic fit to the synchs
 #'
 #' @returns Returns a list containing:
 #'
@@ -259,6 +259,7 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   if(quadratic_fit){
     synchs$start_time_in_file_sq <- synchs$start_time_in_file^2
+    labels$start_time_in_file_sq <- labels$start_time_in_file^2
   }
 
   redo_fit <- T
@@ -319,23 +320,32 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
   #----SYNCH LABEL FILE----
 
   #Convert all times in file to talking clock time
-  labels$start_time_talking_clock <- labels$start_time_in_file*slope + intercept
+  if(quadratic_fit){
+    labels$start_time_talking_clock <- labels$start_time_in_file*slope + labels$start_time_in_file_sq*slope_sq + intercept
+  } else{
+    labels$start_time_talking_clock <- labels$start_time_in_file*slope + intercept
+  }
 
   #Convert all times from talking clock time to UTC using UTC offset
   labels$t0_UTC <- labels$start_time_talking_clock + UTC_offset
 
   #predicted talking clock time for synchs and outliers
   if(nrow(outliers)>0){
-    outliers$predicted_talking_clock_time <- outliers$start_time_in_file * slope + intercept
+    if(quadratic_fit){
+      outliers$predicted_talking_clock_time <- outliers$start_time_in_file * slope + outliers$start_time_in_file_sq * slope_sq + intercept
+    } else{
+      outliers$predicted_talking_clock_time <- outliers$start_time_in_file * slope + intercept
+    }
     outliers$offset <- outliers$talking_clock_time - outliers$predicted_talking_clock_time
   }
   if(nrow(synchs)>0){
-    synchs$predicted_talking_clock_time <- synchs$start_time_in_file * slope + intercept
+    if(quadratic_fit){
+      synchs$predicted_talking_clock_time <- synchs$start_time_in_file * slope + synchs$start_time_in_file_sq * slope_sq + intercept
+    } else{
+      synchs$predicted_talking_clock_time <- synchs$start_time_in_file * slope + intercept
+    }
     synchs$offset <- synchs$talking_clock_time - synchs$predicted_talking_clock_time
   }
-
-  #get offsets
-
 
   #create relevant columns and name them
   labels$csv_file <- gsub('.csv$','',label_file_name, fixed = T)
