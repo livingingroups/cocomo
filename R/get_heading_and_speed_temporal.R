@@ -10,7 +10,7 @@
 #'
 #'
 #' @author Ariana Strandburg-Peshkin
-#' @author NOT YET CODE REVIEWED
+#' @author Reviewed by Brock
 #'
 #' @param	x_i x coordinates of the individual (a vector whose length is the number of timesteps) or of a group centroid
 #' @param y_i y coordinates of the individual (a vector whose length is the number of timesteps) or of the group centroid
