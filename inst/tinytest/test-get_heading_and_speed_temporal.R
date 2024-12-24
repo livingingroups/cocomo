@@ -9,8 +9,8 @@ expect_equal(h_1, forward$heads)
 expect_equal(speed_1, forward$speeds)
 
 backward <- get_heading_and_speed_temporal(x, y,  forward = F)
-expect_equal(c(NA, h_1[1:(len-1)]), backward$heads)
-expect_equal(c(NA, speed_1[1:(len-1)]), backward$speeds)
+expect_equal(shift(h_1), backward$heads)
+expect_equal(shift(speed_1), backward$speeds)
 
 
 # t_window = 2

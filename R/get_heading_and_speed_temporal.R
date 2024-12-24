@@ -69,8 +69,8 @@ get_heading_and_speed_temporal <- function(x_i, y_i, t_window = 1, forward = T, 
   heads <- atan2(head_y, head_x)
 
   #output
-  out$speeds <- ds / (t_window * seconds_per_time_step)
   out$heads <- heads
+  out$speeds <- ds / (t_window * seconds_per_time_step)
   out$dts <- rep(t_window * seconds_per_time_step, len)
 
   return(out)

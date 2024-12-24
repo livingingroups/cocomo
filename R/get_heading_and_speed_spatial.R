@@ -74,9 +74,9 @@ get_heading_and_speed_spatial <- function(x_i, y_i, R, t_idxs=1:length(x_i), for
     #move forward (or backward) until radius reached
     found <- 0
     na_found <- 0
-    time_vec <- t:n_times
+    time_vec <- min((t+1), n_times):n_times
     if(!forward){
-      time_vec <- seq(t,1,-1)
+      time_vec <- max((t-1), 1):1
     }
     for(i in time_vec){
 
