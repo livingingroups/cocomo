@@ -5,7 +5,7 @@
 #'its location after it mas moved a distance of at least `R`.
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
-#' @author NOT YET CODE REVIEWED
+#' @author Reviewed by Brock
 #'
 #' @param x_i vector of x coordinates for the trajectory
 #' @param y_i vector of y coordinates for the trajectory
