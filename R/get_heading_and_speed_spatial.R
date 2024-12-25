@@ -10,7 +10,7 @@
 #' @param x_i vector of x coordinates for the trajectory
 #' @param y_i vector of y coordinates for the trajectory
 #' @param R radius used to compute the headings
-#' @param t_idxs: time indexes at which to compute the headings (defaults to entire trajectory)
+#' @param t_idxs: time indexes at which to compute the headings, speed, dts (defaults to entire trajectory)
 #' @param forward whether to go forward in time from current position (if T), or backward (if F) when computing headings
 #' @param seconds_per_time_step number of seconds corresponding to each time step
 #'
@@ -27,7 +27,7 @@ get_heading_and_speed_spatial <- function(x_i, y_i, R, t_idxs=1:length(x_i), for
   checkmate::assert_numeric(x_i)
   checkmate::assert_numeric(y_i)
   checkmate::assert_numeric(R, len = 1, lower = 0)
-  checkmate::assert_integer(
+  checkmate::assert_integerish(
     t_idxs,
     lower = 1,
     upper = length(x_i),
