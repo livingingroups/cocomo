@@ -30,7 +30,7 @@ get_group_heading_and_speed <- function(xs, ys, heading_type, spatial_R = NULL, 
     checkmate::assert_int(t_window, lower = 1, upper = ncol(x_i))
   }
   checkmate::assert_logic(forward)
-  checkmate::assert_int(min_inds_tracked, lower=0, upper=nrow(xs))
+  checkmate::assert_int(min_inds_tracked, lower=0, upper=nrow(xs), null.ok = TRUE)
   checkmate::assert_number(seconds_per_time_step, lower = 0)
 
 

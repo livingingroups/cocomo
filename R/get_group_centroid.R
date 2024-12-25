@@ -14,6 +14,9 @@
 #' @export
 #'
 get_group_centroid <- function(xs, ys, min_inds_tracked = NULL){
+  checkmate::assert_matrix(xs, 'numeric')
+  checkmate::assert_matrix(ys, 'numeric')
+  checkmate::assert_int(min_inds_tracked, lower=0, upper=nrow(xs), null.ok = TRUE)
 
   #check matrix dimensions
   if(nrow(xs) != nrow(ys) || ncol(xs) != ncol(ys)){
@@ -26,7 +29,7 @@ get_group_centroid <- function(xs, ys, min_inds_tracked = NULL){
 
   #replace time points with too few individuals with NAs
   if(!is.null(min_inds_tracked)){
-    n_tracked <- colSums(!is.na(xs))
+    n_tracked <- colSums(!is.na(xs) & !is.na(ys))
     not_enough_inds <- which(n_tracked < min_inds_tracked)
     x_centr[not_enough_inds] <- NA
     y_centr[not_enough_inds] <- NA
