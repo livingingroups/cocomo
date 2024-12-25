@@ -19,28 +19,26 @@
 #' @export
 #'
 get_group_heading_and_speed <- function(xs, ys, heading_type, spatial_R = NULL, t_window = NULL, forward = T, min_inds_tracked = NULL, seconds_per_time_step = 1){
+  checkmate::assert_matrix(xs, 'numeric')
+  checkmate::assert_matrix(ys, 'numeric')
+  checkmate::assert_subset(heading_type, c('spatial', 'temporal'), empty.ok = FALSE)
+  if(heading_type == 'spatial'){
+    checkmate::assert_number(spatial_R)
+    if(!is.null(t_window)) warning('heading_type is set to spatial so t_window argument is ignored')
+  } else {
+    if(!is.null(spatial_R)) warning('heading_type is set to temporal so spatial_R argument is ignored')
+    checkmate::assert_int(t_window, lower = 1, upper = ncol(x_i))
+  }
+  checkmate::assert_logic(forward)
+  checkmate::assert_int(min_inds_tracked, lower=0, upper=nrow(xs))
+  checkmate::assert_number(seconds_per_time_step, lower = 0)
 
-  #TODO: Think about what to do if number of tracked individuals changes - should probably have heading = NA at those times
+
+   #TODO: Think about what to do if number of tracked individuals changes - should probably have heading = NA at those times
 
   #check matrix dimensions
   if(nrow(xs) != nrow(ys) || ncol(xs) != ncol(ys)){
     stop('xs and ys matrices must have same dimensions')
-  }
-
-  #check that the required variables exist for computing headings
-  if(heading_type %in% c('spatial','temporal')){
-    if(heading_type == 'spatial'){
-      if(is.null(spatial_R)){
-        stop('Must specify spatial_R for spatial headings')
-      }
-    }
-    if(heading_type == 'temporal'){
-      if(is.null(t_window)){
-        stop('Must specify t_window for temporal headings')
-      }
-    }
-  } else{
-    stop('Must specify heading_type as either spatial or temporal')
   }
 
   #get centroid trajectory
@@ -51,7 +49,7 @@ get_group_heading_and_speed <- function(xs, ys, heading_type, spatial_R = NULL, 
   #get heading
   if(heading_type == 'temporal'){
     heads_speeds <- cocomo::get_heading_and_speed_temporal(x_i = x_centr, y_i = y_centr, t_window = t_window, forward = forward, seconds_per_time_step = seconds_per_time_step)
-  } else{
+  } else {
     heads_speeds <- cocomo::get_heading_and_speed_spatial(x_i = x_centr, y_i = y_centr, R = spatial_R, forward = forward, seconds_per_time_step = seconds_per_time_step )
   }
 

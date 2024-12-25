@@ -26,7 +26,7 @@ get_heading_and_speed_spatial <- function(x_i, y_i, R, t_idxs=1:length(x_i), for
 
   checkmate::assert_numeric(x_i)
   checkmate::assert_numeric(y_i)
-  checkmate::assert_numeric(R, len = 1, lower = 0)
+  checkmate::assert_number(R, lower = 0)
   checkmate::assert_integerish(
     t_idxs,
     lower = 1,
@@ -38,7 +38,7 @@ get_heading_and_speed_spatial <- function(x_i, y_i, R, t_idxs=1:length(x_i), for
     typed.missing = FALSE
   )
   checkmate::assert_logical(forward, len = 1)
-  checkmate::assert_numeric(seconds_per_time_step, lower = 0, len = 1)
+  checkmate::assert_number(seconds_per_time_step, lower = 0)
 
 
   #check that x_i and y_i are the same length

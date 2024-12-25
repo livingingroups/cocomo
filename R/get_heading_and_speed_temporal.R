@@ -27,7 +27,7 @@ get_heading_and_speed_temporal <- function(x_i, y_i, t_window = 1, forward = T, 
   checkmate::assert_numeric(y_i)
   checkmate::assert_int(t_window, lower = 1, upper = length(x_i))
   checkmate::assert_logical(forward, len = 1)
-  checkmate::assert_numeric(seconds_per_time_step, lower = 0, len = 1)
+  checkmate::assert_number(seconds_per_time_step, lower = 0)
 
 
 
