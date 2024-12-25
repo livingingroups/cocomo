@@ -5,7 +5,7 @@
 #'time step.
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
-#' @author NOT YET CODE REVIEWED
+#' @author Reviewed by Brock
 #'
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time
