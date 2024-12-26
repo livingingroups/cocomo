@@ -11,9 +11,18 @@
 #  012345678910        
 
 # helper function
-shift <- function(v, n=1) return(c(v[(length(v)-n+1):length(v)], v[1:(length(v)-n)]))
+shift <- function(v, n=1) return(if (n>0) c(
+    v[(length(v)-n+1):length(v)], v[1:(length(v)-n)]
+  ) else c(
+    v[(1-n):length(v)], v[1:-n]
+  )
+)
+
+expect_equal(shift(1:10, 2), c(9:10,1:8))
+expect_equal(shift(1:10, -2), c(3:10,1:2))
 
 # constants
+eps <- sqrt(.Machine$double.eps) 
 c1 <- atan2(1,2)/pi # Plouffe's gamma-constant
 c2 <- 1/2 + c1
 c3 <- 1 - c1

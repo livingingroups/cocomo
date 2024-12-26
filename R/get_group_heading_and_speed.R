@@ -12,7 +12,7 @@
 #' @param spatial_R radius to use for spatial headings (if `heading_type = 'spatial'`)
 #' @param t_window temporal window to use for temporal headings (if `heading_type = 'temporal'`)
 #' @param forward whether to compute headings into the future (`forward = T`) or the past (`forward = F`)
-#' @param min_inds_tracked if specified, sets a minimum number of individuals that must be tracked at any moment in time to compute heading (otherwise the heading will be NA at that time point
+#' @param min_inds_tracked if specified, sets a minimum number of individuals that must be tracked to use that time point in computing heading. headings, speeds, and dt that would rely on data with an insufficient number of individuals will be reported as NA.
 #' @param seconds_per_time_step number of seconds corresponding to each time step
 #'
 #' @returns Returns the group heading over time, a vector of length `n_times`
@@ -27,9 +27,9 @@ get_group_heading_and_speed <- function(xs, ys, heading_type, spatial_R = NULL, 
     if(!is.null(t_window)) warning('heading_type is set to spatial so t_window argument is ignored')
   } else {
     if(!is.null(spatial_R)) warning('heading_type is set to temporal so spatial_R argument is ignored')
-    checkmate::assert_int(t_window, lower = 1, upper = ncol(x_i))
+    checkmate::assert_int(t_window, lower = 1, upper = ncol(xs))
   }
-  checkmate::assert_logic(forward)
+  checkmate::assert_logical(forward)
   checkmate::assert_int(min_inds_tracked, lower=0, upper=nrow(xs), null.ok = TRUE)
   checkmate::assert_number(seconds_per_time_step, lower = 0)
 
