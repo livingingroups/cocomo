@@ -184,6 +184,8 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
 
   #Get dyadic distances for each pair, then use double threshold method to determine if they are together at any moment
   dyad_dists <- together <- array(NA, dim = c(n_inds, n_inds, n_times))
+  big_ti <- together
+  big_t0 <- together
   for(i in 1:(n_inds-1)){
     for(j in (i+1):n_inds){
 
@@ -208,9 +210,11 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
 
         #times when together within inner radius
         together_inner <- dyad_dists_ij <= R_inner
+        big_ti[i,j,t_day]  <- together_inner
 
         #times when together within outer radius
         together_outer <- dyad_dists_ij <= R_outer
+        big_t0[i,j,t_day]  <- together_outer
 
         together_ij <- together_inner
 
