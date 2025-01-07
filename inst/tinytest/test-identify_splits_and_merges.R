@@ -15,7 +15,7 @@ loc = c(
   'a', 'a', 'a', 'c', 'c', 'c', 'd', 'd', 'd', 'd'
 )
 
-xs <- matrix(
+xs_basic <- matrix(
   sapply(
     loc,
     function(l) loc_lookup[[l]][['x']]
@@ -27,7 +27,7 @@ xs <- matrix(
 
 ind_names <- c('Lily', 'Pan', 'Tamu', 'Winnie')
 
-ys <- matrix(
+ys_basic <- matrix(
   sapply(
     loc,
     function(l) loc_lookup[[l]][['y']]
@@ -127,20 +127,17 @@ expected_basic <- list(
   R_outer = .5
 )
 
-actual_basic <- identify_splits_and_merges(xs,ys,as.POSIXct(1:n_times),.5,.5, names = ind_names)
+actual_basic <- identify_splits_and_merges(xs_basic,ys_basic,as.POSIXct(1:n_times),.5,.5, names = ind_names)
 expect_equal(
   expected_basic,
   actual_basic,
   check.attributes = FALSE
 )
 
-length(actual_basic)
-length(expected_basic)
-
 # Create a new lookup table with same pattern but different locations
 
-xs_with_clone <- rbind(xs, xs + 3)
-ys_with_clone <- rbind(ys, ys + 3)
+xs_with_clone <- rbind(xs_basic, xs_basic + 3)
+ys_with_clone <- rbind(ys_basic, ys_basic + 3)
 
 ind_names_with_clone <- c(ind_names, paste0(ind_names, '_clone'))
 n_events_basic <- length(expected_basic$all_events_info)
