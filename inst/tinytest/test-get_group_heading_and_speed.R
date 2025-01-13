@@ -36,21 +36,11 @@ expect_equal(
 expect_equal(
   # eps is needed because of floats introduced in centroid calc
   get_group_heading_and_speed(xs, ys, 'spatial', spatial_R = 1-eps),
-  list(
-    heads = h_R1f,
-    speeds = speed_R1f,
-    dts = dt_R1f
-  ),
-  info = "Checks group dt, heading, speed with R=1, forward = TRUE"
+  expected_spatial[['R1, forward']]
 )
 
 ## R = 1, backward -----
 expect_equal(
   get_group_heading_and_speed(xs, ys, 'spatial', spatial_R = 1-eps, forward = FALSE),
-  list(
-    heads = h_R1b,
-    speeds = speed_R1b,
-    dts = dt_R1b
-  ),
-  info = "Checks group dt, heading, speed with R=1, forward = FALSE"
+  expected_spatial[['R1, backward']]
 )
