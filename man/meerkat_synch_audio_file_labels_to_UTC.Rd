@@ -13,7 +13,8 @@ meerkat_synch_audio_file_labels_to_UTC(
   min_frac_spanned_by_synchs = 0.2,
   make_plot = T,
   handle_special_cases = T,
-  quadratic_fit = F
+  quadratic_fit = F,
+  remove_noisy_synchs = T
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ meerkat_synch_audio_file_labels_to_UTC(
 \item{handle_special_cases}{whether (\code{T} or \code{F}) to handle a few special cases in the synch info table, such as when the synch clock stopped or when two synch clocks were around due to a group split with rovers - these cases had to be hardcoded in. this parameter should always be set to \code{T} for meerkat data}
 
 \item{quadratic_fit}{whether (\code{T} or \code{F}) to perform a quadratic fit to the synchs}
+
+\item{remove_noisy_synchs}{whether (\code{T} or \code{F}) to remove synchs that are labeled as noisy (will remove everything that has an x, not case sensitive)}
 }
 \value{
 Returns a list containing:

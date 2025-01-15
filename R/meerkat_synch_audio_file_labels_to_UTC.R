@@ -20,6 +20,7 @@
 #' @param make_plot whether to also output a plot showing the synchs in time in recording vs talking clock time, with the final fit and outliers indicated
 #' @param handle_special_cases whether (`T` or `F`) to handle a few special cases in the synch info table, such as when the synch clock stopped or when two synch clocks were around due to a group split with rovers - these cases had to be hardcoded in. this parameter should always be set to `T` for meerkat data
 #' @param quadratic_fit whether (`T` or `F`) to perform a quadratic fit to the synchs
+#' @param remove_noisy_synchs whether (`T` or `F`) to remove synchs that are labeled as noisy (will remove everything that has an x, not case sensitive)
 #'
 #' @returns Returns a list containing:
 #'
@@ -72,7 +73,8 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
                                            min_frac_spanned_by_synchs = 0.2,
                                            make_plot = T,
                                            handle_special_cases = T,
-                                           quadratic_fit = F){
+                                           quadratic_fit = F,
+                                           remove_noisy_synchs = T){
 
   #----READ IN LABELS----
 
@@ -195,6 +197,13 @@ meerkat_synch_audio_file_labels_to_UTC <- function(path_to_label_file,
 
   #find synchs
   synchs <- labels[grep('sync', labels$Name, ignore.case = T),]
+
+  #remove noisy synchs
+  if(remove_noisy_synchs){
+    if(length(grep('x', synchs$Name, ignore.case = T)) > 0){
+      synchs <- synchs[-grep('x', synchs$Name, ignore.case = T),]
+    }
+  }
 
   #get times of synchs, according to the talking clock (in sec)
   #talking clock labels are in auditon format, so can use audition parsing function
