@@ -52,7 +52,8 @@ column specifying timestamp_UTC. Currently only designed to work with meerkat da
 <span>  min_frac_spanned_by_synchs <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  make_plot <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  handle_special_cases <span class="op">=</span> <span class="cn">T</span>,</span>
-<span>  quadratic_fit <span class="op">=</span> <span class="cn">F</span></span>
+<span>  quadratic_fit <span class="op">=</span> <span class="cn">F</span>,</span>
+<span>  remove_noisy_synchs <span class="op">=</span> <span class="cn">T</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -94,6 +95,10 @@ column specifying timestamp_UTC. Currently only designed to work with meerkat da
 
 <dt id="arg-quadratic-fit">quadratic_fit<a class="anchor" aria-label="anchor" href="#arg-quadratic-fit"></a></dt>
 <dd><p>whether (<code>T</code> or <code>F</code>) to perform a quadratic fit to the synchs</p></dd>
+
+
+<dt id="arg-remove-noisy-synchs">remove_noisy_synchs<a class="anchor" aria-label="anchor" href="#arg-remove-noisy-synchs"></a></dt>
+<dd><p>whether (<code>T</code> or <code>F</code>) to remove synchs that are labeled as noisy (will remove everything that has an x, not case sensitive)</p></dd>
 
 </dl></div>
     <div class="section level2">
