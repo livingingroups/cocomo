@@ -18,25 +18,25 @@ get_pulls_and_anchors(
 )
 }
 \arguments{
-\item{xa:}{x coordinates for individual a (vector of length \code{n_times})- must be continuous data (no NAs)}
+\item{xa}{x coordinates for individual a (vector of length \code{n_times})- must be continuous data (no NAs)}
 
-\item{xb:}{x coordinates for individual b (vector of length \code{n_times})- must be continuous data (no NAs)}
+\item{xb}{x coordinates for individual b (vector of length \code{n_times})- must be continuous data (no NAs)}
 
-\item{ya:}{x coordinates for individual a (vector of length \code{n_times})- must be continuous data (no NAs)}
+\item{ya}{x coordinates for individual a (vector of length \code{n_times})- must be continuous data (no NAs)}
 
-\item{yb:}{x coordinates for individual b (vector of length \code{n_times})- must be continuous data (no NAs)}
+\item{yb}{x coordinates for individual b (vector of length \code{n_times})- must be continuous data (no NAs)}
 
-\item{a:}{index of the first individual}
+\item{a}{index of the first individual}
 
-\item{b:}{index of the second individual}
+\item{b}{index of the second individual}
 
-\item{noise_thresh:}{noise threshold (defaults to 5 m)}
+\item{noise_thresh}{noise threshold (defaults to 5 m)}
 
-\item{plot_results:}{whether to plot results or not}
+\item{plot_results}{whether to plot results or not}
 
-\item{include_initial_fusion:}{if T, the function will also output an initial fusion event. In most use cases, this should be set to false. See below for details.}
+\item{include_initial_fusion}{if T, the function will also output an initial fusion event. In most use cases, this should be set to false. See below for details.}
 
-\item{include_final_fission:}{if T, the funciton will also output a final fission event. In most use cases, this should be set to false. See below for details.}
+\item{include_final_fission}{if T, the funciton will also output a final fission event. In most use cases, this should be set to false. See below for details.}
 }
 \value{
 Returns a data frame  containing dyadic interactions between a and b.

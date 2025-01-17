@@ -21,33 +21,33 @@ get_pulls_and_anchors_with_NA(
 )
 }
 \arguments{
-\item{xa:}{x coordinates for individual a (vector of length \code{n_times})}
+\item{xa}{x coordinates for individual a (vector of length \code{n_times})}
 
-\item{xb:}{x coordinates for individual b (vector of length \code{n_times})}
+\item{xb}{x coordinates for individual b (vector of length \code{n_times})}
 
-\item{ya:}{x coordinates for individual a (vector of length \code{n_times})}
+\item{ya}{x coordinates for individual a (vector of length \code{n_times})}
 
-\item{yb:}{x coordinates for individual b (vector of length \code{n_times})}
+\item{yb}{x coordinates for individual b (vector of length \code{n_times})}
 
-\item{a:}{index of the first individual}
+\item{a}{index of the first individual}
 
-\item{b:}{index of the second individual}
+\item{b}{index of the second individual}
 
-\item{NA_tolerance:}{How big of a gap in the vector (missing timesteps), created by NAs, is tolerated and therefore still combined into a single continuous dataset (numeric, positive integer)}
+\item{noise_thresh}{see documentation of \code{get_pulls_and_anchors} function}
 
-\item{min_time:}{the minimum length (timesteps) of a resulting time block that will still be used for analysis (numeric, positive integer)}
+\item{plot_results}{see documentation of \code{get_pulls_and_anchors} function}
 
-\item{verbose:}{If verbose = TRUE, then print out the size of each NA gap
+\item{include_initial_fusion}{see documentation of \code{get_pulls_and_anchors} function}
+
+\item{include_final_fission}{see documentation of \code{get_pulls_and_anchors} function}
+
+\item{NA_tolerance}{How big of a gap in the vector (missing timesteps), created by NAs, is tolerated and therefore still combined into a single continuous dataset (numeric, positive integer)}
+
+\item{min_time}{the minimum length (timesteps) of a resulting time block that will still be used for analysis (numeric, positive integer)}
+
+\item{verbose}{If verbose = TRUE, then print out the size of each NA gap
 
 For following parameters and more information, see documentation of \code{get_pulls_and_anchors} function:}
-
-\item{noise_thresh:}{see documentation of \code{get_pulls_and_anchors} function}
-
-\item{plot_results:}{see documentation of \code{get_pulls_and_anchors} function}
-
-\item{include_initial_fusion:}{see documentation of \code{get_pulls_and_anchors} function}
-
-\item{include_final_fission:}{see documentation of \code{get_pulls_and_anchors} function}
 }
 \value{
 Returns a data frame  containing dyadic interactions between a and b.

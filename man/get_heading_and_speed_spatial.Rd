@@ -20,11 +20,11 @@ get_heading_and_speed_spatial(
 
 \item{R}{radius used to compute the headings}
 
+\item{t_idxs}{time indexes at which to compute the headings, speed, dts (defaults to entire trajectory)}
+
 \item{forward}{whether to go forward in time from current position (if T), or backward (if F) when computing headings}
 
 \item{seconds_per_time_step}{number of seconds corresponding to each time step}
-
-\item{t_idxs:}{time indexes at which to compute the headings, speed, dts (defaults to entire trajectory)}
 }
 \value{
 Returns a list containing
