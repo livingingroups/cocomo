@@ -43,7 +43,7 @@ Get the angle between two vectors specified by their end points using law of cos
 Vector 1 is defined as the vector pointing from the point \verb{(x1_i, y1_i)} to \verb{(x1_f, y1_f)} and
 vector 2 is defined as the vector point from the point \verb{(x2_i, y2_i)} to \verb{(x2_f, y2_f)}.
 The angle is defined as the angle produced if the two vectors are joined at the initial
-endpoints (rather than head-to-tail). The reuslting angle is always positive.
+endpoints (rather than head-to-tail). The resulting angle is always positive.
 }
 \author{
 Ariana Strandburg-Peshkin

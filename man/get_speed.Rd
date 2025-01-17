@@ -32,5 +32,5 @@ based on the future not on the past. If \code{forward} is set to \code{F}, the s
 \author{
 Ariana Strandburg-Peshkin
 
-NOT YET CODE REVIEWED
+Reviewed by Brock
 }

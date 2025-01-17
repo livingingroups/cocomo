@@ -10,6 +10,7 @@
 #' @param ind_names the names for the x and y labels (vector of length `n_inds`)
 #' @param ind_cols colors to use for the labels (vector of length `n_inds`)
 #' @param zlim a vector of length 2 giving the numerical limits of z (the color scale)
+#' @param main title for plot
 #' @param xlab x axis label (rows of matrix)
 #' @param ylab y axis label (columns of matrix)
 #'

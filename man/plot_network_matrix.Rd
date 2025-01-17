@@ -29,6 +29,8 @@ plot_network_matrix(
 \item{xlab}{x axis label (rows of matrix)}
 
 \item{ylab}{y axis label (columns of matrix)}
+
+\item{main}{title for plot}
 }
 \description{
 Plot a matrix with color representing the edge weights of a network

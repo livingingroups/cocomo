@@ -218,19 +218,78 @@ analyze_split_or_merge_event <- function(events, i,
                                          seconds_per_time_step = 1,
                                          breaks = NULL, break_by_day = F,
                                          make_plot = T){
-
+  checkmate::assert_matrix(xs, mode = 'numeric')
+  checkmate::assert_matrix(ys, mode = 'numeric', nrows = nrow(xs), ncol=ncol(xs))
+  checkmate::assert_int(i, lower=1)                                          
+  checkmate::assert_data_frame(events, min.rows=i)
+  checkmate::assert_names(
+    names(events), must.include = c('tidx', 'group_A_idxs', 'group_B_idxs', 'group_A', 'group_B', 'event_type', 'big_group_idxs')
+  )
   #get info about the event from the events data frame
-  t_event <- events$tidx[i] #time of the event
-  group_A <- events$group_A_idxs[i][[1]] #group A individual idxs
-  group_B <- events$group_B_idxs[i][[1]] #group B individual idxs
-  group_A_names <- events$group_A[i] #group A names
-  group_B_names <- events$group_B[i] #group B names
-  event_type <- events$event_type[i] #event type - fission, fusion, or shuffle
-  big_group_idxs <- events$big_group_idxs[i][[1]] #all individuals involved in the event
+  t_event <- checkmate::assert_int(
+    events$tidx[i],  #time of the event
+    lower = 1,
+    upper = ncol(xs)
+  )
+  group_A <- checkmate::assert_integerish(
+    events$group_A_idxs[i][[1]], #group A individual idxs
+    lower = 1,
+    upper = nrow(xs),
+    min.len = 1,
+    max.len = nrow(xs) - 1,
+    unique = TRUE,
+    sorted = TRUE,
+    any.missing = FALSE
+  )
+  group_B <-  checkmate::assert_integerish(
+    events$group_B_idxs[i][[1]], #group B individual idxs
+    lower = 1,
+    upper = nrow(xs),
+    len = nrow(xs) - length(group_A),
+    max.len = nrow(xs) - 1,
+    unique = TRUE,
+    sorted = TRUE,
+    any.missing = FALSE
 
-  if(!(event_type %in% c('fission','fusion'))){
-    stop('event must be a fission or fusion')
-  }
+  )
+  checkmate::assert_null(events$group_C)
+
+  group_A_names <- events$group_A[i] #group A names
+  # checkmate::assert_character(
+  #   len = length(group_A),
+  #   unique = TRUE,
+  #   any.missing = FALSE
+  # )
+     
+  group_B_names <- events$group_B[i] #group B names
+  # checkmate::assert_character(
+  #   len = length(group_B),
+  #   unique = TRUE,
+  #   any.missing = FALSE
+  # )
+  event_type <- checkmate::assert_subset(
+    events$event_type[i], #event type - fission, fusion, or shuffle
+    c('fission', 'fusion')
+  )
+  big_group_idxs <- checkmate::assert_set_equal(
+    events$big_group_idxs[i][[1]], #all individuals involved in the event
+    sort(c(group_A, group_B))
+  )
+  checkmate::assert_posixct(
+    timestamps,
+    len = ncol(xs)
+  )
+  checkmate::assert_int(
+    max_time,
+    lower = 1
+  )
+  checkmate::assert_number(thresh_h)
+  checkmate::assert_number(thresh_l)
+  checkmate::assert_number(depart_or_arrive_radius)
+  checkmate::assert_int(time_window, lower = 0, upper = ncol(xs))
+  checkmate::assert_number(seconds_per_time_step, lower = 0)
+  checkmate::assert_flag(break_by_day)
+  checkmate::assert_flag(make_plot)
 
   #calculate a few metrics from event info
   ti <- t_event - max_time #initial time to plot
@@ -249,7 +308,7 @@ analyze_split_or_merge_event <- function(events, i,
     }
   }
 
-  #if braeks is null, create a breaks variable specifying one data chunk
+  #if breaks is null, create a breaks variable specifying one data chunk
   if(is.null(breaks)){
     breaks <- c(1, length(timestamps) + 1)
   }
@@ -334,7 +393,7 @@ analyze_split_or_merge_event <- function(events, i,
   if(upper <= thresh_l){
     upper <- thresh_h
   }
-  #likewise for lower bound
+ #likewise for lower bound
   if(lower >= thresh_h){
     lower <- thresh_l
   }

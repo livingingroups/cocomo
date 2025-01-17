@@ -5,16 +5,16 @@
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED
 #'
-#' @param xa: x coordinates for individual a (vector of length `n_times`)- must be continuous data (no NAs)
-#' @param	xb: x coordinates for individual b (vector of length `n_times`)- must be continuous data (no NAs)
-#' @param ya: x coordinates for individual a (vector of length `n_times`)- must be continuous data (no NAs)
-#' @param	yb: x coordinates for individual b (vector of length `n_times`)- must be continuous data (no NAs)
-#' @param a: index of the first individual
-#' @param	b: index of the second individual
-#' @param	noise_thresh: noise threshold (defaults to 5 m)
-#' @param plot_results: whether to plot results or not
-#' @param include_initial_fusion: if T, the function will also output an initial fusion event. In most use cases, this should be set to false. See below for details.
-#' @param include_final_fission: if T, the funciton will also output a final fission event. In most use cases, this should be set to false. See below for details.
+#' @param xa x coordinates for individual a (vector of length `n_times`)- must be continuous data (no NAs)
+#' @param	xb x coordinates for individual b (vector of length `n_times`)- must be continuous data (no NAs)
+#' @param ya x coordinates for individual a (vector of length `n_times`)- must be continuous data (no NAs)
+#' @param	yb x coordinates for individual b (vector of length `n_times`)- must be continuous data (no NAs)
+#' @param a index of the first individual
+#' @param	b index of the second individual
+#' @param	noise_thresh noise threshold (defaults to 5 m)
+#' @param plot_results whether to plot results or not
+#' @param include_initial_fusion if T, the function will also output an initial fusion event. In most use cases, this should be set to false. See below for details.
+#' @param include_final_fission if T, the funciton will also output a final fission event. In most use cases, this should be set to false. See below for details.
 #'
 #' @section Details on fission and fusion events:
 #'

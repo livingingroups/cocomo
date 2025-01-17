@@ -6,8 +6,8 @@
 #' @author NOT YET CODE REVIEWED
 #' 
 #'
-#' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs[i,t] gives the easting of individual i at time step t)
-#' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys[i,t] gives the northing of individual i at time step t)
+#' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs\[i,t\] gives the easting of individual i at time step t)
+#' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys\[i,t\] gives the northing of individual i at time step t)
 #' @param ids Dataframe of individuals with individual name stored in a column called `id_code`. Only necessary if you want to select a subset of individuals using `id_codes_selected`
 #' @param timestamps vector of timestamps (POSIXct), must have same dimensions as columns of `xs` and `ys` matrices
 #' @param time_indices_selected Time indices for data to include in the dataframe, to be matched with xs, ys, timestamps

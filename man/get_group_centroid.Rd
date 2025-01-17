@@ -24,5 +24,5 @@ time step.
 \author{
 Ariana Strandburg-Peshkin (primary author)
 
-NOT YET CODE REVIEWED
+Reviewed by Brock
 }

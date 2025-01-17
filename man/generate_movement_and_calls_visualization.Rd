@@ -36,9 +36,9 @@ generate_movement_and_calls_visualization(
 )
 }
 \arguments{
-\item{xs}{UTM eastings matrix (\code{n_inds} x \code{n_times} matrix where xs\link{i,t} gives the easting of individual i at time step t)}
+\item{xs}{UTM eastings matrix (\code{n_inds} x \code{n_times} matrix where xs[i,t] gives the easting of individual i at time step t)}
 
-\item{ys}{UTM northings matrix (\code{n_inds} x \code{n_times} matrix where ys\link{i,t} gives the northing of individual i at time step t)}
+\item{ys}{UTM northings matrix (\code{n_inds} x \code{n_times} matrix where ys[i,t] gives the northing of individual i at time step t)}
 
 \item{timestamps}{vector of timestamps (POSIXct), must have same dimensions as columns of \code{xs} and \code{ys} matrices}
 

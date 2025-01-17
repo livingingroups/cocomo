@@ -20,17 +20,20 @@ get_heading_and_speed_spatial(
 
 \item{R}{radius used to compute the headings}
 
+\item{t_idxs}{time indexes at which to compute the headings, speed, dts (defaults to entire trajectory)}
+
 \item{forward}{whether to go forward in time from current position (if T), or backward (if F) when computing headings}
 
 \item{seconds_per_time_step}{number of seconds corresponding to each time step}
-
-\item{t_idxs:}{time indexes at which to compute the headings (defaults to entire trajectory)}
 }
 \value{
-Returns a list containing \verb{$heads}: a time series of the heading of
-the individual (a vector of the same length as x_i and y_i), in radians, computed based on
-spatial discretization around the time point,\verb{$speeds}: a time series of the speed of the individual at each time point, and
-\verb{$dts}: time differences between the current point and the first point outside of the radius R (either forward or backward in time)
+Returns a list containing
+\itemize{
+\item \verb{$heads}: a time series of the heading of the individual (a vector of the same length as x_i and y_i), in radians, computed based on
+spatial discretization around the time point
+\item \verb{$speeds}: a time series of the average speed of the individual from the first point outside radius R to the current point
+\item \verb{$dts}: time differences between the current point and the first point outside of the radius R (either forward or backward in time)
+}
 
 vector of spatially discretized headings, computed at all times or at times t_idxs if specified (other times are then filled in with NAs)
 }
@@ -42,5 +45,5 @@ its location after it mas moved a distance of at least \code{R}.
 \author{
 Ariana Strandburg-Peshkin (primary author)
 
-NOT YET CODE REVIEWED
+Reviewed by Brock
 }
