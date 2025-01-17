@@ -6,11 +6,11 @@
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED
 #'
-#' @param xs: `n_inds x n_times` matrix of x positions
-#' @param ys: `n_inds x n_times` matrix of y positions
-#' @param events: events table output from `get_pulls_and_anchors`
-#' @param event_idx: row in the table to plot
-#' @param ids: ids table output from `reformat_movebank_to_matrix`
+#' @param xs `n_inds x n_times` matrix of x positions
+#' @param ys `n_inds x n_times` matrix of y positions
+#' @param events events table output from `get_pulls_and_anchors`
+#' @param event_idx row in the table to plot
+#' @param ids ids table output from `reformat_movebank_to_matrix`
 #'
 #' @returns Returns a plot of the event with the initiator in blue and the responder in red
 #'

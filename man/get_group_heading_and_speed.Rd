@@ -28,7 +28,7 @@ get_group_heading_and_speed(
 
 \item{forward}{whether to compute headings into the future (\code{forward = T}) or the past (\code{forward = F})}
 
-\item{min_inds_tracked}{if specified, sets a minimum number of individuals that must be tracked at any moment in time to compute heading (otherwise the heading will be NA at that time point}
+\item{min_inds_tracked}{if specified, sets a minimum number of individuals that must be tracked to use that time point in computing heading. headings, speeds, and dt that would rely on data with an insufficient number of individuals will be reported as NA.}
 
 \item{seconds_per_time_step}{number of seconds corresponding to each time step}
 }
@@ -42,5 +42,5 @@ going either forward (into the future) or backward (into the past) when computin
 \author{
 Ariana Strandburg-Peshkin (primary author)
 
-NOT YET CODE REVIEWED
+Reviewed by Brock
 }

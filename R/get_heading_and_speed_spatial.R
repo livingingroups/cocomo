@@ -10,7 +10,7 @@
 #' @param x_i vector of x coordinates for the trajectory
 #' @param y_i vector of y coordinates for the trajectory
 #' @param R radius used to compute the headings
-#' @param t_idxs: time indexes at which to compute the headings, speed, dts (defaults to entire trajectory)
+#' @param t_idxs time indexes at which to compute the headings, speed, dts (defaults to entire trajectory)
 #' @param forward whether to go forward in time from current position (if T), or backward (if F) when computing headings
 #' @param seconds_per_time_step number of seconds corresponding to each time step
 #'

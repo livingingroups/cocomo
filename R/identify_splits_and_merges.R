@@ -46,8 +46,8 @@
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author Eli Strauss (code reviewer, May 2024)
 #'
-#' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs[i,t] gives the easting of individual i at time step t)
-#' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys[i,t] gives the northing of individual i at time step t)
+#' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs\[i,t\] gives the easting of individual i at time step t)
+#' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys\[i,t\] gives the northing of individual i at time step t)
 #' @param timestamps vector of timestamps (POSIXct), must have same dimensions as columns of `xs` and `ys` matrices
 #' @param R_inner inner distance threshold to identify periods of connectedness (numeric)
 #' @param R_outer outer distance threshold to identify periods of connectedness (numeric)

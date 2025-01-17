@@ -16,11 +16,12 @@ RoxygenNote: 7.3.2
 Imports: 
   checkmate,
   dbscan,
-  lubridate,
-  sf,
   fields,
-  stringr,
-  magrittr
+  lubridate,
+  logger,
+  magrittr,
+  sf,
+  stringr
 Suggests: 
     tinytest
 URL: https://livingingroups.github.io/cocomo/

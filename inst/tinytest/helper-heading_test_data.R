@@ -17,9 +17,6 @@ shift <- function(v, by = 1) {
   })
 }
 
-## Test Helper functions ----
-expect_equal(shift(1:10, 2), c(9:10, 1:8))
-expect_equal(shift(1:10, -2), c(3:10, 1:2))
 
 # Simple Test Scenario ----
 

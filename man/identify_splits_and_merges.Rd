@@ -12,8 +12,7 @@ identify_splits_and_merges(
   R_outer,
   breaks = c(1, length(timestamps) + 1),
   names = NULL,
-  break_by_day = F,
-  verbose = T
+  break_by_day = F
 )
 }
 \arguments{
@@ -32,8 +31,6 @@ identify_splits_and_merges(
 \item{names}{optional vector of names (if NULL, will be defined as \code{as.character(1:n_inds)})}
 
 \item{break_by_day}{whether to break up data by date (T or F)}
-
-\item{verbose}{whether to print out statements as code progresses}
 }
 \value{
 a list containing:
@@ -100,54 +97,40 @@ See list of outputs for more details.
 
 
 \code{events_detected} data frame:
-
-\code{events_detected$event_idx}: unique id number of the event
-
-\code{events_detected$tidx}: (initial) time index of the event
-
-\code{events_detected$event_type}: "fission" or "fusion" or "shuffle
-
-\code{events_detected$n_groups_before}: number of groups prior to the event
-
-\code{events_detected$n_groups_after}: number of groups after the event
-
-\code{events_detected$big_group_idxs}: indexes of all the individuals involved in the event
-
-\code{events_detected$big_group}: names of all the individuals involved in the event
-
-\code{events_detected$group_A_idxs}, \verb{$group_B_idxs}, \verb{$group_C_idxs}, etc.: individual idxs of subgroup members
-
-\code{events_detected$group_A}, \verb{$group_B}, \verb{$group_C}, etc.: names of subgroup members
-
-\code{events_detected$n_A}, \verb{$n_B}, \verb{$n_C} etc.: number of individuals in each subgroup
-
-\code{events_detected$n_big_group}: number of individuals in the big group (original group for fissions, subseq group for fusions)
+\itemize{
+\item \code{events_detected$event_idx}: unique id number of the event
+\item \code{events_detected$tidx}: (initial) time index of the event
+\item \code{events_detected$event_type}: "fission" or "fusion" or "shuffle"
+\item \code{events_detected$n_groups_before}: number of groups prior to the event
+\item \code{events_detected$n_groups_after}: number of groups after the event
+\item \code{events_detected$big_group_idxs}: indexes of all the individuals involved in the event
+\item \code{events_detected$big_group}: names of all the individuals involved in the event
+\item \code{events_detected$group_A_idxs}, \verb{$group_B_idxs}, \verb{$group_C_idxs}, etc.: individual idxs of subgroup members
+\item \code{events_detected$group_A}, \verb{$group_B}, \verb{$group_C}, etc.: names of subgroup members
+\item \code{events_detected$n_A}, \verb{$n_B}, \verb{$n_C} etc.: number of individuals in each subgroup
+\item \code{events_detected$n_big_group}: number of individuals in the big group (original group for fissions, subseq group for fusions)
+}
 
 (NOTE: \code{big_group_idxs}, \code{big_group}, \code{group_A_idxs} etc.,
 \code{group_A} etc. \code{n_A} etc. and \code{n_big_group} are set to NA for shuffles...
 you can get more detailed info for shuffles from \code{all_events_info} object))
 
 \code{all_events_info} list:
-
-\code{all_events_info[[i]]} contains the following info for event i:
-
-\code{all_events_info[[i]]$t}: time index of the event
-
-\code{all_events_info[[i]]$groups_before}: (list of lists) list of groups before the event (at time t)
-
-\code{all_events_info[[i]]$groups_after}: (list of lists) list of groups after the event (at time t + 1)
-
-\verb{all_events_info[[i]]event_type}: 'fission', 'fusion', or 'shuffle' (character string)
-
-\code{all_events_info[[i]]$n_groups_before}: number of groups before the event
-
-\code{all_events_info[[i]]$n_groups_after}: number of groups after the event
+\itemize{
+\item \code{all_events_info[[i]]} contains the following info for event i:
+\item \code{all_events_info[[i]]$t}: time index of the event
+\item \code{all_events_info[[i]]$groups_before}: (list of lists) list of groups before the event (at time t)
+\item \code{all_events_info[[i]]$groups_after}: (list of lists) list of groups after the event (at time t + 1)
+\item \verb{all_events_info[[i]]event_type}: 'fission', 'fusion', or 'shuffle' (character string)
+\item \code{all_events_info[[i]]$n_groups_before}: number of groups before the event
+\item \code{all_events_info[[i]]$n_groups_after}: number of groups after the event
+}
 
 \code{groups_list} list:
-
-\code{groups_list[[t]]} gives a list of the subgroups
-
-\code{groups_list[[t]][[1]]} gives the vector of the first subgroup, etc.
+\itemize{
+\item \code{groups_list[[t]]} gives a list of the subgroups at time t
+\item \code{groups_list[[t]][[1]]} gives the vector of the first subgroup, etc.
+}
 }
 
 \author{

@@ -40,5 +40,5 @@ Speeds are defined as \code{speed = sqrt(dx^2 + dy^2) / t_window}.
 \author{
 Ariana Strandburg-Peshkin
 
-NOT YET CODE REVIEWED
+Reviewed by Brock
 }
