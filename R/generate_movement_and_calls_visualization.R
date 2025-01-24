@@ -274,9 +274,9 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
 
     #initialize plot
     if(in_event){
-      plot(NULL,xlim=c(xmin,xmax),ylim=c(ymin,ymax),xaxt='n',yaxt='n',xlab='',ylab='',bg=bg_color,asp=1, main = '!!!', col.main = 'red')
+      plot(NULL,xlim=c(xmin,xmax),ylim=c(ymin,ymax),xaxt='n',yaxt='n',xlab='',ylab='',bg=bg_color,asp=1, main = timestamps[t], col.main = 'red')
     } else{
-      plot(NULL,xlim=c(xmin,xmax),ylim=c(ymin,ymax),xaxt='n',yaxt='n',xlab='',ylab='',bg=bg_color,asp=1)
+      plot(NULL,xlim=c(xmin,xmax),ylim=c(ymin,ymax),xaxt='n',yaxt='n',xlab='',ylab='',bg=bg_color,asp=1, main = timestamps[t], col.main = 'white')
     }
 
     #plot event highlighted location (epicenter)
