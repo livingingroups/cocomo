@@ -69,6 +69,10 @@ its location after it mas moved a distance of at least <code>R</code>.</p>
 <dd><p>radius used to compute the headings</p></dd>
 
 
+<dt id="arg-t-idxs">t_idxs<a class="anchor" aria-label="anchor" href="#arg-t-idxs"></a></dt>
+<dd><p>time indexes at which to compute the headings, speed, dts (defaults to entire trajectory)</p></dd>
+
+
 <dt id="arg-forward">forward<a class="anchor" aria-label="anchor" href="#arg-forward"></a></dt>
 <dd><p>whether to go forward in time from current position (if T), or backward (if F) when computing headings</p></dd>
 
@@ -76,23 +80,19 @@ its location after it mas moved a distance of at least <code>R</code>.</p>
 <dt id="arg-seconds-per-time-step">seconds_per_time_step<a class="anchor" aria-label="anchor" href="#arg-seconds-per-time-step"></a></dt>
 <dd><p>number of seconds corresponding to each time step</p></dd>
 
-
-<dt id="arg-t-idxs-">t_idxs:<a class="anchor" aria-label="anchor" href="#arg-t-idxs-"></a></dt>
-<dd><p>time indexes at which to compute the headings (defaults to entire trajectory)</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Returns a list containing <code>$heads</code>: a time series of the heading of
-the individual (a vector of the same length as x_i and y_i), in radians, computed based on
-spatial discretization around the time point,<code>$speeds</code>: a time series of the speed of the individual at each time point, and
-<code>$dts</code>: time differences between the current point and the first point outside of the radius R (either forward or backward in time)</p>
-<p>vector of spatially discretized headings, computed at all times or at times t_idxs if specified (other times are then filled in with NAs)</p>
+    <p>Returns a list containing</p><ul><li><p><code>$heads</code>: a time series of the heading of the individual (a vector of the same length as x_i and y_i), in radians, computed based on
+spatial discretization around the time point</p></li>
+<li><p><code>$speeds</code>: a time series of the average speed of the individual from the first point outside radius R to the current point</p></li>
+<li><p><code>$dts</code>: time differences between the current point and the first point outside of the radius R (either forward or backward in time)</p></li>
+</ul><p>vector of spatially discretized headings, computed at all times or at times t_idxs if specified (other times are then filled in with NAs)</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
     <p>Ariana Strandburg-Peshkin (primary author)</p>
-<p>NOT YET CODE REVIEWED</p>
+<p>Reviewed by Brock</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -48,8 +48,7 @@ method from Libera et al. 2023.</p>
 <span>  <span class="va">R_outer</span>,</span>
 <span>  breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">timestamps</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  names <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  break_by_day <span class="op">=</span> <span class="cn">F</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">T</span></span>
+<span>  break_by_day <span class="op">=</span> <span class="cn">F</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -58,11 +57,11 @@ method from Libera et al. 2023.</p>
 
 
 <dl><dt id="arg-xs">xs<a class="anchor" aria-label="anchor" href="#arg-xs"></a></dt>
-<dd><p>UTM eastings matrix (<code>n_inds</code> x <code>n_times</code> matrix where xsi,t gives the easting of individual i at time step t)</p></dd>
+<dd><p>UTM eastings matrix (<code>n_inds</code> x <code>n_times</code> matrix where xs[i,t] gives the easting of individual i at time step t)</p></dd>
 
 
 <dt id="arg-ys">ys<a class="anchor" aria-label="anchor" href="#arg-ys"></a></dt>
-<dd><p>UTM northings matrix (<code>n_inds</code> x <code>n_times</code> matrix where ysi,t gives the northing of individual i at time step t)</p></dd>
+<dd><p>UTM northings matrix (<code>n_inds</code> x <code>n_times</code> matrix where ys[i,t] gives the northing of individual i at time step t)</p></dd>
 
 
 <dt id="arg-timestamps">timestamps<a class="anchor" aria-label="anchor" href="#arg-timestamps"></a></dt>
@@ -87,10 +86,6 @@ method from Libera et al. 2023.</p>
 
 <dt id="arg-break-by-day">break_by_day<a class="anchor" aria-label="anchor" href="#arg-break-by-day"></a></dt>
 <dd><p>whether to break up data by date (T or F)</p></dd>
-
-
-<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>whether to print out statements as code progresses</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -148,33 +143,30 @@ See list of outputs for more details.</p>
 
 
 
-<p><code>events_detected</code> data frame:</p>
-<p><code>events_detected$event_idx</code>: unique id number of the event</p>
-<p><code>events_detected$tidx</code>: (initial) time index of the event</p>
-<p><code>events_detected$event_type</code>: "fission" or "fusion" or "shuffle</p>
-<p><code>events_detected$n_groups_before</code>: number of groups prior to the event</p>
-<p><code>events_detected$n_groups_after</code>: number of groups after the event</p>
-<p><code>events_detected$big_group_idxs</code>: indexes of all the individuals involved in the event</p>
-<p><code>events_detected$big_group</code>: names of all the individuals involved in the event</p>
-<p><code>events_detected$group_A_idxs</code>, <code>$group_B_idxs</code>, <code>$group_C_idxs</code>, etc.: individual idxs of subgroup members</p>
-<p><code>events_detected$group_A</code>, <code>$group_B</code>, <code>$group_C</code>, etc.: names of subgroup members</p>
-<p><code>events_detected$n_A</code>, <code>$n_B</code>, <code>$n_C</code> etc.: number of individuals in each subgroup</p>
-<p><code>events_detected$n_big_group</code>: number of individuals in the big group (original group for fissions, subseq group for fusions)</p>
-<p>(NOTE: <code>big_group_idxs</code>, <code>big_group</code>, <code>group_A_idxs</code> etc.,
+<p><code>events_detected</code> data frame:</p><ul><li><p><code>events_detected$event_idx</code>: unique id number of the event</p></li>
+<li><p><code>events_detected$tidx</code>: (initial) time index of the event</p></li>
+<li><p><code>events_detected$event_type</code>: "fission" or "fusion" or "shuffle"</p></li>
+<li><p><code>events_detected$n_groups_before</code>: number of groups prior to the event</p></li>
+<li><p><code>events_detected$n_groups_after</code>: number of groups after the event</p></li>
+<li><p><code>events_detected$big_group_idxs</code>: indexes of all the individuals involved in the event</p></li>
+<li><p><code>events_detected$big_group</code>: names of all the individuals involved in the event</p></li>
+<li><p><code>events_detected$group_A_idxs</code>, <code>$group_B_idxs</code>, <code>$group_C_idxs</code>, etc.: individual idxs of subgroup members</p></li>
+<li><p><code>events_detected$group_A</code>, <code>$group_B</code>, <code>$group_C</code>, etc.: names of subgroup members</p></li>
+<li><p><code>events_detected$n_A</code>, <code>$n_B</code>, <code>$n_C</code> etc.: number of individuals in each subgroup</p></li>
+<li><p><code>events_detected$n_big_group</code>: number of individuals in the big group (original group for fissions, subseq group for fusions)</p></li>
+</ul><p>(NOTE: <code>big_group_idxs</code>, <code>big_group</code>, <code>group_A_idxs</code> etc.,
 <code>group_A</code> etc. <code>n_A</code> etc. and <code>n_big_group</code> are set to NA for shuffles...
 you can get more detailed info for shuffles from <code>all_events_info</code> object))</p>
-<p><code>all_events_info</code> list:</p>
-<p><code>all_events_info[[i]]</code> contains the following info for event i:</p>
-<p><code>all_events_info[[i]]$t</code>: time index of the event</p>
-<p><code>all_events_info[[i]]$groups_before</code>: (list of lists) list of groups before the event (at time t)</p>
-<p><code>all_events_info[[i]]$groups_after</code>: (list of lists) list of groups after the event (at time t + 1)</p>
-<p><code>all_events_info[[i]]event_type</code>: 'fission', 'fusion', or 'shuffle' (character string)</p>
-<p><code>all_events_info[[i]]$n_groups_before</code>: number of groups before the event</p>
-<p><code>all_events_info[[i]]$n_groups_after</code>: number of groups after the event</p>
-<p><code>groups_list</code> list:</p>
-<p><code>groups_list[[t]]</code> gives a list of the subgroups</p>
-<p><code>groups_list[[t]][[1]]</code> gives the vector of the first subgroup, etc.</p>
-    </div>
+<p><code>all_events_info</code> list:</p><ul><li><p><code>all_events_info[[i]]</code> contains the following info for event i:</p></li>
+<li><p><code>all_events_info[[i]]$t</code>: time index of the event</p></li>
+<li><p><code>all_events_info[[i]]$groups_before</code>: (list of lists) list of groups before the event (at time t)</p></li>
+<li><p><code>all_events_info[[i]]$groups_after</code>: (list of lists) list of groups after the event (at time t + 1)</p></li>
+<li><p><code>all_events_info[[i]]event_type</code>: 'fission', 'fusion', or 'shuffle' (character string)</p></li>
+<li><p><code>all_events_info[[i]]$n_groups_before</code>: number of groups before the event</p></li>
+<li><p><code>all_events_info[[i]]$n_groups_after</code>: number of groups after the event</p></li>
+</ul><p><code>groups_list</code> list:</p><ul><li><p><code>groups_list[[t]]</code> gives a list of the subgroups at time t</p></li>
+<li><p><code>groups_list[[t]][[1]]</code> gives the vector of the first subgroup, etc.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
     <p>Ariana Strandburg-Peshkin (primary author)</p>
