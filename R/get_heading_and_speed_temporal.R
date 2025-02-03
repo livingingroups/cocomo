@@ -10,7 +10,7 @@
 #'
 #'
 #' @author Ariana Strandburg-Peshkin
-#' @author NOT YET CODE REVIEWED
+#' @author Reviewed by Brock
 #'
 #' @param	x_i x coordinates of the individual (a vector whose length is the number of timesteps) or of a group centroid
 #' @param y_i y coordinates of the individual (a vector whose length is the number of timesteps) or of the group centroid
@@ -27,7 +27,7 @@ get_heading_and_speed_temporal <- function(x_i, y_i, t_window = 1, forward = T, 
   checkmate::assert_numeric(y_i)
   checkmate::assert_int(t_window, lower = 1, upper = length(x_i))
   checkmate::assert_logical(forward, len = 1)
-  checkmate::assert_numeric(seconds_per_time_step, lower = 0, len = 1)
+  checkmate::assert_number(seconds_per_time_step, lower = 0)
 
 
 
@@ -69,8 +69,8 @@ get_heading_and_speed_temporal <- function(x_i, y_i, t_window = 1, forward = T, 
   heads <- atan2(head_y, head_x)
 
   #output
-  out$speeds <- ds / (t_window * seconds_per_time_step)
   out$heads <- heads
+  out$speeds <- ds / (t_window * seconds_per_time_step)
   out$dts <- rep(t_window * seconds_per_time_step, len)
 
   return(out)

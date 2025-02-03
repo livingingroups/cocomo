@@ -4,7 +4,7 @@
 #' going either forward (into the future) or backward (into the past) when computing the heading
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
-#' @author NOT YET CODE REVIEWED
+#' @author Reviewed by Brock
 #'
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time
@@ -12,35 +12,33 @@
 #' @param spatial_R radius to use for spatial headings (if `heading_type = 'spatial'`)
 #' @param t_window temporal window to use for temporal headings (if `heading_type = 'temporal'`)
 #' @param forward whether to compute headings into the future (`forward = T`) or the past (`forward = F`)
-#' @param min_inds_tracked if specified, sets a minimum number of individuals that must be tracked at any moment in time to compute heading (otherwise the heading will be NA at that time point
+#' @param min_inds_tracked if specified, sets a minimum number of individuals that must be tracked to use that time point in computing heading. headings, speeds, and dt that would rely on data with an insufficient number of individuals will be reported as NA.
 #' @param seconds_per_time_step number of seconds corresponding to each time step
 #'
 #' @returns Returns the group heading over time, a vector of length `n_times`
 #' @export
 #'
 get_group_heading_and_speed <- function(xs, ys, heading_type, spatial_R = NULL, t_window = NULL, forward = T, min_inds_tracked = NULL, seconds_per_time_step = 1){
+  checkmate::assert_matrix(xs, 'numeric')
+  checkmate::assert_matrix(ys, 'numeric')
+  checkmate::assert_subset(heading_type, c('spatial', 'temporal'), empty.ok = FALSE)
+  if(heading_type == 'spatial'){
+    checkmate::assert_number(spatial_R)
+    if(!is.null(t_window)) warning('heading_type is set to spatial so t_window argument is ignored')
+  } else {
+    if(!is.null(spatial_R)) warning('heading_type is set to temporal so spatial_R argument is ignored')
+    checkmate::assert_int(t_window, lower = 1, upper = ncol(xs))
+  }
+  checkmate::assert_logical(forward)
+  checkmate::assert_int(min_inds_tracked, lower=0, upper=nrow(xs), null.ok = TRUE)
+  checkmate::assert_number(seconds_per_time_step, lower = 0)
 
-  #TODO: Think about what to do if number of tracked individuals changes - should probably have heading = NA at those times
+
+   #TODO: Think about what to do if number of tracked individuals changes - should probably have heading = NA at those times
 
   #check matrix dimensions
   if(nrow(xs) != nrow(ys) || ncol(xs) != ncol(ys)){
     stop('xs and ys matrices must have same dimensions')
-  }
-
-  #check that the required variables exist for computing headings
-  if(heading_type %in% c('spatial','temporal')){
-    if(heading_type == 'spatial'){
-      if(is.null(spatial_R)){
-        stop('Must specify spatial_R for spatial headings')
-      }
-    }
-    if(heading_type == 'temporal'){
-      if(is.null(t_window)){
-        stop('Must specify t_window for temporal headings')
-      }
-    }
-  } else{
-    stop('Must specify heading_type as either spatial or temporal')
   }
 
   #get centroid trajectory
@@ -51,7 +49,7 @@ get_group_heading_and_speed <- function(xs, ys, heading_type, spatial_R = NULL, 
   #get heading
   if(heading_type == 'temporal'){
     heads_speeds <- cocomo::get_heading_and_speed_temporal(x_i = x_centr, y_i = y_centr, t_window = t_window, forward = forward, seconds_per_time_step = seconds_per_time_step)
-  } else{
+  } else {
     heads_speeds <- cocomo::get_heading_and_speed_spatial(x_i = x_centr, y_i = y_centr, R = spatial_R, forward = forward, seconds_per_time_step = seconds_per_time_step )
   }
 

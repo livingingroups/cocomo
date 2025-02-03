@@ -1,0 +1,11 @@
+linters: linters_with_defaults(
+    line_length_linter(120),
+    indentation_linter(hanging_indent_style = 'never'),
+    object_name_linter(
+      styles = c("snake_case", "symbols"),
+      regexes = c('allowed_single_letters' = c('N'))
+    ),
+    quotes_linter(delimiter = '\'')
+  )
+exclusions: list('tests', 'R') # Currently only running on tests in inst
+encoding: "UTF-8"

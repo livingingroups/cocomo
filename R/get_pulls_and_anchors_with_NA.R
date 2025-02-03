@@ -16,23 +16,23 @@
 #' @author Dario Walser
 #' @author NOT YET CODE REVIEWED
 #'
-#' @param xa: x coordinates for individual a (vector of length `n_times`)
-#' @param	xb: x coordinates for individual b (vector of length `n_times`)
-#' @param ya: x coordinates for individual a (vector of length `n_times`)
-#' @param	yb: x coordinates for individual b (vector of length `n_times`)
-#' @param a: index of the first individual
-#' @param	b: index of the second individual
-#' @param NA_tolerance: How big of a gap in the vector (missing timesteps), created by NAs, is tolerated and therefore still combined into a single continuous dataset (numeric, positive integer)
-#' @param min_time: the minimum length (timesteps) of a resulting time block that will still be used for analysis (numeric, positive integer)
-#' @param verbose: If verbose = TRUE, then print out the size of each NA gap
+#' @param xa x coordinates for individual a (vector of length `n_times`)
+#' @param	xb x coordinates for individual b (vector of length `n_times`)
+#' @param ya x coordinates for individual a (vector of length `n_times`)
+#' @param	yb x coordinates for individual b (vector of length `n_times`)
+#' @param a index of the first individual
+#' @param	b index of the second individual
+#' @param NA_tolerance How big of a gap in the vector (missing timesteps), created by NAs, is tolerated and therefore still combined into a single continuous dataset (numeric, positive integer)
+#' @param min_time the minimum length (timesteps) of a resulting time block that will still be used for analysis (numeric, positive integer)
+#' @param verbose If verbose = TRUE, then print out the size of each NA gap
 #'
 #'
 #' For following parameters and more information, see documentation of `get_pulls_and_anchors` function:
 #'
-#' @param noise_thresh: see documentation of `get_pulls_and_anchors` function
-#' @param plot_results: see documentation of `get_pulls_and_anchors` function
-#' @param include_initial_fusion: see documentation of `get_pulls_and_anchors` function
-#' @param include_final_fission: see documentation of `get_pulls_and_anchors` function
+#' @param noise_thresh see documentation of `get_pulls_and_anchors` function
+#' @param plot_results see documentation of `get_pulls_and_anchors` function
+#' @param include_initial_fusion see documentation of `get_pulls_and_anchors` function
+#' @param include_final_fission see documentation of `get_pulls_and_anchors` function
 #'
 #' @returns
 #' Returns a data frame  containing dyadic interactions between a and b.

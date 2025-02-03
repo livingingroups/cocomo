@@ -7,15 +7,15 @@
 plot_pull_or_anchor_event(xs, ys, events, event_idx, ids = NULL)
 }
 \arguments{
-\item{xs:}{\verb{n_inds x n_times} matrix of x positions}
+\item{xs}{\verb{n_inds x n_times} matrix of x positions}
 
-\item{ys:}{\verb{n_inds x n_times} matrix of y positions}
+\item{ys}{\verb{n_inds x n_times} matrix of y positions}
 
-\item{events:}{events table output from \code{get_pulls_and_anchors}}
+\item{events}{events table output from \code{get_pulls_and_anchors}}
 
-\item{event_idx:}{row in the table to plot}
+\item{event_idx}{row in the table to plot}
 
-\item{ids:}{ids table output from \code{reformat_movebank_to_matrix}}
+\item{ids}{ids table output from \code{reformat_movebank_to_matrix}}
 }
 \value{
 Returns a plot of the event with the initiator in blue and the responder in red

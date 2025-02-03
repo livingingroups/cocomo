@@ -46,16 +46,15 @@
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author Eli Strauss (code reviewer, May 2024)
 #'
-#' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs[i,t] gives the easting of individual i at time step t)
-#' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys[i,t] gives the northing of individual i at time step t)
+#' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs\[i,t\] gives the easting of individual i at time step t)
+#' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys\[i,t\] gives the northing of individual i at time step t)
 #' @param timestamps vector of timestamps (POSIXct), must have same dimensions as columns of `xs` and `ys` matrices
 #' @param R_inner inner distance threshold to identify periods of connectedness (numeric)
 #' @param R_outer outer distance threshold to identify periods of connectedness (numeric)
 #' @param breaks indexes to breaks in the data (default NULL treats data as a contiguous sequence). If specified, overrides `break_by_day`
 #' @param names optional vector of names (if NULL, will be defined as `as.character(1:n_inds)`)
 #' @param break_by_day whether to break up data by date (T or F)
-#' @param verbose whether to print out statements as code progresses
-
+#'
 #' @return a list containing:
 #'
 #'`events_detected`: data frame with info on detected fissions and fusions, and limited info for shuffles
@@ -76,27 +75,27 @@
 #'
 #'`events_detected` data frame:
 #'
-#'`events_detected$event_idx`: unique id number of the event
+#' * `events_detected$event_idx`: unique id number of the event
 #'
-#'`events_detected$tidx`: (initial) time index of the event
+#' * `events_detected$tidx`: (initial) time index of the event
 #'
-#'`events_detected$event_type`: "fission" or "fusion" or "shuffle
+#' * `events_detected$event_type`: "fission" or "fusion" or "shuffle"
 #'
-#'`events_detected$n_groups_before`: number of groups prior to the event
+#' * `events_detected$n_groups_before`: number of groups prior to the event
 #'
-#'`events_detected$n_groups_after`: number of groups after the event
+#' * `events_detected$n_groups_after`: number of groups after the event
 #'
-#'`events_detected$big_group_idxs`: indexes of all the individuals involved in the event
+#' * `events_detected$big_group_idxs`: indexes of all the individuals involved in the event
 #'
-#'`events_detected$big_group`: names of all the individuals involved in the event
+#' * `events_detected$big_group`: names of all the individuals involved in the event
 #'
-#'`events_detected$group_A_idxs`, `$group_B_idxs`, `$group_C_idxs`, etc.: individual idxs of subgroup members
+#' * `events_detected$group_A_idxs`, `$group_B_idxs`, `$group_C_idxs`, etc.: individual idxs of subgroup members
 #'
-#'`events_detected$group_A`, `$group_B`, `$group_C`, etc.: names of subgroup members
+#' * `events_detected$group_A`, `$group_B`, `$group_C`, etc.: names of subgroup members
 #'
-#'`events_detected$n_A`, `$n_B`, `$n_C` etc.: number of individuals in each subgroup
+#' * `events_detected$n_A`, `$n_B`, `$n_C` etc.: number of individuals in each subgroup
 #'
-#'`events_detected$n_big_group`: number of individuals in the big group (original group for fissions, subseq group for fusions)
+#' * `events_detected$n_big_group`: number of individuals in the big group (original group for fissions, subseq group for fusions)
 #'
 #'(NOTE: `big_group_idxs`, `big_group`, `group_A_idxs` etc.,
 #'`group_A` etc. `n_A` etc. and `n_big_group` are set to NA for shuffles...
@@ -104,57 +103,64 @@
 #'
 #'`all_events_info` list:
 #'
-#'`all_events_info[[i]]` contains the following info for event i:
+#' * `all_events_info[[i]]` contains the following info for event i:
 #'
-#'`all_events_info[[i]]$t`: time index of the event
+#' * `all_events_info[[i]]$t`: time index of the event
 #'
-#'`all_events_info[[i]]$groups_before`: (list of lists) list of groups before the event (at time t)
+#' * `all_events_info[[i]]$groups_before`: (list of lists) list of groups before the event (at time t)
 #'
-#'`all_events_info[[i]]$groups_after`: (list of lists) list of groups after the event (at time t + 1)
+#' * `all_events_info[[i]]$groups_after`: (list of lists) list of groups after the event (at time t + 1)
 #'
-#'`all_events_info[[i]]event_type`: 'fission', 'fusion', or 'shuffle' (character string)
+#' * `all_events_info[[i]]event_type`: 'fission', 'fusion', or 'shuffle' (character string)
 #'
-#'`all_events_info[[i]]$n_groups_before`: number of groups before the event
+#' * `all_events_info[[i]]$n_groups_before`: number of groups before the event
 #'
-#'`all_events_info[[i]]$n_groups_after`: number of groups after the event
+#' * `all_events_info[[i]]$n_groups_after`: number of groups after the event
 #'
 #'`groups_list` list:
 #'
-#'`groups_list[[t]]` gives a list of the subgroups
+#' * `groups_list[[t]]` gives a list of the subgroups at time t
 #'
-#'`groups_list[[t]][[1]]` gives the vector of the first subgroup, etc.
+#' * `groups_list[[t]][[1]]` gives the vector of the first subgroup, etc.
 #'
 #' @importFrom lubridate date
 #' @importFrom dbscan dbscan
+#' @importFrom logger log_info
 #' @export
 identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
                                        breaks = c(1, length(timestamps)+1),
                                        names = NULL,
-                                       break_by_day = F,
-                                       verbose = T){
-
+                                       break_by_day = F
+                                       ){
+  checkmate::assert_matrix(xs, 'numeric') 
+  checkmate::assert_matrix(ys, 'numeric') 
   #error checking - xs and ys matrices
   if(nrow(xs) != nrow(ys) | ncol(xs) != ncol(ys)){
     stop('xs and ys matrices must have same dimensions')
   }
-
-  #error checking timestamps
-  if(ncol(xs) != length(timestamps)){
-    stop('timestamps must be same length as ncol(xs) and ncol(ys)')
-  }
-
+  checkmate::assert_posixct(
+    timestamps,
+    len = ncol(xs)
+  )
+  checkmate::assert_number(R_inner, na.ok = FALSE, lower = 0, finite = TRUE)
+  checkmate::assert_number(R_outer, na.ok = FALSE, lower = R_inner, finite = TRUE)
+  checkmate::assert_integerish(
+    breaks,
+    lower = 1,
+    upper = ncol(xs) + 1,
+    any.missing = FALSE,
+    unique = TRUE,
+    sorted = TRUE
+  )
+  checkmate::assert_character(names, null.ok = TRUE, unique=TRUE, len = nrow(xs))
   #if names is NULL, create a vector for names with index numbers
   if(is.null(names)){
     names <- as.character(1:nrow(xs))
   }
-
-  #check length of names
-  if(length(names) != nrow(xs)){
-    stop('names vector must have same length as nrow(xs)')
-  }
+  checkmate::assert_logical(break_by_day, len = 1)
 
   #----Identify subgroups at each point
-  if(verbose){print('Identifying subgroups at each point using sticky DBSCAN')}
+  logger::log_info('Identifying subgroups at each point using sticky DBSCAN')
   #number of inds and times
   n_inds <- nrow(xs)
   n_times <- ncol(xs)
@@ -178,6 +184,8 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
 
   #Get dyadic distances for each pair, then use double threshold method to determine if they are together at any moment
   dyad_dists <- together <- array(NA, dim = c(n_inds, n_inds, n_times))
+  big_ti <- together
+  big_t0 <- together
   for(i in 1:(n_inds-1)){
     for(j in (i+1):n_inds){
 
@@ -202,9 +210,11 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
 
         #times when together within inner radius
         together_inner <- dyad_dists_ij <= R_inner
+        big_ti[i,j,t_day]  <- together_inner
 
         #times when together within outer radius
         together_outer <- dyad_dists_ij <= R_outer
+        big_t0[i,j,t_day]  <- together_outer
 
         together_ij <- together_inner
 
@@ -313,7 +323,7 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
   }
 
   #Identifying changes in group membership in consecutive time steps
-  if(verbose){print('Identifying changes in group membership')}
+  logger::log_info('Identifying changes in group membership')
   event_times <- c()
   for(d in 1:(length(breaks)-1)){
     t_day <- breaks[d]:(breaks[d+1]-1)
