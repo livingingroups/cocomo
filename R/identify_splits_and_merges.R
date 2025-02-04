@@ -11,10 +11,11 @@
 #'This double threshold makes periods of connectedness more stable by removing
 #'the "flicker" that would result from having a single threshold.
 #'
-#'NAs are handled by ending a period of connectedness if an individual has an NA
-#'at the point immediately before / after (if the were connected after / before
-#'that NA). Individuals with NAs are not included in the together matrix and will
-#'not be included in the groups.
+#'NA handling:
+#' Individuals are considered not together if either of their positions is not known. If a period of connectedness runs into an NA,
+#'individuals will be considered as connected up until that NA. However, if an
+#'ambiguous period (between the two thresholds) runs into an NA, individuals
+#'will be considered
 #'Once connectedness of dyads is determined, merge dyads together into groups by
 #'using DBSCAN on 1 - `together` as the distance matrix, with `eps` equal to
 #'something small (.01 in the code).
@@ -185,8 +186,6 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
 
   #Get dyadic distances for each pair, then use double threshold method to determine if they are together at any moment
   dyad_dists <- together <- array(NA, dim = c(n_inds, n_inds, n_times))
-  big_ti <- together
-  big_t0 <- together
   for(i in 1:(n_inds-1)){
     for(j in (i+1):n_inds){
 
@@ -211,84 +210,14 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
 
         #times when together within inner radius
         together_inner <- dyad_dists_ij <= R_inner
-        big_ti[i,j,t_day]  <- together_inner
 
         #times when together within outer radius
         together_outer <- dyad_dists_ij <= R_outer
-        big_t0[i,j,t_day]  <- together_outer
 
-        together_ij <- together_inner
+        #get whether individuals are together at any moment in time, using helper function
+        together_ij <- get_together_sticky(together_inner, together_outer)
 
-        #if they are never together, store that and skip to next individual
-        if(sum(together_inner,na.rm=T)==0){
-          together[i,j,t_day] <- together[j,i,t_day] <- together_ij
-          next
-        }
-
-        #go backwards from crossing points into inner radius to find the 'starts' when crossed the outer radius
-        inner_starts <- which(diff(together_inner)==1)+1  ## Add 1 to make indices of differences line up with indices of together_inner
-
-        #if they started together, add this to "inner_starts"
-        #if(together_inner[1] == T){
-        #  inner_starts <- c(1, inner_starts)
-        #}
-
-        if(length(inner_starts)==0){
-          together[i,j,t_day] <- together[j,i,t_day] <- together_ij
-          next
-        }
-        for(k in 1:length(inner_starts)){
-          crossing <- inner_starts[k]
-          for(curr_time in seq(crossing,1,-1)){
-            ## If NA, treat as though they are outside of together_outer
-            if(is.na(together_outer[curr_time])){
-              start <- curr_time + 1
-              break
-            }
-            ## If time index 1 is reached, they started together so start of event = start of study
-            if(curr_time == 1){
-              start <- curr_time
-              break
-            }
-            ## If together_outer switches to F, mark the last T as the start of the event
-            if(together_outer[curr_time]==F){
-              start <- curr_time + 1
-              break
-            }
-
-          }
-          together_ij[(start+1):crossing] <- T #fixed
-        }
-
-        #go forwards from crossing points out of outer radius to find the 'ends' when crossed the outer radius
-        inner_ends <- which(diff(together_inner)==-1)
-        if(length(inner_ends)==0){
-          together[i,j,t_day] <- together[j,i,t_day] <- together_ij
-          next
-        }
-        for(k in 1:length(inner_ends)){
-          crossing <- inner_ends[k]
-          for(curr_time in seq(crossing,length(together_ij),1)){
-            ## If NA, treat as though they are outside of together_outer
-            if(is.na(together_outer[curr_time])){
-              end <- curr_time - 1
-              break
-            }
-            ## If the last time index is reached, end of event = end of day
-            if(curr_time == length(together_outer)){
-              end <- curr_time
-              break
-            }
-            ## If together_outer switches to F, mark the last T as the end of the event
-            if(together_outer[curr_time]==F){
-              end <- curr_time - 1
-              break
-            }
-
-          }
-          together_ij[crossing:(end-1)] <- T #fixed - this was an off by one issue where the next element outside R_outer was also being counted as "together"
-        }
-
+        #store in together array
         together[i,j,t_day] <- together[j,i,t_day] <- together_ij
 
       }
