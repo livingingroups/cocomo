@@ -37,7 +37,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_speed</span><span class="op">(</span><span class="va">x_i</span>, <span class="va">y_i</span>, <span class="va">time_res</span>, t_window <span class="op">=</span> <span class="fl">1</span>, forward <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_speed</span><span class="op">(</span><span class="va">x_i</span>, <span class="va">y_i</span>, <span class="va">seconds_per_timestep</span>, t_window <span class="op">=</span> <span class="fl">1</span>, forward <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -52,7 +52,7 @@
 <dd><p>y coordinates of the individual (a vector whose length is the number of timesteps) or of the group centroid</p></dd>
 
 
-<dt id="arg-time-res">time_res<a class="anchor" aria-label="anchor" href="#arg-time-res"></a></dt>
+<dt id="arg-seconds-per-timestep">seconds_per_timestep<a class="anchor" aria-label="anchor" href="#arg-seconds-per-timestep"></a></dt>
 <dd><p>the number of seconds between timestamps (e.g. for data recorded at 1 Hz, the value would be 1, for data recorded every 30 sec, the value would be 30)</p></dd>
 
 
@@ -70,10 +70,10 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The speed is computed as <code>speeds[t] = sqrt ( (x_i[t+t_window] - x_i[t] )^2 + ( y_i[t+t_window] - y_i[t] )^2 ) / (time_res * t_window)</code>
+    <p>The speed is computed as <code>speeds[t] = sqrt ( (x_i[t+t_window] - x_i[t] )^2 + ( y_i[t+t_window] - y_i[t] )^2 ) / (seconds_per_timestep * t_window)</code>
 Note that by default <code>speeds[t]</code> gives the instantaneous speed between time <code>t</code> and time <code>t + t_window</code>, i.e. the speeds are computed
 based on the future not on the past. If <code>forward</code> is set to <code>F</code>, the speeds will be computed based on the past, as:
-<code>speeds[t] = sqrt ( (x_i[t] - x_i[t-t_window] )^2 + ( y_i[t] - y_i[t-t_window] )^2 ) / (time_res * t_window)</code></p>
+<code>speeds[t] = sqrt ( (x_i[t] - x_i[t-t_window] )^2 + ( y_i[t] - y_i[t-t_window] )^2 ) / (seconds_per_timestep * t_window)</code></p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
