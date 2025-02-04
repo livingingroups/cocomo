@@ -137,4 +137,6 @@ you can get more detailed info for shuffles from \code{all_events_info} object))
 Ariana Strandburg-Peshkin (primary author)
 
 Eli Strauss (code reviewer, May 2024)
+
+Reviewed by Brock (Jan 2025)
 }

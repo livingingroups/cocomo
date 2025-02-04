@@ -4,14 +4,14 @@
 \alias{get_speed}
 \title{Get speed}
 \usage{
-get_speed(x_i, y_i, time_res, t_window = 1, forward = T)
+get_speed(x_i, y_i, seconds_per_timestep, t_window = 1, forward = T)
 }
 \arguments{
 \item{x_i}{x coordinates of the individual (a vector whose length is the number of timesteps) or of a group centroid}
 
 \item{y_i}{y coordinates of the individual (a vector whose length is the number of timesteps) or of the group centroid}
 
-\item{time_res}{the number of seconds between timestamps (e.g. for data recorded at 1 Hz, the value would be 1, for data recorded every 30 sec, the value would be 30)}
+\item{seconds_per_timestep}{the number of seconds between timestamps (e.g. for data recorded at 1 Hz, the value would be 1, for data recorded every 30 sec, the value would be 30)}
 
 \item{t_window}{the time window over which to compute speed (number of time steps into the future or past)}
 
@@ -24,10 +24,10 @@ Returns \code{speeds}: a time series of the speed of individual (a vector of the
 Gets an individual's speed over time, using a specified time step to compute the speed
 }
 \details{
-The speed is computed as \code{speeds[t] = sqrt ( (x_i[t+t_window] - x_i[t] )^2 + ( y_i[t+t_window] - y_i[t] )^2 ) / (time_res * t_window)}
+The speed is computed as \code{speeds[t] = sqrt ( (x_i[t+t_window] - x_i[t] )^2 + ( y_i[t+t_window] - y_i[t] )^2 ) / (seconds_per_timestep * t_window)}
 Note that by default \code{speeds[t]} gives the instantaneous speed between time \code{t} and time \code{t + t_window}, i.e. the speeds are computed
 based on the future not on the past. If \code{forward} is set to \code{F}, the speeds will be computed based on the past, as:
-\code{speeds[t] = sqrt ( (x_i[t] - x_i[t-t_window] )^2 + ( y_i[t] - y_i[t-t_window] )^2 ) / (time_res * t_window)}
+\code{speeds[t] = sqrt ( (x_i[t] - x_i[t-t_window] )^2 + ( y_i[t] - y_i[t-t_window] )^2 ) / (seconds_per_timestep * t_window)}
 }
 \author{
 Ariana Strandburg-Peshkin

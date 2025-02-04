@@ -45,6 +45,7 @@
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author Eli Strauss (code reviewer, May 2024)
+#' @author Reviewed by Brock (Jan 2025)
 #'
 #' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs\[i,t\] gives the easting of individual i at time step t)
 #' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys\[i,t\] gives the northing of individual i at time step t)
@@ -132,8 +133,8 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
                                        names = NULL,
                                        break_by_day = F
                                        ){
-  checkmate::assert_matrix(xs, 'numeric') 
-  checkmate::assert_matrix(ys, 'numeric') 
+  checkmate::assert_matrix(xs, 'numeric')
+  checkmate::assert_matrix(ys, 'numeric')
   #error checking - xs and ys matrices
   if(nrow(xs) != nrow(ys) | ncol(xs) != ncol(ys)){
     stop('xs and ys matrices must have same dimensions')
@@ -226,13 +227,18 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
 
         #go backwards from crossing points into inner radius to find the 'starts' when crossed the outer radius
         inner_starts <- which(diff(together_inner)==1)+1  ## Add 1 to make indices of differences line up with indices of together_inner
+
+        #if they started together, add this to "inner_starts"
+        #if(together_inner[1] == T){
+        #  inner_starts <- c(1, inner_starts)
+        #}
+
         if(length(inner_starts)==0){
           together[i,j,t_day] <- together[j,i,t_day] <- together_ij
           next
         }
         for(k in 1:length(inner_starts)){
           crossing <- inner_starts[k]
-          curr_time <- crossing
           for(curr_time in seq(crossing,1,-1)){
             ## If NA, treat as though they are outside of together_outer
             if(is.na(together_outer[curr_time])){
@@ -251,7 +257,7 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
             }
 
           }
-          together_ij[start:crossing] <- T
+          together_ij[(start+1):crossing] <- T #fixed
         }
 
         #go forwards from crossing points out of outer radius to find the 'ends' when crossed the outer radius
@@ -262,7 +268,6 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
         }
         for(k in 1:length(inner_ends)){
           crossing <- inner_ends[k]
-          curr_time <- crossing
           for(curr_time in seq(crossing,length(together_ij),1)){
             ## If NA, treat as though they are outside of together_outer
             if(is.na(together_outer[curr_time])){
@@ -281,7 +286,7 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
             }
 
           }
-          together_ij[crossing:end] <- T
+          together_ij[crossing:(end-1)] <- T #fixed - this was an off by one issue where the next element outside R_outer was also being counted as "together"
         }
 
         together[i,j,t_day] <- together[j,i,t_day] <- together_ij
@@ -341,6 +346,16 @@ identify_splits_and_merges <- function(xs, ys, timestamps, R_inner, R_outer,
 
   #for each time when the subgrouping patterns changed...
   all_events_info <- list()
+
+  #if no events found, return NULL for the relevant elements
+  if(length(event_times)==0){
+    events_detected <- NULL
+    all_events_info <- NULL
+    out <- list(events_detected = events_detected, all_events_info = all_events_info, groups_list = groups_list, groups = groups, together = together, R_inner = R_inner, R_outer = R_outer)
+    return(out)
+  }
+
+  #otherwise, collect up information about each event
   event_idx <- 1
   for(tidx in 1:length(event_times)){
     #print(tidx)
