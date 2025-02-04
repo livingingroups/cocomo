@@ -1,5 +1,5 @@
 # skip
-#exit_file()
+exit_file()
 
 # Analyse split and merge
 # before time is not tidx - time windwo

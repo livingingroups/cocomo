@@ -13,9 +13,7 @@
 #'
 #'NA handling:
 #' Individuals are considered not together if either of their positions is not known. If a period of connectedness runs into an NA,
-#'individuals will be considered as connected up until that NA. However, if an
-#'ambiguous period (between the two thresholds) runs into an NA, individuals
-#'will be considered
+#'individuals will be considered as connected up until that NA.
 #'Once connectedness of dyads is determined, merge dyads together into groups by
 #'using DBSCAN on 1 - `together` as the distance matrix, with `eps` equal to
 #'something small (.01 in the code).

@@ -62,10 +62,9 @@ connected until they leave a distance \code{R_outer} of one another on both ends
 This double threshold makes periods of connectedness more stable by removing
 the "flicker" that would result from having a single threshold.
 
-NAs are handled by ending a period of connectedness if an individual has an NA
-at the point immediately before / after (if the were connected after / before
-that NA). Individuals with NAs are not included in the together matrix and will
-not be included in the groups.
+NA handling:
+Individuals are considered not together if either of their positions is not known. If a period of connectedness runs into an NA,
+individuals will be considered as connected up until that NA.
 Once connectedness of dyads is determined, merge dyads together into groups by
 using DBSCAN on 1 - \code{together} as the distance matrix, with \code{eps} equal to
 something small (.01 in the code).

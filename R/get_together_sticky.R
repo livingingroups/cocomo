@@ -95,7 +95,7 @@ get_together_sticky <- function(together_inner, together_outer){
   }
 
   #any NAs are not considered together
-  together_ij[which(is.na(together_inner))] <- NA
+  together_ij[which(is.na(together_ij))] <- FALSE
 
   return(together_ij)
 }
