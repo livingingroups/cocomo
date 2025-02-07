@@ -1,8 +1,12 @@
 #'Get whether two individuals are together, using a "sticky" definition
 #'
-#'
-
+#' @export
 get_together_sticky <- function(together_inner, together_outer){
+
+  #check lengths
+  checkmate::assert_set_equal(length(together_inner), length(together_outer))
+  checkmate::assert_set_equal(which(is.na(together_inner)),which(is.na(together_outer)))
+
   #build vector to hold whether you are together by a sticky definition
   together_ij <- rep(NA, length(together_inner))
 
@@ -14,11 +18,18 @@ get_together_sticky <- function(together_inner, together_outer){
   apart_idxs <- which(!together_outer)
   together_ij[apart_idxs] <- FALSE
 
-  #make a vector to hold the information on whether your status is ambiguous or not]
+  #NAs are considered FALSE for now (they cannot be part of together sequences), but later we will replace them all with NAs in together_ij
+  na_idxs <- which(is.na(together_outer))
+  together_ij[na_idxs] <- FALSE
+  together_outer[na_idxs] <- FALSE
+  together_inner[na_idxs] <- FALSE
+
+  #make a vector to hold the information on whether your status is ambiguous or not
   #if you are between the thresholds, your status is ambiguous
   status_ambig <- rep(T, length(together_inner))
   status_ambig[inner_idxs] <- F
   status_ambig[apart_idxs] <- F
+  status_ambig[na_idxs] <- F
 
   #get indexes to the ambiguous times
   ambig_idxs <- which(status_ambig)
@@ -69,6 +80,8 @@ get_together_sticky <- function(together_inner, together_outer){
 
       #if unambiguous times were found both before and after
       if(found_fwd & found_bwd){
+        #if both are NA, set together_ij at that ambiguous time to FALSE
+
         #if both are outside the outer threshold, then set together_ij at that ambiguous time to FALSE
         #otherwise, set it to TRUE because they are together due to the "sticky" rule
         if(!together_outer[ambig_idx - backward] & !together_outer[ambig_idx + forward]){
@@ -94,8 +107,11 @@ get_together_sticky <- function(together_inner, together_outer){
     }
   }
 
-  #any NAs are not considered together
+  #any lingering ambiguous values are turned to FALSE
   together_ij[which(is.na(together_ij))] <- FALSE
+
+  #any NAs that were in the original vectors are turned back into NAs
+  together_ij[na_idxs] <- NA
 
   return(together_ij)
 }
