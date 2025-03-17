@@ -22,9 +22,6 @@
 #' @export
 import_behavioral_seqs_to_matrix <- function(input_dirs, ids, timestamps){
 
-  #get files in directory
-  input_dirs <- c('/mnt/EAS_ind/pminasandra/data/PredictionsByIndividualDeploymentwise/ZU_2021_1/',
-                  '/mnt/EAS_ind/pminasandra/data/PredictionsByIndividualDeploymentwise/ZU_2021_2/')
   files <- c()
   for(dir in 1:length(input_dirs)){
     files <- c(files, list.files(input_dirs[[dir]], full.names = T))
