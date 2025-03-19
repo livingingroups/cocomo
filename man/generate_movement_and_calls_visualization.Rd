@@ -2,7 +2,8 @@
 % Please edit documentation in R/generate_movement_and_calls_visualization.R
 \name{generate_movement_and_calls_visualization}
 \alias{generate_movement_and_calls_visualization}
-\title{Generate images for movement and calls visualization}
+\title{Plot individual behavior and calls during a time period specified by the user.
+Also include a summary of the behavior of the rest of the group.}
 \usage{
 generate_movement_and_calls_visualization(
   xs = NULL,
@@ -36,9 +37,9 @@ generate_movement_and_calls_visualization(
 )
 }
 \arguments{
-\item{xs}{UTM eastings matrix (\code{n_inds} x \code{n_times} matrix where xs[i,t] gives the easting of individual i at time step t)}
+\item{xs}{matrix of dimensions \code{n_inds} x \code{n_times} where \code{xs[i,t]} gives the x position (numeric) of individual \code{i} at time step \code{t}}
 
-\item{ys}{UTM northings matrix (\code{n_inds} x \code{n_times} matrix where ys[i,t] gives the northing of individual i at time step t)}
+\item{ys}{matrix of dimensions \code{n_inds} x \code{n_times} where \code{xs[i,t]} gives the x position (numeric) of individual \code{i} at time step \code{t}}
 
 \item{timestamps}{vector of timestamps (POSIXct), must have same dimensions as columns of \code{xs} and \code{ys} matrices}
 
@@ -93,12 +94,8 @@ generate_movement_and_calls_visualization(
 \item{highlighted_radius}{radius of the highlighted location (usually an epicenter from hyena whoop analysis)}
 }
 \description{
-Generate a bunch of images (PNGs) showing trajectory data over a given time period, optionally on top of a Google Earth map,
-and optionally with calls plotted on top.
-These are saved as 1.png, 2.png, 3.png etc. to a folder, and you can then use the following ffmpeg command (or similar)
-to merge them into a video:
-ffmpeg -framerate 2 -i \%d.png -r 8 -c:v libx264 -pix_fmt yuvj420p output_file_name.mp4
-Data must be entered either as \code{xs} and \code{ys} matrices (UTM) if \code{plot_on_map = F} or as \code{lats} and \code{lons} matrices (latitude / longitude) if \code{plot_on_map = T}
+Plot individual behavior and calls during a time period specified by the user.
+Also include a summary of the behavior of the rest of the group.
 }
 \author{
 Ariana Strandburg-Peshkin (primary author)

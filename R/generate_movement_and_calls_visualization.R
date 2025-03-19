@@ -1,18 +1,11 @@
-#' Generate images for movement and calls visualization
-#'
-#' Generate a bunch of images (PNGs) showing trajectory data over a given time period, optionally on top of a Google Earth map,
-#' and optionally with calls plotted on top.
-#' These are saved as 1.png, 2.png, 3.png etc. to a folder, and you can then use the following ffmpeg command (or similar)
-#' to merge them into a video:
-#' ffmpeg -framerate 2 -i %d.png -r 8 -c:v libx264 -pix_fmt yuvj420p output_file_name.mp4
-#' Data must be entered either as `xs` and `ys` matrices (UTM) if `plot_on_map = F` or as `lats` and `lons` matrices (latitude / longitude) if `plot_on_map = T`
-#'
+#' Plot individual behavior and calls during a time period specified by the user.
+#' Also include a summary of the behavior of the rest of the group.
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED
 #'
-#' @param xs UTM eastings matrix (`n_inds` x `n_times` matrix where xs\[i,t\] gives the easting of individual i at time step t)
-#' @param ys UTM northings matrix (`n_inds` x `n_times` matrix where ys\[i,t\] gives the northing of individual i at time step t)
+#' @param xs matrix of dimensions `n_inds` x `n_times` where `xs[i,t]` gives the x position (numeric) of individual `i` at time step `t`
+#' @param ys matrix of dimensions `n_inds` x `n_times` where `xs[i,t]` gives the x position (numeric) of individual `i` at time step `t`
 #' @param timestamps vector of timestamps (POSIXct), must have same dimensions as columns of `xs` and `ys` matrices
 #' @param calls data frame where first column (`'ind_idx'`) specifies the index of the individual that gave the call, second column (`'time_idx'`) specifies the time index at which the call was given, and third column (`'call_type'`) specifies the type of call (character string)
 #' @param start_time time index at which to start the video
