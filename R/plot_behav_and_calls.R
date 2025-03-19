@@ -67,6 +67,7 @@ plot_behav_and_calls <-function(behavs,
   for(b in 1:n_behavs){
     text(x=t0+(tf-t0)/2, y = b+1/2, labels=behavs_key$behav[b])
   }
+  text('topleft',paste0('Duration = ',tf-t0+1,' time steps'))
 
   #plot of the focal's calls, as well as whether the focal has data (gray if it doesn't)
   plot(NULL, xlim = c(t0,tf), ylim = c(1,n_calls+1),yaxt='n',xaxt='n')
@@ -108,7 +109,7 @@ plot_behav_and_calls <-function(behavs,
       call_int <- which(calltypes==call)
       nonfoc_calls_smoothed <- matrix(NA, nrow=nrow(nonfoc_calls), ncol = ncol(nonfoc_calls)-(smooth_window-1))
       for(i in 1:nrow(nonfoc_calls)){
-        nonfoc_calls_smoothed[i,] <- zoo::rollsum(x=nonfoc_calls[i,],k=31,align='center')
+        nonfoc_calls_smoothed[i,] <- zoo::rollsum(x=nonfoc_calls[i,],k=smooth_window,align='center')
       }
       call_freq <- colMeans(nonfoc_calls_smoothed[,]>0, na.rm=T)
       lines(t0:tf, call_freq,col=cols_calls[c])
