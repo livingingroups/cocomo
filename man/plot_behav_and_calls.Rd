@@ -34,6 +34,8 @@ plot_behav_and_calls(
 
 \item{nonfocal_behavs_to_plot}{vector of character strings indicating which behaviors to plot for nonfocal individuals (must match behavior types in \code{behavs_key})}
 
+\item{smooth_window}{smoothing window for indicating presence of nonfocal calls (in time steps)}
+
 \item{calls_to_plot}{vector of character strings indicating call types to plot (other call types will get lumped into an "other" category)}
 
 \item{behavs_to_plot}{vector of character strings indicating behavior types of plot (other behavior types will get lumped into an "other" category)}

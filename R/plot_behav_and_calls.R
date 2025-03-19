@@ -14,6 +14,7 @@
 #' @param tf integer giving the time step to stop at
 #' @param nonfocal_calls_to_plot vector of character strings indicating which calls to plot for nonfocal individuals (must match call types in `calls_array` 3rd dimension names)
 #' @param nonfocal_behavs_to_plot vector of character strings indicating which behaviors to plot for nonfocal individuals (must match behavior types in `behavs_key`)
+#' @param smooth_window smoothing window for indicating presence of nonfocal calls (in time steps)
 #' @export
 #' @importFrom zoo rollsum
 plot_behav_and_calls <-function(behavs,
@@ -67,7 +68,7 @@ plot_behav_and_calls <-function(behavs,
   for(b in 1:n_behavs){
     text(x=t0+(tf-t0)/2, y = b+1/2, labels=behavs_key$behav[b])
   }
-  text('topleft',paste0('Duration = ',tf-t0+1,' time steps'))
+  text(x = t0, y = n_behavs+1, paste0('Duration = ',tf-t0+1,' time steps'), adj = c(0,1))
 
   #plot of the focal's calls, as well as whether the focal has data (gray if it doesn't)
   plot(NULL, xlim = c(t0,tf), ylim = c(1,n_calls+1),yaxt='n',xaxt='n')
