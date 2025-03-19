@@ -113,7 +113,7 @@ plot_behav_and_calls <-function(behavs,
         nonfoc_calls_smoothed[i,] <- zoo::rollsum(x=nonfoc_calls[i,],k=smooth_window,align='center')
       }
       call_freq <- colMeans(nonfoc_calls_smoothed[,]>0, na.rm=T)
-      lines(t0:tf, call_freq,col=cols_calls[c])
+      lines(t0:tf, call_freq,col=cols_calls[call_int])
     }
     text(t0+(tf-t0)/2, 0.5, 'Group call %s')
   }
