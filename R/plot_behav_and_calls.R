@@ -105,9 +105,9 @@ plot_behav_and_calls <-function(behavs,
   if(!is.null(nonfocal_calls_to_plot)){
     plot(NULL, xlim = c(t0,tf),ylim=c(0,1),xaxt='n',yaxt='n')
     for(c in 1:length(nonfocal_calls_to_plot)){
-      nonfoc_calls <- calls_array[-focal_ind,seq(t0-(smooth_window-1)/2,tf+(smooth_window-1)/2),c]
       call <- nonfocal_calls_to_plot[c]
       call_int <- which(calltypes==call)
+      nonfoc_calls <- calls_array[-focal_ind,seq(t0-(smooth_window-1)/2,tf+(smooth_window-1)/2),call_int]
       nonfoc_calls_smoothed <- matrix(NA, nrow=nrow(nonfoc_calls), ncol = ncol(nonfoc_calls)-(smooth_window-1))
       for(i in 1:nrow(nonfoc_calls)){
         nonfoc_calls_smoothed[i,] <- zoo::rollsum(x=nonfoc_calls[i,],k=smooth_window,align='center')
