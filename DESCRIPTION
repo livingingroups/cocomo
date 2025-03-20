@@ -21,7 +21,8 @@ Imports:
   logger,
   magrittr,
   sf,
-  stringr
+  stringr,
+  zoo
 Suggests: 
     tinytest
 URL: https://livingingroups.github.io/cocomo/
