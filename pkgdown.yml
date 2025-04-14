@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.1.1
 pkgdown_sha: ~
 articles: {}
-last_built: 2025-03-20T09:24Z
+last_built: 2025-04-14T16:11Z
 urls:
   reference: https://livingingroups.github.io/cocomo/reference
   article: https://livingingroups.github.io/cocomo/articles
