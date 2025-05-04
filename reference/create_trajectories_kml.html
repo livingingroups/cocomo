@@ -47,7 +47,8 @@
 <span>  <span class="va">output_file_path</span>,</span>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  icons <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  icons <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  calls <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -93,6 +94,10 @@
 
 <dt id="arg-icons">icons<a class="anchor" aria-label="anchor" href="#arg-icons"></a></dt>
 <dd><p>vector of length <code>N</code> specifying icons (further information below)</p></dd>
+
+
+<dt id="arg-calls">calls<a class="anchor" aria-label="anchor" href="#arg-calls"></a></dt>
+<dd><p>data frame containing columns <code>ind_idx</code> (index of ind giving call),<code>time_idx</code> (time step when call was given),<code>call_type</code> (string giving type of call) and <code>time</code> (timestamp in UTC) - not yet implemented</p></dd>
 
 </dl></div>
     <div class="section level2">
