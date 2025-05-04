@@ -1,0 +1,114 @@
+#'Create a KML that shows animal trajectories (viewable on Google Earth Pro)
+#'
+#' This function creates a KML file while can be loaded into Google Earth Pro to view trajectories of a group over time.
+#'
+#' @author Ariana Strandburg-Peshkin
+#' @author NOT YET CODE REVIEWED
+#'
+#' @param lons `N x n_times` matrix giving longitude coordinates of each individual over time
+#' @param lats `N x n_times` matrix giving latitutde coordinates of each individual over time
+#' @param timestamps vector of timestamps (assumed to be in UTC) of length `n_times`
+#' @param id_codes vector of character string specifying id codes of each animal to be plotted
+#' @param t0 time index at which to start
+#' @param tf time index at which to end
+#' @param output_file_path full path to the output file as a character string (must end in .kml)
+#' @param step time resolution (in time steps)
+#' @param cols vector of length `N` giving colors for each individual, e.g. 'ffed8031' (first two elements give transparency, last 6 are color specified in hex). If NULL, trajectories will be white.
+#' @param icons vector of length `N` specifying icons (further information below)
+#' 
+#' @section Additional details on icon and line color specification
+#' You can specify icons by giving a vector of filenames (character strings) pointing to images on your computer (e.g. png works).
+#' Icons should be contained in the same folder where the KMLs will be output, so that Google Earth Pro will be able to read them in when you load the KMLs.
+#' If this argument is set to NULL, the code will instead use built-in blue markers from Google Earth. However, these are unfortunately ugly.
+#' 
+#' You can specify the colors of lines using a hex format where the first two digits give the transparency (ff = fully opaque) and the last 6 digits give the color in RGB.
+#' Unlike in R, a `'#'` should not be used before the color, and the transparency goes first rather than last. 
+#' For example `'ffff0000'` specifies opaque red.
+#' 
+#' @returns Creates and saves a kml to the specified output_file_path which can be loaded into Google Earth to view animated trajectories
+#' @export
+#' 
+create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, output_file_path, step = 1, cols = NULL, icons = NULL){
+  
+  #get number of individuals
+  n_inds <- nrow(lons)
+  
+  #if no colors specified, use white
+  if(is.null(cols)){
+    cols <- rep('ffffffff', n_inds)
+  }
+  
+  #if no icons specified, use ugly google earth built-in ones
+  if(is.null(icons)){
+    icons <- rep('http://maps.google.com/mapfiles/kml/paddle/blu-blank-lv.png',n_inds)
+  }
+  
+  #get lons and lats to plot
+  lons_curr <- lons[,seq(t0,tf,step)]
+  lats_curr <- lats[,seq(t0,tf,step)]
+  timestamps_curr <- timestamps[seq(t0,tf,step)]
+  
+  # START WRITING
+  sink(output_file_path)
+  
+  # start output
+  cat("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+  cat("<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\">\n")
+  cat("<Document>\n")
+  
+  #locations - perhaps we want to uncomment and add some in - not currently implemented
+  # for(i in 1:nrow(den_latlon)){
+  #   cat("<Placemark>\n")
+  #   cat(paste("<name>",den_names[i],"</name>\n", sep = ' '))
+  #   cat("<Point>\n")
+  #   cat(paste("<coordinates>",den_latlon[i,1],den_latlon[i,2],'</coordinates>',sep=' '))
+  #   cat("</Point>\n")
+  #   cat(paste("<Icon><href>",den_icon,"</href></Icon>"))
+  #   cat("</Placemark>\n")
+  # }
+  
+  #tracks of ids
+  for (i in 1:n_inds) {
+    cat(paste("<Style id=\"track-",id_codes[i],"\"><IconStyle><scale>0.5</scale><Icon><href>",icons[i],"</href></Icon></IconStyle><LineStyle><color>",as.character(cols[i]),"</color><colorMode>normal</colorMode></LineStyle></Style>\n",sep=""))
+  }
+  
+  #time strings
+  timestamps_curr <- as.character(format(timestamps_curr, '%y-%m-%d %H:%M:%S'))
+  timestamps_curr <- gsub(' ','T',timestamps_curr)
+  timestamps_curr <- paste0(timestamps_curr,'.000Z')
+  
+  #locations 
+  for (i in 1:n_inds) {
+    cat("<Folder>\n")
+    cat(paste("<name>",id_codes[i],"</name>\n",sep=""))
+    cat("<Placemark>")
+    cat(paste("<styleUrl>#track-",id_codes[i],"</styleUrl>\n",sep=""))
+    cat("<visibility>0</visibility>\n")
+    cat(paste("<name>",id_codes[i],"</name>\n",sep=''))
+    cat("<gx:Track>\n")
+    cat("<gx:altitudeMode>relativeToGround</gx:altitudeMode>\n")
+    
+    # FOR EACH TIME
+    for (tt in 1:length(timestamps_curr)) {
+      if(!is.na(lons_curr[i,tt])){
+        cat(sprintf("<when>%s</when>\n",timestamps_curr[tt]),sep="")
+      } 
+    }
+    # FOR EACH TIME
+    for (tt in 1:length(timestamps_curr)) {
+      if(!is.na(lons_curr[i,tt])){
+        cat(sprintf("<gx:coord>%s</gx:coord>\n",paste(lons_curr[i,tt],lats_curr[i,tt])),sep="")
+      }
+    }
+    cat("</gx:Track>\n")
+    cat("</Placemark>\n")
+    cat("</Folder>\n")
+  }
+  
+  cat("</Document>\n")
+  cat("</kml>\n")
+  sink()
+  
+  
+  
+}
