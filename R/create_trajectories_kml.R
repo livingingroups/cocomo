@@ -15,6 +15,7 @@
 #' @param step time resolution (in time steps)
 #' @param cols vector of length `N` giving colors for each individual, e.g. 'ffed8031' (first two elements give transparency, last 6 are color specified in hex). If NULL, trajectories will be white.
 #' @param icons vector of length `N` specifying icons (further information below)
+#' @param calls data frame containing columns `ind_idx` (index of ind giving call),`time_idx` (time step when call was given),`call_type` (string giving type of call) and `time` (timestamp in UTC) - not yet implemented
 #'
 #' @section Additional details on icon and line color specification:
 #' You can specify icons by giving a vector of filenames (character strings) pointing to images on your computer (e.g. png works).
@@ -28,7 +29,7 @@
 #' @returns Creates and saves a kml to the specified output_file_path which can be loaded into Google Earth to view animated trajectories
 #' @export
 #'
-create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, output_file_path, step = 1, cols = NULL, icons = NULL){
+create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, output_file_path, step = 1, cols = NULL, icons = NULL, calls = NULL){
 
   #get number of individuals
   n_inds <- nrow(lons)
@@ -43,10 +44,8 @@ create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, ou
     icons <- rep('http://maps.google.com/mapfiles/kml/paddle/blu-blank-lv.png',n_inds)
   }
 
-  #get lons and lats to plot
-  lons_curr <- lons[,seq(t0,tf,step)]
-  lats_curr <- lats[,seq(t0,tf,step)]
-  timestamps_curr <- timestamps[seq(t0,tf,step)]
+  #get time indexes
+  tidxs <- seq(t0,tf,step)
 
   # START WRITING
   sink(output_file_path)
@@ -73,9 +72,9 @@ create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, ou
   }
 
   #time strings
-  timestamps_curr <- as.character(format(timestamps_curr, '%y-%m-%d %H:%M:%S'))
-  timestamps_curr <- gsub(' ','T',timestamps_curr)
-  timestamps_curr <- paste0(timestamps_curr,'.000Z')
+  timestamps <- as.character(format(timestamps, '%y-%m-%d %H:%M:%S'))
+  timestamps <- gsub(' ','T',timestamps)
+  timestamps <- paste0(timestamps,'.000Z')
 
   #locations
   for (i in 1:n_inds) {
@@ -88,16 +87,16 @@ create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, ou
     cat("<gx:Track>\n")
     cat("<gx:altitudeMode>relativeToGround</gx:altitudeMode>\n")
 
-    # FOR EACH TIME
-    for (tt in 1:length(timestamps_curr)) {
-      if(!is.na(lons_curr[i,tt])){
-        cat(sprintf("<when>%s</when>\n",timestamps_curr[tt]),sep="")
+    # FOR EACH TIME - location and any calls
+    for (tt in tidxs) {
+      if(!is.na(lons[i,tt])){
+        cat(sprintf("<when>%s</when>\n",timestamps[tt]),sep="")
       }
     }
     # FOR EACH TIME
-    for (tt in 1:length(timestamps_curr)) {
-      if(!is.na(lons_curr[i,tt])){
-        cat(sprintf("<gx:coord>%s</gx:coord>\n",paste(lons_curr[i,tt],lats_curr[i,tt])),sep="")
+    for (tt in tidxs) {
+      if(!is.na(lons[i,tt])){
+        cat(sprintf("<gx:coord>%s</gx:coord>\n",paste(lons[i,tt],lats[i,tt])),sep="")
       }
     }
     cat("</gx:Track>\n")

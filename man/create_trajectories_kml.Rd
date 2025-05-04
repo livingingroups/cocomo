@@ -14,7 +14,8 @@ create_trajectories_kml(
   output_file_path,
   step = 1,
   cols = NULL,
-  icons = NULL
+  icons = NULL,
+  calls = NULL
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ create_trajectories_kml(
 \item{cols}{vector of length \code{N} giving colors for each individual, e.g. 'ffed8031' (first two elements give transparency, last 6 are color specified in hex). If NULL, trajectories will be white.}
 
 \item{icons}{vector of length \code{N} specifying icons (further information below)}
+
+\item{calls}{data frame containing columns \code{ind_idx} (index of ind giving call),\code{time_idx} (time step when call was given),\code{call_type} (string giving type of call) and \code{time} (timestamp in UTC) - not yet implemented}
 }
 \value{
 Creates and saves a kml to the specified output_file_path which can be loaded into Google Earth to view animated trajectories
