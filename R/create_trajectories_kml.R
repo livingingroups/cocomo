@@ -15,7 +15,7 @@
 #' @param step time resolution (in time steps)
 #' @param cols vector of length `N` giving colors for each individual, e.g. 'ffed8031' (first two elements give transparency, last 6 are color specified in hex). If NULL, trajectories will be white.
 #' @param icons vector of length `N` specifying icons (further information below)
-#' @param calls data frame containing columns `ind_idx` (index of ind giving call),`time_idx` (time step when call was given),`call_type` (string giving type of call) and `time` (timestamp in UTC) - not yet implemented
+#' @param fixed_locs data frame with lon and lat coordinates of fixed locations to label (e.g. dens) - must have columns 'names','lon','lat'
 #'
 #' @section Additional details on icon and line color specification:
 #' You can specify icons by giving a vector of filenames (character strings) pointing to images on your computer (e.g. png works).
@@ -29,7 +29,7 @@
 #' @returns Creates and saves a kml to the specified output_file_path which can be loaded into Google Earth to view animated trajectories
 #' @export
 #'
-create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, output_file_path, step = 1, cols = NULL, icons = NULL, calls = NULL){
+create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, output_file_path, step = 1, cols = NULL, icons = NULL, fixed_locs = NULL, fixed_locs_icons = NULL){
 
   #get number of individuals
   n_inds <- nrow(lons)
@@ -56,15 +56,20 @@ create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, ou
   cat("<Document>\n")
 
   #locations - perhaps we want to uncomment and add some in - not currently implemented
-  # for(i in 1:nrow(den_latlon)){
-  #   cat("<Placemark>\n")
-  #   cat(paste("<name>",den_names[i],"</name>\n", sep = ' '))
-  #   cat("<Point>\n")
-  #   cat(paste("<coordinates>",den_latlon[i,1],den_latlon[i,2],'</coordinates>',sep=' '))
-  #   cat("</Point>\n")
-  #   cat(paste("<Icon><href>",den_icon,"</href></Icon>"))
-  #   cat("</Placemark>\n")
-  # }
+  if(!is.null(fixed_locs)){
+    if(is.null(fixed_locs_icons)){
+      fixed_locs_icons <- rep('https://maps.google.com/mapfiles/kml/shapes/target.png', nrow(fixed_locs))
+    }
+    for(i in 1:nrow(fixed_locs)){
+       cat("<Placemark>\n")
+       cat(paste("<name>",fixed_locs$name[i],"</name>\n", sep = ' '))
+       cat("<Point>\n")
+       cat(paste("<coordinates>",fixed_locs$lon[i],fixed_locs$lat[i],'</coordinates>',sep=' '))
+       cat("</Point>\n")
+       cat(paste("<Icon><href>",fixed_locs_icons[i],"</href></Icon>"))
+       cat("</Placemark>\n")
+   }
+    }
 
   #tracks of ids
   for (i in 1:n_inds) {
