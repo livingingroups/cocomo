@@ -48,7 +48,8 @@
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  icons <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  calls <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  fixed_locs <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fixed_locs_icons <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -96,8 +97,8 @@
 <dd><p>vector of length <code>N</code> specifying icons (further information below)</p></dd>
 
 
-<dt id="arg-calls">calls<a class="anchor" aria-label="anchor" href="#arg-calls"></a></dt>
-<dd><p>data frame containing columns <code>ind_idx</code> (index of ind giving call),<code>time_idx</code> (time step when call was given),<code>call_type</code> (string giving type of call) and <code>time</code> (timestamp in UTC) - not yet implemented</p></dd>
+<dt id="arg-fixed-locs">fixed_locs<a class="anchor" aria-label="anchor" href="#arg-fixed-locs"></a></dt>
+<dd><p>data frame with lon and lat coordinates of fixed locations to label (e.g. dens) - must have columns 'names','lon','lat'</p></dd>
 
 </dl></div>
     <div class="section level2">
