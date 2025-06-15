@@ -49,7 +49,9 @@
 <span>  cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  icons <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fixed_locs <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fixed_locs_icons <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  fixed_locs_icons <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  calls <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  calls_icons <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -100,6 +102,14 @@
 <dt id="arg-fixed-locs">fixed_locs<a class="anchor" aria-label="anchor" href="#arg-fixed-locs"></a></dt>
 <dd><p>data frame with lon and lat coordinates of fixed locations to label (e.g. dens) - must have columns 'names','lon','lat'</p></dd>
 
+
+<dt id="arg-calls">calls<a class="anchor" aria-label="anchor" href="#arg-calls"></a></dt>
+<dd><p>data frame with columns <code>ind_idx</code>,<code>time_idx</code>,<code>call_type</code>, and <code>time</code></p></dd>
+
+
+<dt id="arg-calls-icons">calls_icons<a class="anchor" aria-label="anchor" href="#arg-calls-icons"></a></dt>
+<dd><p>vector of length equal to the number of call types specifying which icons will be used for displaying calls</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -131,7 +141,7 @@ For example <code>'ffff0000'</code> specifies opaque red.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
