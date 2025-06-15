@@ -16,7 +16,9 @@ create_trajectories_kml(
   cols = NULL,
   icons = NULL,
   fixed_locs = NULL,
-  fixed_locs_icons = NULL
+  fixed_locs_icons = NULL,
+  calls = NULL,
+  calls_icons = NULL
 )
 }
 \arguments{
@@ -41,6 +43,10 @@ create_trajectories_kml(
 \item{icons}{vector of length \code{N} specifying icons (further information below)}
 
 \item{fixed_locs}{data frame with lon and lat coordinates of fixed locations to label (e.g. dens) - must have columns 'names','lon','lat'}
+
+\item{calls}{data frame with columns \code{ind_idx},\code{time_idx},\code{call_type}, and \code{time}}
+
+\item{calls_icons}{vector of length equal to the number of call types specifying which icons will be used for displaying calls}
 }
 \value{
 Creates and saves a kml to the specified output_file_path which can be loaded into Google Earth to view animated trajectories
