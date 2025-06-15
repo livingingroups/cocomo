@@ -38,7 +38,7 @@ get_group_elongation <- function(xs, ys, min_inds_tracked = 3){
     if(length(non_na) > min_inds_tracked){
       pc <- prcomp(cbind(x[non_na],y[non_na]), center = T, scale = F)
       long_axis <- pc$rotation[,1]
-      long_axis_angles[t] <- atan2(long_axis[1], long_axis[2])
+      long_axis_angles[t] <- atan2(long_axis[2], long_axis[1])
       elongs[t] <- 1 - (pc$sdev[2]/pc$sdev[1])
     }
 
