@@ -30,7 +30,7 @@
 #' @param bg_color background color
 #' @param ind_point_size size of the individual points
 #' @param call_point_size size of the points for calls
-#' @param events data frame with columns `event_id`, `inds_involved`, `start_time_idx`,`end_time_idx`,`initiator`
+#' @param events data frame with columns `event_id`, `start_time_idx`,`end_time_idx`,`initiator`
 #' @param highlighted_radius radius of the highlighted location (usually an epicenter from hyena whoop analysis)
 #'
 #' @export
@@ -240,12 +240,9 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
       curr_event_idx <- which(events$start_time_idx <= t & events$end_time_idx >= t)
       if(length(curr_event_idx)>0){
         in_event <- T
-        inds_involved <- events$inds_involved[curr_event_idx][[1]]
         initiator <- events$initiator[curr_event_idx]
         start_time_idx <- events$start_time_idx[curr_event_idx]
         end_time_idx <- events$end_time_idx[curr_event_idx]
-        xs_event <- xs[inds_involved, start_time_idx:end_time_idx]
-        ys_event <- ys[inds_involved, start_time_idx:end_time_idx]
       }
     }
 
@@ -265,11 +262,13 @@ generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,
     #plot event highlighted location (epicenter)
     if(in_event){
       ang_bins <- seq(0,2*pi,length.out=100)
-      highlighted_loc_x <- xs[initiator, start_time_idx]
-      highlighted_loc_y <- ys[initiator, start_time_idx]
-      x_circ <- highlighted_radius*cos(ang_bins) + highlighted_loc_x
-      y_circ <- highlighted_radius*sin(ang_bins) + highlighted_loc_y
-      lines(x_circ,y_circ, lwd = 1, col = 'red')
+      for(e in seq_along(curr_event_idx)){
+        highlighted_loc_x <- xs[initiator[e], start_time_idx[e]]
+        highlighted_loc_y <- ys[initiator[e], start_time_idx[e]]
+        x_circ <- highlighted_radius*cos(ang_bins) + highlighted_loc_x
+        y_circ <- highlighted_radius*sin(ang_bins) + highlighted_loc_y
+        lines(x_circ,y_circ, lwd = 1, col = 'red')
+      }
     }
 
     #plot "tails" (past locations)
