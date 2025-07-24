@@ -89,7 +89,7 @@ generate_movement_and_calls_visualization(
 
 \item{call_point_size}{size of the points for calls}
 
-\item{events}{data frame with columns \code{event_id}, \code{inds_involved}, \code{start_time_idx},\code{end_time_idx},\code{highlight_time_idx},\code{inds_highlighted},\code{initiator}}
+\item{events}{data frame with columns \code{event_id}, \code{inds_involved}, \code{start_time_idx},\code{end_time_idx},\code{initiator}}
 
 \item{highlighted_radius}{radius of the highlighted location (usually an epicenter from hyena whoop analysis)}
 }
