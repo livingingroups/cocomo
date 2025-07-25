@@ -2,8 +2,7 @@
 % Please edit documentation in R/generate_movement_and_calls_visualization.R
 \name{generate_movement_and_calls_visualization}
 \alias{generate_movement_and_calls_visualization}
-\title{Plot individual behavior and calls during a time period specified by the user.
-Also include a summary of the behavior of the rest of the group.}
+\title{Make a visualization of individual positions and calls during a time period specified by the user.}
 \usage{
 generate_movement_and_calls_visualization(
   xs = NULL,
@@ -94,8 +93,7 @@ generate_movement_and_calls_visualization(
 \item{highlighted_radius}{radius of the highlighted location (usually an epicenter from hyena whoop analysis)}
 }
 \description{
-Plot individual behavior and calls during a time period specified by the user.
-Also include a summary of the behavior of the rest of the group.
+Make a visualization of individual positions and calls during a time period specified by the user.
 }
 \author{
 Ariana Strandburg-Peshkin (primary author)
