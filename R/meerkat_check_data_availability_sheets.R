@@ -25,7 +25,7 @@
 #' @param path_to_data_dir path to the outer directory of the relevant deployment
 #'
 #'
-#'
+#' @export
 meerkat_check_data_availability_sheet <- function(path_to_data_availability_sheet, path_to_data_dir){
 
   #-----Setup-----
