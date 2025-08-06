@@ -14,9 +14,6 @@ meerkat_check_data_availability_sheet(
 
 \item{path_to_data_dir}{path to the outer directory of the relevant deployment}
 }
-\value{
-0 if successful
-}
 \description{
 Reads in a data availability sheet and checks for the following:
 \enumerate{
