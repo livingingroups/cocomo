@@ -14,7 +14,9 @@
 #' 4. Finds files on the server that involve an individual from the group on a
 #'    date included in the deployment, but aren't in the data availability sheet
 #'
-#' Outputs everything into a csv for manual checking, saves as path_to_data_availability_sheet_check.csv
+#' Outputs everything into two csvs for manual checking:
+#'  - `path_to_data_availability_sheet`_check.csv: rows to check in data availability sheet
+#'  - `path_to_data_availability_sheet`_missing.csv: potential missing files (filling gaps in data availability sheet)
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED

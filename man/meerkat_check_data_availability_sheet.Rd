@@ -39,7 +39,11 @@ date included in the deployment, but aren't in the data availability sheet
 }
 }
 \details{
-Outputs everything into a csv for manual checking, saves as path_to_data_availability_sheet_check.csv
+Outputs everything into two csvs for manual checking:
+\itemize{
+\item \code{path_to_data_availability_sheet}_check.csv: rows to check in data availability sheet
+\item \code{path_to_data_availability_sheet}_missing.csv: potential missing files (filling gaps in data availability sheet)
+}
 }
 \author{
 Ariana Strandburg-Peshkin (primary author)
