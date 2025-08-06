@@ -151,8 +151,9 @@ meerkat_check_data_availability_sheet <- function(path_to_data_availability_shee
   for(i in 1:nrow(avail)){
     curr_date <- start_dates[i]
     curr_date_str2 <- gsub('-','',curr_date)
+    curr_date_str3 <- gsub('-','_',curr_date)
     if(avail$datatype[i] == 'audio'){
-      if(!grepl(curr_date, basenames[i]) & !grepl(curr_date_str2, basenames[i])){
+      if(!grepl(curr_date, basenames[i]) & !grepl(curr_date_str2, basenames[i]) & !grepl(curr_date_str3, basenames[i])){
         rows <- c(rows, i)
       }
     }
@@ -266,10 +267,11 @@ meerkat_check_data_availability_sheet <- function(path_to_data_availability_shee
       id <- missing_combos$id[i]
       date <- missing_combos$date[i]
       date2 <- gsub('-','',date)
+      date3 <- gsub('_','',date)
 
       #audio files have wav extension and match exact id and date
       if(datatype == 'audio'){
-        date_match <- grepl(date, basename(files_on_server), fixed = T) | grepl(date2, basename(files_on_server), fixed =T)
+        date_match <- grepl(date, basename(files_on_server), fixed = T) | grepl(date2, basename(files_on_server), fixed =T) | grepl(date3, basename(files_on_server), fixed =T)
         potential_files <-files_on_server[which(file_exts == 'wav' & grepl(id, basename(files_on_server), fixed=T) & date_match)]
       }
 
