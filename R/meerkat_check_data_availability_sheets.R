@@ -145,14 +145,14 @@ meerkat_check_data_availability_sheet <- function(path_to_data_availability_shee
     tocheck <- rbind(tocheck, invalid)
   }
 
-  #date matching start date (only for audio files)
+  #date matching start date (only for audio files and gps focals)
   start_dates <- as.Date(starts)
   rows <- c()
   for(i in 1:nrow(avail)){
     curr_date <- start_dates[i]
     curr_date_str2 <- gsub('-','',curr_date)
     curr_date_str3 <- gsub('-','_',curr_date)
-    if(avail$datatype[i] == 'audio'){
+    if(avail$datatype[i] == 'audio' | (avail$datatype[i] == 'gps' & avail$datasource[i] == 'focal')){
       if(!grepl(curr_date, basenames[i]) & !grepl(curr_date_str2, basenames[i]) & !grepl(curr_date_str3, basenames[i])){
         rows <- c(rows, i)
       }
@@ -161,7 +161,7 @@ meerkat_check_data_availability_sheet <- function(path_to_data_availability_shee
 
   if(length(rows)>0){
     invalid <- avail[rows,]
-    invalid$reason <- 'date not found in audio filename'
+    invalid$reason <- 'date not found in audio or gps focal filename'
     tocheck <- rbind(tocheck, invalid)
   }
 
@@ -264,6 +264,7 @@ meerkat_check_data_availability_sheet <- function(path_to_data_availability_shee
   if(nrow(missing_combos)>0){
     for(i in 1:nrow(missing_combos)){
       datatype <- missing_combos$datatype[i]
+      datasource <- missing_combos$datasource[i]
       id <- missing_combos$id[i]
       date <- missing_combos$date[i]
       date2 <- gsub('-','',date)
