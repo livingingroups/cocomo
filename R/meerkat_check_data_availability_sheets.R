@@ -282,7 +282,7 @@ meerkat_check_data_availability_sheet <- function(path_to_data_availability_shee
 
       #acc files have csv extension, gps in the file path, and match id (but not necessarily date)
       if(datatype == 'acc'){
-        potential_files <-files_on_server[which(file_exts == 'csv' & grepl(id, basename(files_on_server), fixed=T) & grepl('gps',files_on_server, ignore.case =T))]
+        potential_files <-files_on_server[which(file_exts == 'csv' & grepl(id, basename(files_on_server), fixed=T) & grepl('gps',files_on_server, ignore.case =T) & !grepl('focal', files_on_server, ignore.case = T))]
       }
 
       #add to data frame of potential missed files
