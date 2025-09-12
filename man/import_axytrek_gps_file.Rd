@@ -14,6 +14,8 @@ Returns a data frame with the following columns: \code{timestamp}, \code{locatio
 \code{location.long}, \code{V4}, \code{V5}, \code{satellite.count}, \code{V7}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Imports GPS data from an Axy Trek file, which may have lines that are not
 formatted such that read.delim can parse them. Can currently handle files
 from 2021-2023 at least. Output data frame has column names compatible with

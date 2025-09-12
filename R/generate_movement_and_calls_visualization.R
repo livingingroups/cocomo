@@ -1,5 +1,7 @@
 #' Make a visualization of individual positions and calls during a time period specified by the user.
 #'
+#' `r lifecycle::badge("experimental")`
+#'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED
 #'
@@ -31,7 +33,6 @@
 #' @param call_point_size size of the points for calls
 #' @param events data frame with columns `event_id`, `start_time_idx`,`end_time_idx`,`initiator`
 #' @param highlighted_radius radius of the highlighted location (usually an epicenter from hyena whoop analysis)
-#'
 #'
 #' @export
 generate_movement_and_calls_visualization <-function(xs = NULL, ys = NULL,

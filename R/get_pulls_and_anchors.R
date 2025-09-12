@@ -1,5 +1,8 @@
 #' Get pulls and anchors
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Get successful ('pull') and failed ('anchor') dyadic interactions between individuals a and b.
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)

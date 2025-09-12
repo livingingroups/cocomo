@@ -1,7 +1,11 @@
 #' Wrapper for `get_pulls_and_anchors` function, handling datasets with NAs
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Create a list of time blocks using NAs in the dataset as seperation points, then run the `get_pulls_and_anchors` function on each of these blocks separately.
 #'
+#' @details
 #' Time blocks are created by splitting the dataset at the indexes of NAs. If the length of the NA-chain is below "NA_tolerance", then the script will ignore these NAs and not split at that position.
 #' Instead, the script will fill the gap with an interpolation of values between the previous and next existing measured value entry.
 #' This results in the datapoints staying connected/in a single time block for small breaks. If the NA-chain in the dataset is longer than "NA_tolerance",

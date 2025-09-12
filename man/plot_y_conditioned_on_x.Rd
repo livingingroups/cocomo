@@ -51,10 +51,12 @@ and \code{y_lowers} (the upper and lower qauntiles of \code{y} for each bin as s
 by \code{error_bar_range}) and \code{ns} (the number of data points in each bin)
 }
 \description{
-For paired measurements \verb{(x,y)}, plot a specified statistic \code{stat} (e.g. the mean) of
-\code{y} for values of \code{x} within bins specified by the vector \code{bins}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \details{
+For paired measurements \verb{(x,y)}, plot a specified statistic \code{stat} (e.g. the mean) of
+\code{y} for values of \code{x} within bins specified by the vector \code{bins}
+
 For example, if \code{stat = 'mean'}, the function will plot \code{vals[i]} vs. \code{bins[i]} where
 \code{vals[i]} is defined as \code{mean(y[which(x >= bins[i] & x < bins[i+1])], na.rm=T)}
 }

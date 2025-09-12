@@ -13,6 +13,8 @@ parse_audition_time(audition_time_str)
 Returns numeric value of time into the file (in seconds)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Parses a time from the \code{Start} or \code{Duration} column of an Audition label file to seconds
 }
 \details{

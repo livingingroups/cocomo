@@ -1,5 +1,7 @@
 #'Get whether two individuals are together, using a "sticky" definition
 #'
+#' `r lifecycle::badge("experimental")`
+#'
 #' @export
 get_together_sticky <- function(together_inner, together_outer){
 

@@ -80,6 +80,8 @@ If \code{synch_completed == F}, also output:
 \code{reason_no_synch}: a string explaining why the file could not be synched
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Reads in a label file (in Audition format) and a synch file, gets synch points,
 and synchs all labels in the file to UTC. Outputs a table with an additional
 column specifying timestamp_UTC. Currently only designed to work with meerkat data.

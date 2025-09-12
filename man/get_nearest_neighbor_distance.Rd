@@ -17,6 +17,8 @@ get_nearest_neighbor_distance(xs, ys, i)
 Returns a vector of nearest neighbor distances at each time point (length \verb{= n_times})
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Gets the distance to an individual \code{i}'s nearest neighbor over time
 }
 \author{

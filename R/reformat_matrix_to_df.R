@@ -1,4 +1,7 @@
 #' Convert from matrix format to dataframe
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
 #' 
 #' Creates a dataframe out of GPS data in "matrix format" suitable for plotting with ggplot
 #' 

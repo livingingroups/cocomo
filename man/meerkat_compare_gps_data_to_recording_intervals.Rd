@@ -16,6 +16,8 @@ meerkat_compare_gps_data_to_recording_intervals(xy_file, metadata_file)
 Returns 0 if the metadata and xy data match. Returns 1 otherwise and prints any discrepancies.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 For a given round of meerkat collaring, verifies whether the GPS data that is
 expected to be present (based on \code{GROUPYEAR_MOV_SUMMARY.txt} file in METADATA) is present in
 \code{xs} and \code{ys} matrices from \code{GROUPYEAR_xy_level0.RData}.

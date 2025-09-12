@@ -17,7 +17,10 @@ get_group_centroid(xs, ys, min_inds_tracked = NULL)
 Returns a list containing coordinates of the group centroid over time, \code{x_centr} and \code{y_centr} (both vectors of length \code{n_times})
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Get the group's centroid (mean x and y position) over time.
+
 If specified, only compute if at least \code{min_inds_tracked} are tracked in a given
 time step.
 }

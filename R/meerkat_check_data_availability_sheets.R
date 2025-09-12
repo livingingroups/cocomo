@@ -1,5 +1,7 @@
 #' Check meerkat data availability sheets for any inconsistencies or errors
 #'
+#' `r lifecycle::badge("experimental")`
+#'
 #' Reads in a data availability sheet and checks for the following:
 #' 1. Flag any missing fields
 #' 2. Check internal consistency of each row

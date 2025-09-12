@@ -1,5 +1,8 @@
 #'Latitude / longitude to UTM conversion
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #'Converts a matrix of lons and lats (lons first column, lats second column) to UTM
 #'eastings and northings (eastings first column, northings second column)
 #'

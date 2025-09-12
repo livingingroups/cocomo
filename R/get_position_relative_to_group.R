@@ -1,7 +1,11 @@
 #' Get positions relative to group
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Get individual position relative to the group centroid and heading for all individuals.
 #'
+#' @details 
 #' The group centroid is defined as the origin (0,0) and the heading points along the positive x axis.
 #' The heading can be computed either using a specified time window or using spatial discretization.
 #'
