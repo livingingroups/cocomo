@@ -1,5 +1,8 @@
 #' Get local density
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Gets the number of individuals within a radius `R` of a focal individual `i` at each time point
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)

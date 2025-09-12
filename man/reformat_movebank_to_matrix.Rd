@@ -65,6 +65,8 @@ Saves a file to the location \code{output_file_path} containing the objects: \co
 \code{lats} (\code{n_inds} x \code{n_times} matrix of longitudes for all individuals at each time point). \code{xs} and \code{ys} are only saved if \code{output_utm = T}. \code{lons} and \code{lats} are only saved if \code{output_lonlat = T}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Takes in regularly sampled GPS data in Movebank format (i.e. data frame with specified columns - see below)
 and converts it into the standard matrix form used by the \code{cocomo} package.
 }

@@ -17,8 +17,10 @@ utm_to_latlon(easts_norths, utm_zone, hemisphere)
 lons_lats, an N x 2 matrix of longitudes (col 1) and latitudes (col 2)
 }
 \description{
-Converts a matrix of UTM eastings and northings (eastings first column,
-northings second column) to a matrix of lons and lats (lons first column,
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+Converts a matricx of UTM eastings and northings (eastings first column,
+northings second olumn) to a matrix of lons and lats (lons first column,
 lats second column)
 }
 \author{

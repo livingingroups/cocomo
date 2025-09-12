@@ -1,5 +1,8 @@
 #'Get group polarization
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #'Computes the polarization of the group at each time step `t`.
 #'The polarization is a measure of how aligned the group is, ranging from 0 (completely unaligned) to 1 (completely aligned)
 #'The polarization is defined by adding up (vector addition) all of the heading vectors of all individuals at a given moment in time,

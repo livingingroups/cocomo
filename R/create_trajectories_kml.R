@@ -1,4 +1,7 @@
-#'Create a KML that shows animal trajectories (viewable on Google Earth Pro)
+#' Create a KML that shows animal trajectories (viewable on Google Earth Pro)
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
 #'
 #' This function creates a KML file while can be loaded into Google Earth Pro to view trajectories of a group over time.
 #'

@@ -36,6 +36,8 @@ reformat_matrix_to_df(
 Returns a dataframe of id_codes, xs, ys, and timestamps
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Creates a dataframe out of GPS data in "matrix format" suitable for plotting with ggplot
 }
 \author{

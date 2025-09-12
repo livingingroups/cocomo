@@ -1,11 +1,15 @@
 #' Get speed
 #'
+#' @description
+#' `r lifecycle::badge("stable")`
+#'
 #' Gets an individual's speed over time, using a specified time step to compute the speed
 #'
-#'The speed is computed as `speeds[t] = sqrt ( (x_i[t+t_window] - x_i[t] )^2 + ( y_i[t+t_window] - y_i[t] )^2 ) / (seconds_per_timestep * t_window)`
-#'Note that by default `speeds[t]` gives the instantaneous speed between time `t` and time `t + t_window`, i.e. the speeds are computed
-#'based on the future not on the past. If `forward` is set to `F`, the speeds will be computed based on the past, as:
-#'`speeds[t] = sqrt ( (x_i[t] - x_i[t-t_window] )^2 + ( y_i[t] - y_i[t-t_window] )^2 ) / (seconds_per_timestep * t_window)`
+#' @details
+#' The speed is computed as `speeds[t] = sqrt ( (x_i[t+t_window] - x_i[t] )^2 + ( y_i[t+t_window] - y_i[t] )^2 ) / (seconds_per_timestep * t_window)`
+#' Note that by default `speeds[t]` gives the instantaneous speed between time `t` and time `t + t_window`, i.e. the speeds are computed
+#' based on the future not on the past. If `forward` is set to `F`, the speeds will be computed based on the past, as:
+#' `speeds[t] = sqrt ( (x_i[t] - x_i[t-t_window] )^2 + ( y_i[t] - y_i[t-t_window] )^2 ) / (seconds_per_timestep * t_window)`
 #'
 #' @author Ariana Strandburg-Peshkin
 #' @author Reviewed by Brock

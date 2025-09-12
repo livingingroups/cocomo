@@ -50,6 +50,8 @@ connected (1) or not (0) or unknown (NA)
 \code{R_outer}: outer radius used in the computations (same as \code{R_outer} above)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Detects splits and merges (a.k.a. fissions and fusions) using "sticky-DBSCAN"
 method from Libera et al. 2023.
 }

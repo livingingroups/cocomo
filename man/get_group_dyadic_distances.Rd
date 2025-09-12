@@ -16,6 +16,8 @@ get_group_dyadic_distances(xs, ys)
 \code{dyad_dists[i,j,t]} gives the distance between individuals \code{i} and \code{j} at time \code{t}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Computes the distance between each pair of individuals over time.
 }
 \author{

@@ -21,6 +21,8 @@ in the list, \code{out$behavs_key} is a data frame with columns \code{behav} (th
 (the correspoding integer value associated with that behavior in the \code{out$behavs} matrix)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Imports behavioral sequence data from a set of csv files and converts them to
 matrix format matching the \code{xs} and \code{ys} matrices used in the \code{cocomo} library
 }

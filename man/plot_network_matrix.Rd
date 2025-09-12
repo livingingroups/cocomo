@@ -33,6 +33,8 @@ plot_network_matrix(
 \item{main}{title for plot}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Plot a matrix with color representing the edge weights of a network
 }
 \author{

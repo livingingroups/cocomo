@@ -79,6 +79,8 @@ Returns a list containing matrices for the 4 different types of influence, as we
 See "Additional information about returned objects" section below for a list of outputs.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Get the simplified turn and speed influence (movement and positional) between all pairs of individuals
 \code{i} and \code{j}, or, if \code{centroid = T} for all individuals \code{i} on the group centroid excluding \code{i}.
 }
