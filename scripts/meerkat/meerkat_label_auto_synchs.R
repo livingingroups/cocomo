@@ -123,6 +123,7 @@ if(!file.exists(outfile)){
   wav_basenames <- tools::file_path_sans_ext(basename(wav_files))
   files_table$wav_file <- wav_files[match(pred_basenames, wav_basenames)]
   files_table$status <- 'todo'
+  files_table[which(is.na(files_table$wav_file))] <- NA
 
   #initialize synchs table
   synchs_all <- data.frame()
