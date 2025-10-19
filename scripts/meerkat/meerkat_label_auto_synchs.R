@@ -104,8 +104,6 @@ cat('#If after several tries you still receive a warning, you should flag the fi
 cat('\n')
 cat('You may quit at any time by pressing escape. Your progress will be saved\n')
 
-readline('Hit enter to begin')
-
 if(!file.exists(outfile)){
 
   #SETUP (if not already done)
@@ -134,6 +132,19 @@ if(!file.exists(outfile)){
 } else{
   load(outfile)
 }
+
+cat('Number of files COMPLETED:',sum(files_table$status=='done', na.rm=T))
+cat('\n')
+cat('Number of files skipped:',sum(files_table$status%in%c('skipfile','couldnotsynch','notonmeerkat'), na.rm=T))
+cat('\n')
+cat('Numer of files flagged (and skipped):', sum(files_table$status=='flag', na.rm=T))
+cat('\n')
+cat('Number of files REMAINING:',sum(files_table$status=='todo', na.rm=T))
+cat('\n')
+cat('Total time spent on this year so far:', user_time, 'minutes')
+cat('\n')
+
+readline('Hit enter to begin! ')
 
 #log user start time
 user_start_time <- Sys.time()
