@@ -37,6 +37,7 @@ n_synchs_to_label <- 3 # number of synchs to label per file
 pad_start <- 0.5
 pad_end <- 2
 max_drift_per_hr <- 5 #maximum drift per hour to allow (otherwise need to relabel synchs)
+strings_to_exclude <- c('SUNNING','THERMAL','SOCIAL','SOUND_LASER','READMEs','CONTINUOUS_AUDIO','PLAYBACKS','Tag_Tests','recruitment_playbacks') #files containing these strings in the path will be excluded from synching
 
 #FUNCS
 #Function to play audio segment in browser (RStudio Server media viewer)
@@ -124,6 +125,18 @@ if(!file.exists(outfile)){
   files_table$wav_file <- wav_files[match(pred_basenames, wav_basenames)]
   files_table$status <- 'todo'
   files_table$status[which(is.na(files_table$wav_file))] <- NA
+
+  #exclude wav paths with one of the target words
+  rows_to_exclude <- c()
+  for(s in strings_to_exclude){
+    new_rows <- grep(s, files_table$wav_file)
+    if(length(new_rows)>0){
+      rows_to_exclude <- union(rows_to_exclude, new_rows)
+    }
+  }
+  if(length(rows_to_exclude)>0){
+    files_table <- files_table[-rows_to_exclude,]
+  }
 
   #initialize synchs table
   synchs_all <- data.frame()
@@ -248,6 +261,10 @@ while(i <= length(idxs)){
       break
     }
 
+    if(user_label == 'prevfile'){
+      break
+    }
+
     #otherwise just repeat the same synch
 
   }
@@ -256,10 +273,25 @@ while(i <= length(idxs)){
   if(!file_complete){
     if(user_label == ''){
       files_table$status[idxs[i]] <- 'couldnotsynch'
+      synchs_all <- rbind(synchs_all, synchs_curr) #if there are too few synchs, still add them to the synchs_all table but mark the file in files_table as couldnotsynch
+      i <- i + 1
     } else{
-      files_table$status[idxs[i]] <- user_label
+      if(user_label=='prevfile'){
+        i <- i - 1
+        if(i < 1){
+          i <- 1
+        }
+      } else{
+        if(grepl("^[0-9]{1,2}:[0-5][0-9]:[0-5][0-9]$", user_label)){
+          files_table$status[idxs[i]] <- 'toofewsynchs'
+          synchs_all <- rbind(synchs_all, synchs_curr) #if there are too few synchs, still add them to the synchs_all table but mark the file in files_table as couldnotsynch
+          i <- i + 1
+        } else{
+          files_table$status[idxs[i]] <- user_label
+          i <- i + 1
+        }
+      }
     }
-    i <- i + 1
   }
 
   #if file is complete, check that synchs line up reasonably well
