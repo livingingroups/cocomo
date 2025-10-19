@@ -9,7 +9,7 @@
 #You can go back to the previous clip by typing "back"
 #If you can tell the collar is not on a meerkat, type "notonmeerkat"
 #If you'd like to flag the file as problematic, type "flag" (you will then skip it, and it will be specially flagged)
-#If you'd like to skip a file for some other reason, type "skipfile" (you will skip the file, and it will be labeled as skipped)
+#If you'd like to skip a file for some other reason, type "skip" (you will skip the file, and it will be labeled as skipped)
 #
 #If after 20 attempts to label synchs, you have not labeled at least 3, the file will automatically be skipped and labeled as "couldnotsynch"
 #
@@ -94,7 +94,7 @@ cat('If you enter anything other than the correct format (or one of the specifie
 cat('You can go back to the previous clip by typing "back"\n')
 cat('If you can tell the collar is not on a meerkat, type "notonmeerkat" (the file will be skipped and marked accordingly)\n')
 cat('If you would like to flag the file as problematic, type "flag" (you will then skip it, and it will be specially flagged)\n')
-cat('If you would like to skip a file for some other reason, type "skipfile" (you will skip the file, and it will be labeled as skipped)\n')
+cat('If you would like to skip a file for some other reason (e.g. its from another experiment), type "skip" (you will skip the file, and it will be labeled as skipped)\n')
 cat('\n')
 cat('If after 20 attempts to label synchs, you have not labeled at least 3, the file will automatically be skipped and labeled as "couldnotsynch"\n')
 cat('\n')
@@ -137,7 +137,7 @@ if(!file.exists(outfile)){
 
 cat('Number of files COMPLETED:',sum(files_table$status=='done', na.rm=T))
 cat('\n')
-cat('Number of files skipped:',sum(files_table$status%in%c('skipfile','couldnotsynch','notonmeerkat'), na.rm=T))
+cat('Number of files skipped:',sum(files_table$status%in%c('skip','couldnotsynch','notonmeerkat'), na.rm=T))
 cat('\n')
 cat('Numer of files flagged (and skipped):', sum(files_table$status=='flag', na.rm=T))
 cat('\n')
@@ -163,6 +163,8 @@ while(i <= length(idxs)){
   synchs <- labels[which(labels$Name == 'synch'),]
 
   if(nrow(synchs)==0){
+    files_table$status[idxs[i]] <- 'nosynchs'
+    i <- i + 1
     next
   }
 
@@ -236,8 +238,8 @@ while(i <= length(idxs)){
       break
     }
 
-    #if the user wants to skip the file for another reason ,they can do so by typing skipfile
-    if(user_label == 'skipfile'){
+    #if the user wants to skip the file for another reason ,they can do so by typing skip
+    if(user_label == 'skip'){
       break
     }
 
