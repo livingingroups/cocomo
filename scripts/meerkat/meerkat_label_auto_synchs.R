@@ -31,6 +31,7 @@ predictions_dir <- paste0('/mnt/EAS_shared/meerkat/working/processed/acoustic/an
 rawdata_dir <- '/mnt/EAS_shared/meerkat/archive/rawdata/'
 outdir <- '/mnt/EAS_shared/meerkat/working/processed/acoustic/synched_animal2vec_predictions/'
 outfile <- paste0(outdir, 'labeled_animal2vec_synchs_',year,'.RData') #output file to save file names and associated synchs that have been labeled
+outfile_backup <- paste0(outdir, 'labeled_animal2vec_synchs_',year,'_backup_',Sys.Date(), '.RData')
 max_to_try <- 20 #max number of synchs to try before giving up on that file
 n_synchs_to_label <- 3 # number of synchs to label per file
 pad_start <- 0.5
@@ -296,6 +297,7 @@ while(i <= length(idxs)){
       user_time <- user_time + time_elapsed
 
       save(list = c('synchs_all', 'files_table','user_time'), file = outfile)
+      save(list = c('synchs_all', 'files_table','user_time'), file = outfile_backup)
       i <- i + 1 #move on to next file
     } else{
       print(paste0('Warning: clock drift checks were not passed. Max clock drift per hr = ',max_drift, '--> redoing'))
