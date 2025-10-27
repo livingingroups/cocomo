@@ -45,6 +45,8 @@ The \code{disparity} and \code{strength} are as defined in Strandburg-Peshkin et
 \code{disparity_additive} and \code{strength_additive} are alternative formulations of these metrics that add the components together instead of multiplying them.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Get successful ('pull') and failed ('anchor') dyadic interactions between individuals a and b.
 }
 \section{Details on fission and fusion events}{

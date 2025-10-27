@@ -1,6 +1,10 @@
 #' Get group dyadic distances
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Computes the distance between each pair of individuals over time.
+#'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time

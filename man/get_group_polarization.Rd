@@ -33,6 +33,8 @@ get_group_polarization(
 Returns a vector of length \code{n_times} giving the polarization of the group over time
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Computes the polarization of the group at each time step \code{t}.
 The polarization is a measure of how aligned the group is, ranging from 0 (completely unaligned) to 1 (completely aligned)
 The polarization is defined by adding up (vector addition) all of the heading vectors of all individuals at a given moment in time,

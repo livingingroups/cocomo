@@ -93,7 +93,7 @@ generate_movement_and_calls_visualization(
 \item{highlighted_radius}{radius of the highlighted location (usually an epicenter from hyena whoop analysis)}
 }
 \description{
-Make a visualization of individual positions and calls during a time period specified by the user.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \author{
 Ariana Strandburg-Peshkin (primary author)

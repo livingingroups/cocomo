@@ -1,10 +1,13 @@
 #'Get group polarization
 #'
-#'Computes the elongation of the group at each time step `t` as well as the long axis vector.
-#'The elongation is a measure of how "line-link" vs "circle-like" the group is, ranging from 0 (completely circular) to 1 (completely elongated)
-#'The elongation is defined by first performing a PCA on the x/y data of the group. The axis of greatest variation is defined
-#'as the 'long axis' and the axis perpendicular to this is defined as the 'short axis'. The elonation is then
-#'defined as 1 - (length of short axis / length of long axis).
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' Computes the elongation of the group at each time step `t` as well as the long axis vector.
+#' The elongation is a measure of how "line-link" vs "circle-like" the group is, ranging from 0 (completely circular) to 1 (completely elongated)
+#' The elongation is defined by first performing a PCA on the x/y data of the group. The axis of greatest variation is defined
+#' as the 'long axis' and the axis perpendicular to this is defined as the 'short axis'. The elonation is then
+#' defined as 1 - (length of short axis / length of long axis).
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED

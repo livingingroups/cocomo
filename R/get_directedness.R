@@ -1,7 +1,11 @@
 #' Get directedness
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Gets the directedness of a trajectory over a given time window, as a function of time.
 #'
+#' @details
 #' The directedness a number which ranges from 0 to 1 where 1 is a straight path and 0 is a highly tortuous path.
 #' It is defined as the net displacement (distance along a straight-line path from point A to point B) divided by the
 #' path length (total distance traveled along the actual path from point A to point B).

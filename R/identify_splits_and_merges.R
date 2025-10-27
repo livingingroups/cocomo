@@ -1,8 +1,12 @@
 #'Identify group splits and merges from multi-individual trajectory data
 #'
+#' @description
+#' `r lifecycle::badge("stable")`
+#'
 #'Detects splits and merges (a.k.a. fissions and fusions) using "sticky-DBSCAN"
 #'method from Libera et al. 2023.
 #'
+#' @details
 #'Start by defining an adjacency matrix (`together` in the code) of which dyads
 #'are "connected" at any moment in time. Dyads are considered to be connected if
 #'they go within a distance `R_inner` of one another, and they continue to be
