@@ -1,11 +1,3 @@
-library(glue)
-library(stringr)
-library(sf)
-library(rosm)
-library(maptiles)
-library(terra)
-library(raster)
-
 #' Make a visualization of individual positions and calls during a time period specified by the user.
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
@@ -30,7 +22,7 @@ library(raster)
 #' @param sort_legend_inds vector to sort the legend showing the names of the individuals (vector containing the sort order by index)
 #' @param show_legend_calls whether to plot a legend showing the names of the call types (T or F)
 #' @param legend_loc location of the individual legend, either `topleft','topright','bottomleft' or 'bottomright'`. Call legend will be opposite
-#' @param scalebar_size number of meters for the scalebar
+#' @param scalebar_size number of meters for the scalebar, set to 0 to deactivate
 #' @param ind_names vector of names of the individuals
 #' @param bg_color background color of the plot ("black", "white", etc.)
 #' @param satellite_map use a satellite map as the background (T or F)
@@ -39,8 +31,7 @@ library(raster)
 #' @param call_point_size size of the points for calls
 #' @param events data frame with columns `event_id`, `start_time_idx`,`end_time_idx`,`initiator`
 #' @param highlighted_radius radius of the highlighted location (usually an epicenter from hyena whoop analysis)
-#'
-#'
+#' 
 #' @export
 generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, timestamps = NULL, calls = NULL, start_time = NULL, 
                                                       end_time = NULL, time_step = 1, output_dir = NULL, tail_time = 10, 
@@ -275,13 +266,15 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
   }
 
   # plotting the scalebar
-  scalebar_xmin <- xmin + xrange * 0.05
-  scalebar_xmax <- scalebar_xmin + scalebar_size
-  scalebar_y    <- ymin + yrange * 0.05
+  if (scalebar_size > 0) {
+    scalebar_xmin <- xmin + xrange * 0.05
+    scalebar_xmax <- scalebar_xmin + scalebar_size
+    scalebar_y    <- ymin + yrange * 0.05
 
-  # text for the scalebar
-  scalebar_text_x <- (scalebar_xmin + scalebar_xmax) / 2
-  scalebar_text_y <- scalebar_y + yrange * (0.05 / 2)
+    # text for the scalebar
+    scalebar_text_x <- (scalebar_xmin + scalebar_xmax) / 2
+    scalebar_text_y <- scalebar_y + yrange * (0.05 / 2)
+  }
 
   #vector of time steps
   time_steps <- seq(start_time, end_time, time_step)
@@ -306,7 +299,7 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
   total_idx <- length(time_steps)
 
   for(t in time_steps){
-    print(glue("{img_idx}/{total_idx}"))
+    print(paste(img_idx, total_idx, sep="/"))
 
     #get xs and ys for current positions, x_t and y_t vectors
     x_t <- xs[,t]
@@ -383,23 +376,20 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
     }
 
     if (show_legend_inds) {
-      # sort individuals
+      # sort individual names in the legend
       sort_order <- if (is.null(sort_legend_inds)) 1:n_inds else sort_legend_inds
       lg_ind_names <- ind_names[sort_order]
       lg_pchs_inds <- pchs_inds[sort_order]
       lg_colors_inds <- colors_inds[sort_order]
       lg_ind_text_color <- ind_text_color[sort_order]
 
-      # base cex (use your existing legend_cex if you compute one; otherwise 1)
-      base_cex <- if (exists("legend_cex")) legend_cex else 1
-
-      # allow legend to occupy at most 25–30% of map height
+      # max height of the legend
       max_h_user <- 0.95 * (ymax - ymin)
+      draw_cex <- legend_cex
 
-      draw_cex <- base_cex
-      # Try shrinking cex until it fits, but not below 0.4×base
+      # try shrinking cex until it fits, but not below 0.4 × base
       for (s in seq(1, 0.4, by = -0.05)) {
-        test_cex <- base_cex * s
+        test_cex <- legend_cex * s
         sz <- legend(legend_loc, legend = lg_ind_names, pch = lg_pchs_inds,
                     col = lg_colors_inds, text.col = lg_ind_text_color,
                     cex = test_cex, ncol = 1, y.intersp = 0.85,
@@ -419,6 +409,7 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
 
     # plot call legend
     if(show_legend_calls){
+
       # move call legend opposite of the individual legend
       if(legend_loc == "topright"){
         call_legend_loc <- "topleft"
@@ -432,25 +423,27 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
       if(legend_loc == "bottomleft"){
         call_legend_loc <- "bottomright"
       }
-      base_cex <- if (exists("legend_cex")) legend_cex else 1
+
       max_h_user <- 0.95 * (ymax - ymin)
-      draw_cex <- base_cex
+      draw_cex <- legend_cex
+
       for (s in seq(1, 0.5, by = -0.05)) {
-        test_cex <- base_cex * s
+        test_cex <- legend_cex * s
         sz <- legend(call_legend_loc, legend = call_types, pch = pchs_calls,
                     pt.bg = colors_calls, col = "white", text.col = text_color,
                     cex = test_cex, ncol = 1, y.intersp = 0.5,
                     bty = "n", plot = FALSE)
+        
         if (sz$rect$h <= max_h_user) {
           draw_cex <- test_cex
           break
         }
       }
+
       legend(call_legend_loc, legend = call_types, pch = pchs_calls,
             pt.bg = colors_calls, col = "white", text.col = text_color,
             cex = draw_cex, ncol = 1, y.intersp = 0.85,
             inset = 0.01, bty = adjustcolor("black", alpha.f = 0.85))
-
     }
 
     #plot "tails" (past locations)
@@ -485,11 +478,14 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
       }
     }
 
-    # make a scale bar
-    lines(c(scalebar_xmin, scalebar_xmax), c(scalebar_y, scalebar_y), col = text_color, lwd = scalebar_lwd)
-    text(labels = paste(scalebar_size, 'm'), x = scalebar_text_x, y = scalebar_text_y, col = text_color, cex = legend_cex)
-
+    # plot the scale bar
+    if (scalebar_size > 0) {
+      lines(c(scalebar_xmin, scalebar_xmax), c(scalebar_y, scalebar_y), col = text_color, lwd = scalebar_lwd)
+      text(labels = paste(scalebar_size, 'm'), x = scalebar_text_x, y = scalebar_text_y, col = text_color, 
+           cex = legend_cex)
+    }
+    
     dev.off()
     img_idx <- img_idx + 1
   }
-  }
+}
