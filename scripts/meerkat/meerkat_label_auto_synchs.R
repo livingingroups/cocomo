@@ -27,6 +27,14 @@ library(htmltools)
 #User specifies what year
 year <- readline('What year would you like to label? ')
 
+#maximum drift per hour to allow (otherwise need to relabel synchs) - for edics, set to 15, for sorokas, set to 5
+if(year %in% c(2017, 2019, 2021)){
+  max_drift_per_hr <- 15
+} else{
+  max_drift_per_hr <- 5
+}
+
+
 predictions_dir <- paste0('/mnt/EAS_shared/meerkat/working/processed/acoustic/animal2vec_predictions/large_model_v2/', year, '/csv/')
 rawdata_dir <- '/mnt/EAS_shared/meerkat/archive/rawdata/'
 outdir <- '/mnt/EAS_shared/meerkat/working/processed/acoustic/synched_animal2vec_predictions/'
@@ -36,7 +44,6 @@ max_to_try <- 20 #max number of synchs to try before giving up on that file
 n_synchs_to_label <- 3 # number of synchs to label per file
 pad_start <- 0.5
 pad_end <- 2
-max_drift_per_hr <- 5 #maximum drift per hour to allow (otherwise need to relabel synchs)
 strings_to_exclude <- c('SUNNING','THERMAL','SOCIAL','SOUND_LASER','READMEs','CONTINUOUS_AUDIO','PLAYBACKS','Tag_Tests','recruitment_playbacks') #files containing these strings in the path will be excluded from synching
 
 #FUNCS
@@ -95,6 +102,7 @@ cat('If you enter anything other than the correct format (or one of the specifie
 cat('You can go back to the previous clip by typing "back"\n')
 cat('If you can tell the collar is not on a meerkat, type "notonmeerkat" (the file will be skipped and marked accordingly)\n')
 cat('If you would like to flag the file as problematic, type "flag" (you will then skip it, and it will be specially flagged)\n')
+cat('If you like, when you flag a file, you can write a comment afterward to specify what the issue is - you should write "flag - comment"')
 cat('If you would like to skip a file for some other reason (e.g. its from another experiment), type "skip" (you will skip the file, and it will be labeled as skipped)\n')
 cat('\n')
 cat('If after 20 attempts to label synchs, you have not labeled at least 3, the file will automatically be skipped and labeled as "couldnotsynch"\n')
@@ -102,7 +110,7 @@ cat('\n')
 cat('After you finish labeling a file, the system will check whether the synchs you have labeled make sense together (are approx the right time difference apart).\n')
 cat('If they are not, you will get a warning and you will have to repeat that file.\n')
 cat('In this case, try the file again, listening carefully to the synchs. Potentially try labeling other synchs than those you tried before.\n')
-cat('#If after several tries you still receive a warning, you should flag the file by typing "flag"\n')
+cat('#If after several tries you still receive a warning, you should flag the file by typing "flag - cannot synch"\n')
 cat('\n')
 cat('You may quit at any time by pressing escape. Your progress will be saved\n')
 
@@ -152,7 +160,7 @@ cat('Number of files COMPLETED:',sum(files_table$status=='done', na.rm=T))
 cat('\n')
 cat('Number of files skipped:',sum(files_table$status%in%c('skip','couldnotsynch','notonmeerkat'), na.rm=T))
 cat('\n')
-cat('Numer of files flagged (and skipped):', sum(files_table$status=='flag', na.rm=T))
+cat('Numer of files flagged (and skipped):', sum(substring(files_table$status,1,4)=='flag', na.rm=T))
 cat('\n')
 cat('Number of files REMAINING:',sum(files_table$status=='todo', na.rm=T))
 cat('\n')
@@ -166,6 +174,7 @@ user_start_time <- Sys.time()
 
 #loop over all files and label 3 synchs per file
 idxs <- which(files_table$status == 'todo')
+idxs <- sample(idxs) #shuffle the order to get some variety
 i <- 1
 while(i <= length(idxs)){
   pred_file <- files_table$pred_file[idxs[i]]
@@ -257,7 +266,7 @@ while(i <= length(idxs)){
     }
 
     #flag the file if something seems wrong with it
-    if(user_label == 'flag'){
+    if(substring(user_label, 1, 4) == 'flag'){
       break
     }
 
