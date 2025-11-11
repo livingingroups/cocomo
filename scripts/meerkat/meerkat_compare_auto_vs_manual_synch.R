@@ -1,14 +1,16 @@
 #Compare auto synch vs manual synch for a given file
 
-load('/mnt/EAS_shared/meerkat/working/processed/acoustic/synched_animal2vec_predictions/labeled_animal2vec_synchs_2019.RData')
+synch_info_file <- '/mnt/EAS_shared/meerkat/working/METADATA/2022_synch_info_all.csv'
+load('/mnt/EAS_shared/meerkat/working/processed/acoustic/synched_animal2vec_predictions/labeled_animal2vec_synchs_2022_old.RData')
 
 files <- files_table$pred_file[which(files_table$status=='done')]
 #files <- files[!grepl('SOUNDFOC',files)]
 
 #path to directories containing verified, manually labeled files
-manual_dirs <- c('/mnt/EAS_ind/astrandburg/meerkat_synch_test/Synch checked/HM2017/corrected_csv/',
-                 '/mnt/EAS_ind/astrandburg/meerkat_synch_test/Synch checked/HM2019/corrected_csv/',
-                 '/mnt/EAS_ind/astrandburg/meerkat_synch_test/Synch checked/L2019/corrected_csv/')
+#manual_dirs <- c('/mnt/EAS_ind/astrandburg/meerkat_synch_test/Synch checked/HM2017/corrected_csv/',
+#                 '/mnt/EAS_ind/astrandburg/meerkat_synch_test/Synch checked/HM2019/corrected_csv/',
+#                 '/mnt/EAS_ind/astrandburg/meerkat_synch_test/Synch checked/L2019/corrected_csv/')
+manual_dirs <- c('/mnt/EAS_ind/astrandburg/meerkat_synch_test/files_for_SOROKA_fine_tuning/')
 manual_synch_files <- list.files(manual_dirs, recursive=T, full.names = T)
 
 #get the relevant auto synch file
@@ -28,6 +30,7 @@ for(i in 1:length(files)){
     next
   }
   manual_synch_file <- manual_synch_files[f]
+  print(manual_synch_file)
 
   #find the relevant synch info from the synchs_all table, and auto label the rest of the synchs
   synchs_file <- synchs_all[which(basename(synchs_all$pred_file) == basename(auto_file)),]
@@ -45,14 +48,14 @@ for(i in 1:length(files)){
   manual_filename <- paste0(gsub('_autosync.csv', '',outfile, fixed = T), '_manualsync.csv')
   write.table(combined_labs, manual_filename, sep = '\t', quote = F)
 
-  labels_autosync <- tryCatch(cocomo::meerkat_synch_audio_file_labels_to_UTC(path_to_label_file = outfile, quadratic_fit = T),
+  labels_autosync <- tryCatch(cocomo::meerkat_synch_audio_file_labels_to_UTC(path_to_label_file = outfile, quadratic_fit = T, path_to_synch_file = synch_info_file),
                               error = function(e) {
                                 message("Skipped due to error: ", e$message)
                                 return(NULL)
                               }
   )
 
-  labels_manualsync <- tryCatch(cocomo::meerkat_synch_audio_file_labels_to_UTC(path_to_label_file = manual_filename, quadratic_fit = T),
+  labels_manualsync <- tryCatch(cocomo::meerkat_synch_audio_file_labels_to_UTC(path_to_label_file = manual_filename, quadratic_fit = T, path_to_synch_file = synch_info_file),
                                 error = function(e) {
                                   message("Skipped due to error: ", e$message)
                                   return(NULL)
@@ -107,7 +110,7 @@ for(i in 1:length(files)){
 
 #Make plots
 par(mar=c(4,12,1,1))
-plot(median_abs, 1:length(median_abs), xlab = 'Median time difference (s)', ylab = '', yaxt='n', pch=19, col = 'red', cex = 0.5)
+plot(median_abs, 1:length(median_abs), xlab = 'Median time difference (s)', ylab = '', yaxt='n', pch=19, col = 'red', cex = 0.5, xlim=c(0,2))
 axis(side = 2, at = 1:length(medians), labels = tools::file_path_sans_ext(basename(files)), las = 2, cex.axis = 0.3)
 abline(v=0,lwd=2)
 abline(v=c(-.2,.2),lty=2)
@@ -128,3 +131,15 @@ abline(h=0.2, lty = 2)
 
 plot(frac_outliers_auto, median_abs, pch = 19, cex = 0.3, xlab = 'Fraction of outliers (auto synch)', ylab = 'Median absolute time difference (s)')
 abline(h=0.2, lty = 2)
+
+which(median_abs > 1)
+
+#for 2022, mismatching files (> 1 sec median absolute difference between the manual and automatic synchs) are:
+#"NQ_VNQM029_SHLS_S016_20220612-20120616_FL3_(2022_06_13-07_30_00).csv" - off by 3600
+# this one has an offset of an hour - the 3 times labeled using the script for manually labeling times were off by 1 hr (3 vs 2)
+#"RW_VRWF002_LRRT_S009_20220712-20120619_FL1_(2022_07_12-07_30_00).csv" - off by 843
+# in this one the manual synch looks really wonky
+#"RW_VRWF010_MBRT_S021_20220712-20120619_FL2_(2022_07_13-07_30_00).csv" - off by 5
+# here the auto synch has fewer points. the offset is not that huge though
+#"RW_VRWF010_MBRT_S021_20220712-20120619_FL6_(2022_07_17-07_30_00).csv" - off by 1.1
+# here the auto synch has not that many synch points

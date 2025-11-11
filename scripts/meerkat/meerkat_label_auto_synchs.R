@@ -27,17 +27,18 @@ library(htmltools)
 
 #User specifies what year
 year <- readline('What year would you like to label? ')
-labeler <- readline('What is your name?')
+labeler <- readline('Please enter your name ')
 
 #maximum drift per hour to allow (otherwise need to relabel synchs) - for edics, set to 15, for sorokas, set to 5
 if(year %in% c(2017, 2019, 2021)){
   max_drift_per_hr <- 15
+  predictions_dir <- paste0('/mnt/EAS_shared/meerkat/working/processed/acoustic/animal2vec_predictions/large_model_v2/', year, '/csv/')
 } else{
   max_drift_per_hr <- 5
+  predictions_dir <- paste0('/mnt/EAS_shared/meerkat/working/processed/acoustic/animal2vec_predictions/large_model_v3_with_soroka_finetune/meerkat_movecomm_', year, '/csv/')
 }
 
 
-predictions_dir <- paste0('/mnt/EAS_shared/meerkat/working/processed/acoustic/animal2vec_predictions/large_model_v2/', year, '/csv/')
 rawdata_dir <- '/mnt/EAS_shared/meerkat/archive/rawdata/'
 outdir <- '/mnt/EAS_shared/meerkat/working/processed/acoustic/synched_animal2vec_predictions/'
 outfile <- paste0(outdir, 'labeled_animal2vec_synchs_',year,'.RData') #output file to save file names and associated synchs that have been labeled
@@ -116,7 +117,7 @@ cat('#If after several tries you still receive a warning, you should flag the fi
 cat('\n')
 cat('You may quit at any time by pressing escape. Your progress will be saved\n')
 cat('Please note: it is a good idea to restart your R session periodically (e.g. once per day) when using this script. Otherwise it will build up many files in the tmp folder.\n')
-
+cat('...setting up files for a new year, please wait...')
 
 if(!file.exists(outfile)){
 
@@ -135,6 +136,7 @@ if(!file.exists(outfile)){
   pred_basenames <- tools::file_path_sans_ext(basename(pred_files))
   wav_basenames <- tools::file_path_sans_ext(basename(wav_files))
   files_table$wav_file <- wav_files[match(pred_basenames, wav_basenames)]
+  files_table$labeler <- NA
   files_table$status <- 'todo'
   files_table$status[which(is.na(files_table$wav_file))] <- NA
 
@@ -178,18 +180,7 @@ user_start_time <- Sys.time()
 
 #loop over all files and label 3 synchs per file
 idxs <- which(files_table$status == 'todo')
-#idxs <- sample(idxs) #shuffle the order to get some variety
-
-#for now, match to files that we have manual synchs for - remove this later
-manual_synch_files <- list.files(path = '/mnt/EAS_ind/astrandburg/meerkat_synch_test/meerkat_call_labels_synch_20251109/sync_checked/', full.names = F, recursive = T)
-files_to_match <- tools::file_path_sans_ext(basename(files_table$pred_file))
-matched <- rep(F, length(files_to_match))
-for(i in 1:length(files_to_match)){
-  if(sum(grepl(files_to_match[i], manual_synch_files, fixed = T))>0 & files_table$status[i]=='todo'){
-    matched[i] <- T
-  }
-}
-idxs <- which(matched)
+idxs <- sample(idxs) #shuffle the order to get some variety
 
 i <- 1
 while(i <= length(idxs)){
@@ -298,6 +289,7 @@ while(i <= length(idxs)){
   if(!file_complete){
     if(user_label == ''){
       files_table$status[idxs[i]] <- 'couldnotsynch'
+      files_table$labeler[idxs[i]] <- labeler
       synchs_all <- rbind(synchs_all, synchs_curr) #if there are too few synchs, still add them to the synchs_all table but mark the file in files_table as couldnotsynch
       i <- i + 1
     } else{
@@ -309,10 +301,12 @@ while(i <= length(idxs)){
       } else{
         if(grepl("^[0-9]{1,2}:[0-5][0-9]:[0-5][0-9]$", user_label)){
           files_table$status[idxs[i]] <- 'toofewsynchs'
+          files_table$labeler[idxs[i]] <- labeler
           synchs_all <- rbind(synchs_all, synchs_curr) #if there are too few synchs, still add them to the synchs_all table but mark the file in files_table as couldnotsynch
           i <- i + 1
         } else{
           files_table$status[idxs[i]] <- user_label
+          files_table$labeler[idxs[i]] <- labeler
           i <- i + 1
         }
       }
@@ -352,6 +346,7 @@ while(i <= length(idxs)){
     if(passed_checks){
       synchs_all <- rbind(synchs_all, synchs_curr)
       files_table$status[idxs[i]] <- 'done'
+      files_table$labeler[idxs[i]] <- labeler
 
       time_elapsed <- as.numeric(difftime(Sys.time(),user_start_time, units = 'mins'))
       user_time <- user_time + time_elapsed
