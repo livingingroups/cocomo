@@ -123,13 +123,6 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
     }
   }
 
-  #get minimum time
-  if((start_time - tail_time) < 1){
-    min_time <- 1
-  } else{
-    min_time <- start_time - tail_time
-  }
-
   #get plot boundaries
   if((start_time - tail_time) > 1){
     curr_xs = xs[,(start_time - tail_time):end_time]
