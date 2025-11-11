@@ -85,6 +85,13 @@
 - [`latlon_to_utm()`](https://livingingroups.github.io/cocomo/reference/latlon_to_utm.md)
   : Latitude / longitude to UTM conversion
 
+- [`meerkat_auto_label_synch_times()`](https://livingingroups.github.io/cocomo/reference/meerkat_auto_label_synch_times.md)
+  : Auto label synch times Automatic labeling of synch calls that are
+  not labeled with a time, assuming they should be close to multiples of
+  90 sec apart File must have at least one fully labeled synch - and
+  make sure this is correct! TODO: add more details on how this works
+  here TODO: change max drift to be per time in file instead of absolute
+
 - [`meerkat_check_data_availability_sheet()`](https://livingingroups.github.io/cocomo/reference/meerkat_check_data_availability_sheet.md)
   : Check meerkat data availability sheets for any inconsistencies or
   errors
