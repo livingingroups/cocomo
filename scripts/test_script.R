@@ -116,7 +116,7 @@ cocomo::generate_movement_and_calls_visualization(xs = xs, ys = ys, timestamps =
                                                   calls = calls, start_time = start_time,
                                                   end_time = end_time, time_step = 1, output_dir = '~/Desktop',
                                                   tail_time = 60, call_persist_time = 60,
-                                                  scalebar_size = 10, scalebar_offset = 40)
+                                                  scalebar_size = 10)
 
 #plot y conditioned on x
 pol <- cocomo::get_group_polarization(xs, ys, heading_type = 'temporal', t_window = 10, min_inds_tracked = 3)
