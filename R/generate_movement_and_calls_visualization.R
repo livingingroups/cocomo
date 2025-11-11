@@ -141,11 +141,12 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
   yrange <- ymax - ymin
 
   #pad the min and max a little bit
-  xmin <- xmin - xrange / 3
-  xmax <- xmax + xrange / 3
-  ymin <- ymin - yrange / 7
-  ymax <- ymax + yrange / 7
+  if (show_legend_calls && show_legend_inds) {xpad <- 3} else {xpad <- 8}
+  xmin <- xmin - xrange / xpad
+  xmax <- xmax + xrange / xpad
   xrange <- xmax - xmin
+  ymin <- ymin - yrange / 8
+  ymax <- ymax + yrange / 8
   yrange <- ymax - ymin
 
   # Clamp aspect ratio by expanding the shorter axis
