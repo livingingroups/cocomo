@@ -3,6 +3,8 @@
 library(cocomo)
 library(plotrix)
 library(lubridate)
+library(glue)
+library(stringr)
 
 load('~/Dropbox/meerkats/processed_data/HM2019_COORDINATES_all_sessions_with_scans.RData')
 
@@ -117,6 +119,24 @@ cocomo::generate_movement_and_calls_visualization(xs = xs, ys = ys, timestamps =
                                                   end_time = end_time, time_step = 1, output_dir = '~/Desktop',
                                                   tail_time = 60, call_persist_time = 60,
                                                   scalebar_size = 10)
+
+# make the gif
+gif_framerate <- 40
+
+# paths
+image_folder <- glue("~/Desktop/seq_{start_time}-{end_time}")
+start_ts <- str_replace_all(timestamps[start_time], c(" " = "_", ":" = "-"))
+end_ts <- str_replace_all(timestamps[end_time], c(" " = "_", ":" = "-"))
+output_gif_path <- glue("~/Desktop/all_{start_ts}-{end_ts}.gif")
+
+if (file.exists(output_gif_path)) {
+  #Delete file if it exists
+  file.remove(output_gif_path)
+}
+
+# create gif and remove png folder
+system(glue("ffmpeg -framerate {gif_framerate} -i {image_folder}/%d.png {output_gif_path}"))
+system(glue("rm -r {image_folder}"))
 
 #plot y conditioned on x
 pol <- cocomo::get_group_polarization(xs, ys, heading_type = 'temporal', t_window = 10, min_inds_tracked = 3)
