@@ -241,31 +241,6 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
                               crop = TRUE,
                               cachedir = tile_cache,
                               verbose = TRUE)
-    terra::crs(bm)
-
-    # speed up map generation
-    # downsample the basemap to at most the device resolution
-    nx <- terra::ncol(bm)
-    ny <- terra::nrow(bm)
-    fx <- ceiling(nx / width_px)
-    fy <- ceiling(ny / height_px)
-    if (fx > 1 || fy > 1) {
-      bm <- terra::aggregate(bm, fact = c(fx, fy), fun = "mean")
-    }
-
-    # Use first three bands (ignore alpha if present)
-    if (terra::nlyr(bm) >= 4) bm <- bm[[1:3]]
-    for (i in 1:3) {
-      v <- terra::values(bm[[i]], mat = FALSE)  # numeric vector
-      q <- stats::quantile(v, probs = c(0.02, 0.98), na.rm = TRUE, names = FALSE)
-      qmin <- q[1]; qmax <- q[2]
-      if (!is.finite(qmin) || !is.finite(qmax) || qmax <= qmin) next
-      b <- bm[[i]]
-      b <- (b - qmin) / (qmax - qmin)
-      b <- terra::clamp(b, 0, 1)
-      bm[[i]] <- b * 255
-    }
-    bm <- terra::round(bm)
   }
 
   # plotting the scalebar
