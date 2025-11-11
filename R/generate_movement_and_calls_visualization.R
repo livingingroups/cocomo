@@ -21,7 +21,7 @@
 #' @param show_legend_inds whether to plot a legend showing the names of the individuals (T or F)
 #' @param sort_legend_inds vector to sort the legend showing the names of the individuals (vector containing the sort order by index)
 #' @param show_legend_calls whether to plot a legend showing the names of the call types (T or F)
-#' @param legend_loc location of the individual legend, either `topleft','topright','bottomleft' or 'bottomright'`. Call legend will be opposite
+#' @param legend_loc location of the individual legend, either 'topleft','topright'. Call legend will be opposite
 #' @param scalebar_size number of meters for the scalebar, set to 0 to deactivate
 #' @param ind_names vector of names of the individuals
 #' @param bg_color background color of the plot ("black", "white", etc.)
@@ -67,6 +67,9 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
   }
   if(length(timestamps) != ncol(xs)){
     stop('timestamps must have the same dimensions as the columns of xs and ys or lons and lats')
+  }
+  if(legend_loc == "bottomright" | legend_loc == "bottomleft"){
+    stop('please choose topleft or topright to avoid conflict with scale bar or map attributions')
   }
 
   #---SETTING UP---
@@ -416,12 +419,6 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
       }
       if(legend_loc == "topleft"){
         call_legend_loc <- "topright"
-      }
-      if(legend_loc == "bottomright"){
-        call_legend_loc <- "bottomleft"
-      }
-      if(legend_loc == "bottomleft"){
-        call_legend_loc <- "bottomright"
       }
 
       max_h_user <- 0.95 * (ymax - ymin)
