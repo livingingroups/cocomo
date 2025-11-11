@@ -139,12 +139,7 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
     curr_ys = ys[,1:end_time]
   }
 
-  # compute raw bounds ignoring extreme outliers
-  xq <- stats::quantile(curr_xs, probs = c(0.10, 0.90), na.rm = TRUE)
-  yq <- stats::quantile(curr_ys, probs = c(0.10, 0.90), na.rm = TRUE)
-  xmin <- xq[1]; xmax <- xq[2]
-  ymin <- yq[1]; ymax <- yq[2]
-
+  # compute min, max & range
   xmin = min(curr_xs, na.rm=T)
   xmax = max(curr_xs, na.rm=T)
   ymin = min(curr_ys, na.rm=T)
@@ -277,7 +272,7 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
   total_idx <- length(time_steps)
 
   for(t in time_steps){
-    print(paste(img_idx, total_idx, sep="/"))
+    message(paste(img_idx, total_idx, sep="/"))
 
     #get xs and ys for current positions, x_t and y_t vectors
     x_t <- xs[,t]
@@ -382,7 +377,7 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
       legend(legend_loc, legend = lg_ind_names, pch = lg_pchs_inds,
             col = lg_colors_inds, text.col = lg_ind_text_color,
             cex = draw_cex, ncol = 1, y.intersp = 0.85,
-            inset = 0.01, bty = adjustcolor("black", alpha.f = 0.5))
+            inset = 0.01, bty = "black")
     }
 
     # plot call legend
@@ -415,7 +410,7 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
       legend(call_legend_loc, legend = call_types, pch = pchs_calls,
             pt.bg = colors_calls, col = "white", text.col = text_color,
             cex = draw_cex, ncol = 1, y.intersp = 0.85,
-            inset = 0.01, bty = adjustcolor("black", alpha.f = 0.85))
+            inset = 0.01, bty = "black")
     }
 
     #plot "tails" (past locations)
