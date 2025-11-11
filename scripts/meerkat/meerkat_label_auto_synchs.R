@@ -27,6 +27,7 @@ library(htmltools)
 
 #User specifies what year
 year <- readline('What year would you like to label? ')
+labeler <- readline('What is your name?')
 
 #maximum drift per hour to allow (otherwise need to relabel synchs) - for edics, set to 15, for sorokas, set to 5
 if(year %in% c(2017, 2019, 2021)){
@@ -177,7 +178,19 @@ user_start_time <- Sys.time()
 
 #loop over all files and label 3 synchs per file
 idxs <- which(files_table$status == 'todo')
-idxs <- sample(idxs) #shuffle the order to get some variety
+#idxs <- sample(idxs) #shuffle the order to get some variety
+
+#for now, match to files that we have manual synchs for - remove this later
+manual_synch_files <- list.files(path = '/mnt/EAS_ind/astrandburg/meerkat_synch_test/meerkat_call_labels_synch_20251109/sync_checked/', full.names = F, recursive = T)
+files_to_match <- tools::file_path_sans_ext(basename(files_table$pred_file))
+matched <- rep(F, length(files_to_match))
+for(i in 1:length(files_to_match)){
+  if(sum(grepl(files_to_match[i], manual_synch_files, fixed = T))>0 & files_table$status[i]=='todo'){
+    matched[i] <- T
+  }
+}
+idxs <- which(matched)
+
 i <- 1
 while(i <= length(idxs)){
   pred_file <- files_table$pred_file[idxs[i]]
