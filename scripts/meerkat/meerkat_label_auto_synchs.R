@@ -38,16 +38,19 @@ if(year %in% c(2017, 2019, 2021)){
   predictions_dir <- paste0('/mnt/EAS_shared/meerkat/working/processed/acoustic/animal2vec_predictions/large_model_v3_with_soroka_finetune/meerkat_movecomm_', year, '/csv/')
 }
 
+#directory of data availability sheets (used to match predictions to their associated wav files)
+data_availability_dir <- '/mnt/EAS_shared/meerkat/working/METADATA/data_availability_sheets/'
 
-rawdata_dir <- '/mnt/EAS_shared/meerkat/archive/rawdata/'
+#output directories and filenames
 outdir <- '/mnt/EAS_shared/meerkat/working/processed/acoustic/synched_animal2vec_predictions/'
 outfile <- paste0(outdir, 'labeled_animal2vec_synchs_',year,'.RData') #output file to save file names and associated synchs that have been labeled
 outfile_backup <- paste0(outdir, 'labeled_animal2vec_synchs_',year,'_backup_',Sys.Date(), '.RData')
+
+#parameters
 max_to_try <- 20 #max number of synchs to try before giving up on that file
 n_synchs_to_label <- 3 # number of synchs to label per file
 pad_start <- 0.5
 pad_end <- 2
-strings_to_exclude <- c('SUNNING','THERMAL','SOCIAL','SOUND_LASER','READMEs','CONTINUOUS_AUDIO','PLAYBACKS','Tag_Tests','recruitment_playbacks') #files containing these strings in the path will be excluded from synching
 
 #FUNCS
 #Function to play audio segment in browser (RStudio Server media viewer)
@@ -122,35 +125,56 @@ cat('...setting up files for a new year, please wait...')
 if(!file.exists(outfile)){
 
   #SETUP (if not already done)
-  #get wave files
-  wav_files <- list.files(rawdata_dir, pattern = '(?i)\\.wav$', ignore.case = T, recursive = T, full.names=T)
-
   #get prediction files
   pred_files <- list.files(predictions_dir, recursive = T, full.names=T)
 
   #remove secondary predictions
   pred_files <- pred_files[which(!grepl('secondary_predictions',pred_files))]
 
-  #make a table of prediction files and associated paths to wave files
-  files_table <- data.frame(pred_file = pred_files)
-  pred_basenames <- tools::file_path_sans_ext(basename(pred_files))
-  wav_basenames <- tools::file_path_sans_ext(basename(wav_files))
-  files_table$wav_file <- wav_files[match(pred_basenames, wav_basenames)]
+  #get data from availability sheets
+  availability_data <- data.frame()
+  availability_sheets <- list.files(data_availability_dir, full.names = T, pattern = 'csv')
+  for(i in 1:length(availability_sheets)){
+    tmp <- read.csv(availability_sheets[i], header = T)
+    availability_data <- rbind(availability_data, tmp)
+  }
+  #get audio data only
+  availability_data <- availability_data$filename[which(availability_data$datatype == 'audio')]
+  availability_data <- paste0('/mnt/',availability_data)
+
+  #replace any \s with /s in file paths
+  availability_data <- gsub("\\","/", availability_data, fixed = T)
+
+  #get all files that are referred to in the availability sheets
+  avail_files <- c()
+  for(i in 1:length(availability_data)){
+    if(!grepl('.wav', availability_data[i], fixed = T) & !grepl('.WAV', availability_data[i], fixed = T)){
+      subdir_files <- list.files(availability_data[i], full.names = T, pattern = "\\.wav$|\\.WAV$", recursive = T)
+      avail_files <- c(avail_files, subdir_files)
+    } else{
+      avail_files <- c(avail_files, availability_data[i])
+    }
+  }
+
+
+  #make a table of prediction files and associated paths to wave files from the availability sheets
+  files_table <- data.frame(pred_file = pred_files, wav_file = NA)
+  avail_basenames <- tools::file_path_sans_ext(basename(avail_files))
+  for(i in 1:nrow(files_table)){
+    pred_basename <- tools::file_path_sans_ext(basename(files_table$pred_file[i]))
+    match_id <- match(pred_basename, avail_basenames)
+    if(!is.na(match_id)){
+      files_table$wav_file[i] <- avail_files[match_id]
+    }
+  }
+
+  #remove rows with no associated wav file
+  files_table <- files_table[which(!is.na(files_table$wav_file)),]
+
+  #prep rows for recording file status and labeler
   files_table$labeler <- NA
   files_table$status <- 'todo'
   files_table$status[which(is.na(files_table$wav_file))] <- NA
-
-  #exclude wav paths with one of the target words
-  rows_to_exclude <- c()
-  for(s in strings_to_exclude){
-    new_rows <- grep(s, files_table$wav_file)
-    if(length(new_rows)>0){
-      rows_to_exclude <- union(rows_to_exclude, new_rows)
-    }
-  }
-  if(length(rows_to_exclude)>0){
-    files_table <- files_table[-rows_to_exclude,]
-  }
 
   #initialize synchs table
   synchs_all <- data.frame()
