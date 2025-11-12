@@ -24,6 +24,7 @@
 library(tuneR)
 library(base64enc)
 library(htmltools)
+library(cocomo)
 
 #User specifies what year
 year <- readline('What year would you like to label? ')
