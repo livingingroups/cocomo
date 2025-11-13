@@ -48,7 +48,7 @@ outfile <- paste0(outdir, 'labeled_animal2vec_synchs_',year,'.RData') #output fi
 outfile_backup <- paste0(outdir, 'labeled_animal2vec_synchs_',year,'_backup_',Sys.Date(), '.RData')
 
 #parameters
-max_to_try <- 20 #max number of synchs to try before giving up on that file
+max_to_try <- 2000 #max number of synchs to try before giving up on that file - changed to 200 so basically never give up
 n_synchs_to_label <- 3 # number of synchs to label per file
 pad_start <- 0.5
 pad_end <- 2
@@ -270,10 +270,14 @@ while(i <= length(idxs)){
 
     #if the user enters something in the right format (H:MM:SS) then add it as a label
     if(grepl("^[0-9]{1,2}:[0-5][0-9]:[0-5][0-9]$", user_label)){
-      synchs$label[j] <- user_label
-      synchs$done[j] <- T
-      j <- j + 1
-      next
+      clock_time <- cocomo::parse_audition_time(user_label)
+      if((clock_time %% 90) == 0){ #must be a multiple of 90 sec
+        cat('not a multiple of 90 sec\n')
+        synchs$label[j] <- user_label
+        synchs$done[j] <- T
+        j <- j + 1
+        next
+      }
     }
 
     #if the user types back, go back 1
