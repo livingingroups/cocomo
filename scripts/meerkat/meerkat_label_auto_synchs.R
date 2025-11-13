@@ -272,11 +272,12 @@ while(i <= length(idxs)){
     if(grepl("^[0-9]{1,2}:[0-5][0-9]:[0-5][0-9]$", user_label)){
       clock_time <- cocomo::parse_audition_time(user_label)
       if((clock_time %% 90) == 0){ #must be a multiple of 90 sec
-        cat('not a multiple of 90 sec\n')
         synchs$label[j] <- user_label
         synchs$done[j] <- T
         j <- j + 1
         next
+      } else{
+        cat('not a multiple of 90 sec\n')
       }
     }
 
