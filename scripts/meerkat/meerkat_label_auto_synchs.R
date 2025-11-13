@@ -237,7 +237,7 @@ while(i <= length(idxs)){
   file_complete <- F
   j <- 1
 
-  print(pred_file)
+  print(basename(pred_file))
   while((j <= nrow(synchs)) & (j <= max_to_try)){
 
     if(sum(synchs$done,na.rm=T)>= n_synchs_to_label){
