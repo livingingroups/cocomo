@@ -11,8 +11,6 @@
 #If you'd like to flag the file as problematic, type "flag - comment". You will then skip it, and it will be specially flagged, and your comment (which should describe why you are flagging it) will be saved.
 #If you'd like to skip a file for some other reason, type "skip" (you will skip the file, and it will be labeled as skipped)
 #
-#If after 20 attempts to label synchs, you have not labeled at least 3, the file will automatically be skipped and labeled as "couldnotsynch"
-#
 #After you finish labeling a file, the system will check whether the synchs you have labeled make sense together (are approx the right time difference apart).
 #If they are not, you will get a warning and you will have to repeat that file.
 #In this case, try the file again, listening carefully to the synchs. Potentially try labeling other synchs than those you tried before.
@@ -112,8 +110,6 @@ cat('If you would like to flag the file as problematic, type "flag" (you will th
 cat('If you like, when you flag a file, you can write a comment afterward to specify what the issue is - you should write "flag - comment"\n')
 cat('If you would like to skip a file for some other reason (e.g. its from another experiment), type "skip" (you will skip the file, and it will be labeled as skipped)\n')
 cat('\n')
-cat('If after 20 attempts to label synchs, you have not labeled at least 3, the file will automatically be skipped and labeled as "couldnotsynch"\n')
-cat('\n')
 cat('After you finish labeling a file, the system will check whether the synchs you have labeled make sense together (are approx the right time difference apart).\n')
 cat('If they are not, you will get a warning and you will have to repeat that file.\n')
 cat('In this case, try the file again, listening carefully to the synchs. Potentially try labeling other synchs than those you tried before.\n')
@@ -121,7 +117,6 @@ cat('#If after several tries you still receive a warning, you should flag the fi
 cat('\n')
 cat('You may quit at any time by pressing escape. Your progress will be saved\n')
 cat('Please note: it is a good idea to restart your R session periodically (e.g. once per day) when using this script. Otherwise it will build up many files in the tmp folder.\n')
-cat('...setting up files for a new year, please wait...')
 
 if(!file.exists(outfile)){
 
