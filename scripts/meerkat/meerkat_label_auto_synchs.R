@@ -200,190 +200,194 @@ user_start_time <- Sys.time()
 
 #loop over all files and label 3 synchs per file
 idxs <- which(files_table$status == 'todo')
-idxs <- sample(idxs) #shuffle the order to get some variety
 
-i <- 1
-while(i <= length(idxs)){
-  pred_file <- files_table$pred_file[idxs[i]]
-  wav_file <- files_table$wav_file[idxs[i]]
+if(length(idxs)>0){
+  idxs <- sample(idxs) #shuffle the order to get some variety
 
-  #read in labels
-  labels <- read.csv(pred_file, header = T, sep = '\t')
-  synchs <- labels[which(labels$Name == 'synch'),]
+  i <- 1
+  while(i <= length(idxs)){
+    pred_file <- files_table$pred_file[idxs[i]]
+    wav_file <- files_table$wav_file[idxs[i]]
 
-  if(nrow(synchs)==0){
-    files_table$status[idxs[i]] <- 'nosynchs'
-    i <- i + 1
-    next
-  }
+    #read in labels
+    labels <- read.csv(pred_file, header = T, sep = '\t')
+    synchs <- labels[which(labels$Name == 'synch'),]
 
-  #sort synchs by likelihood
-  synchs$likeli <- as.numeric(substring(synchs$Description, 1, 5))
-  synchs <- synchs[order(synchs$likeli, decreasing = T),]
-
-  #make a column to indicate whether the synch has been labeled or not
-  #1 = labeled, 0 = unlabeled (because couldn't be heard), NA = not tried yet
-  synchs$done <- NA
-
-  #make a column to contain the label (string)
-  synchs$label <- ''
-
-  #for this file, loop over synchs and label them
-  file_complete <- F
-  j <- 1
-
-  print(basename(pred_file))
-  while((j <= nrow(synchs)) & (j <= max_to_try)){
-
-    if(sum(synchs$done,na.rm=T)>= n_synchs_to_label){
-      synchs_curr <- synchs[which(synchs$done == T),]
-      synchs_curr$pred_file <- pred_file
-      synchs_curr$wav_file <- wav_file
-      file_complete <- T
-      break
-    }
-
-    start_time <- cocomo::parse_audition_time(synchs$Start[j])
-    duration <- cocomo::parse_audition_time(synchs$Duration[j])
-
-    play_start <- start_time - pad_start
-    if(play_start < 0){
-      play_start <- 0
-    }
-
-    play_end <- start_time + duration + pad_end
-
-    play_audio_segment(wav_file, from = play_start, to = play_end )
-    user_label <- readline(prompt = 'Synch Label (H:MM:SS): ')
-
-    #if the user presses enter (enters nothing), skip to the next label
-    if(user_label == ''){
-      synchs$done[j] <- F
-      j <- j + 1
+    if(nrow(synchs)==0){
+      files_table$status[idxs[i]] <- 'nosynchs'
+      i <- i + 1
       next
     }
 
-    #if the user enters something in the right format (H:MM:SS) then add it as a label
-    if(grepl("^[0-9]{1,2}:[0-5][0-9]:[0-5][0-9]$", user_label)){
-      clock_time <- cocomo::parse_audition_time(user_label)
-      if((clock_time %% 90) == 0){ #must be a multiple of 90 sec
-        synchs$label[j] <- user_label
-        synchs$done[j] <- T
+    #sort synchs by likelihood
+    synchs$likeli <- as.numeric(substring(synchs$Description, 1, 5))
+    synchs <- synchs[order(synchs$likeli, decreasing = T),]
+
+    #make a column to indicate whether the synch has been labeled or not
+    #1 = labeled, 0 = unlabeled (because couldn't be heard), NA = not tried yet
+    synchs$done <- NA
+
+    #make a column to contain the label (string)
+    synchs$label <- ''
+
+    #for this file, loop over synchs and label them
+    file_complete <- F
+    j <- 1
+
+    print(basename(pred_file))
+    while((j <= nrow(synchs)) & (j <= max_to_try)){
+
+      if(sum(synchs$done,na.rm=T)>= n_synchs_to_label){
+        synchs_curr <- synchs[which(synchs$done == T),]
+        synchs_curr$pred_file <- pred_file
+        synchs_curr$wav_file <- wav_file
+        file_complete <- T
+        break
+      }
+
+      start_time <- cocomo::parse_audition_time(synchs$Start[j])
+      duration <- cocomo::parse_audition_time(synchs$Duration[j])
+
+      play_start <- start_time - pad_start
+      if(play_start < 0){
+        play_start <- 0
+      }
+
+      play_end <- start_time + duration + pad_end
+
+      play_audio_segment(wav_file, from = play_start, to = play_end )
+      user_label <- readline(prompt = 'Synch Label (H:MM:SS): ')
+
+      #if the user presses enter (enters nothing), skip to the next label
+      if(user_label == ''){
+        synchs$done[j] <- F
         j <- j + 1
         next
-      } else{
-        cat('not a multiple of 90 sec\n')
       }
-    }
 
-    #if the user types back, go back 1
-    if(user_label == 'back'){
-      j <- j - 1
-
-      #make sure not to go back beyond the start
-      if(j < 1){
-        j <- 1
-      }
-      next
-    }
-
-    #if the user realizes the file is from a time not on a meerkat, they can type notonmeerkat to skip the entire file
-    if(user_label == 'notonmeerkat'){
-      break
-    }
-
-    #if the user wants to skip the file for another reason ,they can do so by typing skip
-    if(user_label == 'skip'){
-      break
-    }
-
-    #flag the file if something seems wrong with it
-    if(substring(user_label, 1, 4) == 'flag'){
-      break
-    }
-
-    if(user_label == 'prevfile'){
-      break
-    }
-
-    #otherwise just repeat the same synch
-
-  }
-
-  #if the file was skipped, note this in the table and move on to next file
-  if(!file_complete){
-    if(user_label == ''){
-      files_table$status[idxs[i]] <- 'couldnotsynch'
-      files_table$labeler[idxs[i]] <- labeler
-      synchs_all <- rbind(synchs_all, synchs_curr) #if there are too few synchs, still add them to the synchs_all table but mark the file in files_table as couldnotsynch
-      i <- i + 1
-    } else{
-      if(user_label=='prevfile'){
-        i <- i - 1
-        if(i < 1){
-          i <- 1
-        }
-      } else{
-        if(grepl("^[0-9]{1,2}:[0-5][0-9]:[0-5][0-9]$", user_label)){
-          files_table$status[idxs[i]] <- 'toofewsynchs'
-          files_table$labeler[idxs[i]] <- labeler
-          synchs_all <- rbind(synchs_all, synchs_curr) #if there are too few synchs, still add them to the synchs_all table but mark the file in files_table as couldnotsynch
-          i <- i + 1
+      #if the user enters something in the right format (H:MM:SS) then add it as a label
+      if(grepl("^[0-9]{1,2}:[0-5][0-9]:[0-5][0-9]$", user_label)){
+        clock_time <- cocomo::parse_audition_time(user_label)
+        if((clock_time %% 90) == 0){ #must be a multiple of 90 sec
+          synchs$label[j] <- user_label
+          synchs$done[j] <- T
+          j <- j + 1
+          next
         } else{
-          files_table$status[idxs[i]] <- user_label
-          files_table$labeler[idxs[i]] <- labeler
-          i <- i + 1
+          cat('not a multiple of 90 sec\n')
+        }
+      }
+
+      #if the user types back, go back 1
+      if(user_label == 'back'){
+        j <- j - 1
+
+        #make sure not to go back beyond the start
+        if(j < 1){
+          j <- 1
+        }
+        next
+      }
+
+      #if the user realizes the file is from a time not on a meerkat, they can type notonmeerkat to skip the entire file
+      if(user_label == 'notonmeerkat'){
+        break
+      }
+
+      #if the user wants to skip the file for another reason ,they can do so by typing skip
+      if(user_label == 'skip'){
+        break
+      }
+
+      #flag the file if something seems wrong with it
+      if(substring(user_label, 1, 4) == 'flag'){
+        break
+      }
+
+      if(user_label == 'prevfile'){
+        break
+      }
+
+      #otherwise just repeat the same synch
+
+    }
+
+    #if the file was skipped, note this in the table and move on to next file
+    if(!file_complete){
+      if(user_label == ''){
+        files_table$status[idxs[i]] <- 'couldnotsynch'
+        files_table$labeler[idxs[i]] <- labeler
+        synchs_all <- rbind(synchs_all, synchs_curr) #if there are too few synchs, still add them to the synchs_all table but mark the file in files_table as couldnotsynch
+        i <- i + 1
+      } else{
+        if(user_label=='prevfile'){
+          i <- i - 1
+          if(i < 1){
+            i <- 1
+          }
+        } else{
+          if(grepl("^[0-9]{1,2}:[0-5][0-9]:[0-5][0-9]$", user_label)){
+            files_table$status[idxs[i]] <- 'toofewsynchs'
+            files_table$labeler[idxs[i]] <- labeler
+            synchs_all <- rbind(synchs_all, synchs_curr) #if there are too few synchs, still add them to the synchs_all table but mark the file in files_table as couldnotsynch
+            i <- i + 1
+          } else{
+            files_table$status[idxs[i]] <- user_label
+            files_table$labeler[idxs[i]] <- labeler
+            i <- i + 1
+          }
         }
       }
     }
-  }
 
-  #if file is complete, check that synchs line up reasonably well
-  #if so, save, if not, alert the user and try again
-  if(file_complete){
-    passed_checks <- F
-
-    #check if the synchs line up
-
-    #get time into file
-    synchs_curr$time_into_file <- sapply(synchs_curr$Start, cocomo::parse_audition_time)
-    synchs_curr <- synchs_curr[order(synchs_curr$time_into_file),]
-
-    #get labeled times of synchs
-    synchs_curr$synch_time_sec <- sapply(synchs_curr$label, cocomo::parse_audition_time)
-
-    #get time elapsed according to labels and according to file time
-    synchs_curr$dt_labeled <- synchs_curr$synch_time_sec - synchs_curr$synch_time_sec[1]
-    synchs_curr$dt_filetime <- synchs_curr$time_into_file - synchs_curr$time_into_file[1]
-
-    #get drift
-    synchs_curr$drift <- abs((synchs_curr$dt_filetime - synchs_curr$dt_labeled) / synchs_curr$dt_filetime) * 60 * 60 #drift per hr
-    max_drift <- max(synchs_curr$drift, na.rm=T)
-
-    #if max drift is below the cutoff, the checks are passed
-    if(max_drift < max_drift_per_hr){
-      passed_checks <- T
-    } else{
+    #if file is complete, check that synchs line up reasonably well
+    #if so, save, if not, alert the user and try again
+    if(file_complete){
       passed_checks <- F
-    }
 
-    #if checks were passed, append to data frame and save, then move to next file
-    if(passed_checks){
-      synchs_all <- rbind(synchs_all, synchs_curr)
-      files_table$status[idxs[i]] <- 'done'
-      files_table$labeler[idxs[i]] <- labeler
+      #check if the synchs line up
 
-      time_elapsed <- as.numeric(difftime(Sys.time(),user_start_time, units = 'mins'))
-      user_time <- user_time + time_elapsed
+      #get time into file
+      synchs_curr$time_into_file <- sapply(synchs_curr$Start, cocomo::parse_audition_time)
+      synchs_curr <- synchs_curr[order(synchs_curr$time_into_file),]
 
-      save(list = c('synchs_all', 'files_table','user_time'), file = outfile)
-      save(list = c('synchs_all', 'files_table','user_time'), file = outfile_backup)
-      i <- i + 1 #move on to next file
-    } else{
-      print(paste0('Warning: clock drift checks were not passed. Max clock drift per hr = ',max_drift, '--> redoing'))
-      files_table$status[idxs[i]] <- 'todo'
+      #get labeled times of synchs
+      synchs_curr$synch_time_sec <- sapply(synchs_curr$label, cocomo::parse_audition_time)
+
+      #get time elapsed according to labels and according to file time
+      synchs_curr$dt_labeled <- synchs_curr$synch_time_sec - synchs_curr$synch_time_sec[1]
+      synchs_curr$dt_filetime <- synchs_curr$time_into_file - synchs_curr$time_into_file[1]
+
+      #get drift
+      synchs_curr$drift <- abs((synchs_curr$dt_filetime - synchs_curr$dt_labeled) / synchs_curr$dt_filetime) * 60 * 60 #drift per hr
+      max_drift <- max(synchs_curr$drift, na.rm=T)
+
+      #if max drift is below the cutoff, the checks are passed
+      if(max_drift < max_drift_per_hr){
+        passed_checks <- T
+      } else{
+        passed_checks <- F
+      }
+
+      #if checks were passed, append to data frame and save, then move to next file
+      if(passed_checks){
+        synchs_all <- rbind(synchs_all, synchs_curr)
+        files_table$status[idxs[i]] <- 'done'
+        files_table$labeler[idxs[i]] <- labeler
+
+        time_elapsed <- as.numeric(difftime(Sys.time(),user_start_time, units = 'mins'))
+        user_time <- user_time + time_elapsed
+
+        save(list = c('synchs_all', 'files_table','user_time'), file = outfile)
+        save(list = c('synchs_all', 'files_table','user_time'), file = outfile_backup)
+        i <- i + 1 #move on to next file
+      } else{
+        print(paste0('Warning: clock drift checks were not passed. Max clock drift per hr = ',max_drift, '--> redoing'))
+        files_table$status[idxs[i]] <- 'todo'
+      }
     }
   }
 }
+print('this year is completed')
 
 
