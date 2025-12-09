@@ -1,5 +1,7 @@
 # Convert from matrix format to dataframe
 
+**\[experimental\]**
+
 Creates a dataframe out of GPS data in "matrix format" suitable for
 plotting with ggplot
 

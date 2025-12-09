@@ -1,5 +1,7 @@
 # Plot network matrix
 
+**\[experimental\]**
+
 Plot a matrix with color representing the edge weights of a network
 
 ## Usage

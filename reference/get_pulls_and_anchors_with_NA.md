@@ -1,5 +1,7 @@
 # Wrapper for `get_pulls_and_anchors` function, handling datasets with NAs
 
+**\[experimental\]**
+
 Create a list of time blocks using NAs in the dataset as seperation
 points, then run the `get_pulls_and_anchors` function on each of these
 blocks separately.

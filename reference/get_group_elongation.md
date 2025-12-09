@@ -1,5 +1,7 @@
 # Get group polarization
 
+**\[experimental\]**
+
 Computes the elongation of the group at each time step `t` as well as
 the long axis vector. The elongation is a measure of how "line-link" vs
 "circle-like" the group is, ranging from 0 (completely circular) to 1

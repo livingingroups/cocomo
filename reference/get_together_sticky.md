@@ -1,6 +1,6 @@
 # Get whether two individuals are together, using a "sticky" definition
 
-Get whether two individuals are together, using a "sticky" definition
+**\[experimental\]**
 
 ## Usage
 

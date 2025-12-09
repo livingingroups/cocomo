@@ -1,5 +1,7 @@
 # Synch labels within audio file to UTC time
 
+**\[experimental\]**
+
 Reads in a label file (in Audition format) and a synch file, gets synch
 points, and synchs all labels in the file to UTC. Outputs a table with
 an additional column specifying timestamp_UTC. Currently only designed

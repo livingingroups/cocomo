@@ -1,7 +1,12 @@
 # Get spatially discretized trajectories
 
+**\[experimental\]**
+
 Gets spatially discretized trajectories from temporally discretized
 trajectories, using a certain "ruler length" R.
+
+TODO: Code doesn't deal well with strings of NAs within it - look into
+this.
 
 ## Usage
 
@@ -39,11 +44,6 @@ coordinates of each point along the spatially discretized trajectory),
 `spat_ys` (the y coordinates of each point along the spatially
 discretized trajectory), `spat_breaks` (indexes to starts of breaks in
 the new spatially discretized data), `R` (radius used)
-
-## Details
-
-TODO: Code doesn't deal well with strings of NAs within it - look into
-this.
 
 ## Author
 

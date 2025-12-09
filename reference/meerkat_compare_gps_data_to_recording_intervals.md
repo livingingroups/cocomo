@@ -1,5 +1,7 @@
 # Compare recorded meerkat GPS data to recording intervals noted in metadata
 
+**\[experimental\]**
+
 For a given round of meerkat collaring, verifies whether the GPS data
 that is expected to be present (based on `GROUPYEAR_MOV_SUMMARY.txt`
 file in METADATA) is present in `xs` and `ys` matrices from

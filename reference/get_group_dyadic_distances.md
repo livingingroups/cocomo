@@ -1,5 +1,7 @@
 # Get group dyadic distances
 
+**\[experimental\]**
+
 Computes the distance between each pair of individuals over time.
 
 ## Usage

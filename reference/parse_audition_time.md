@@ -1,5 +1,7 @@
 # Parse Adobe Audition formatted time
 
+**\[experimental\]**
+
 Parses a time from the `Start` or `Duration` column of an Audition label
 file to seconds
 

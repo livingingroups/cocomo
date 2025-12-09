@@ -1,5 +1,7 @@
 # Import Axy-Trek GPS file
 
+**\[experimental\]**
+
 Imports GPS data from an Axy Trek file, which may have lines that are
 not formatted such that read.delim can parse them. Can currently handle
 files from 2021-2023 at least. Output data frame has column names

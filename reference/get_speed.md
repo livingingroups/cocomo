@@ -1,5 +1,7 @@
 # Get speed
 
+**\[stable\]**
+
 Gets an individual's speed over time, using a specified time step to
 compute the speed
 

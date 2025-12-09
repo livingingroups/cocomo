@@ -1,5 +1,7 @@
 # Get group heading
 
+**\[stable\]**
+
 Computes the group centroid heading over time using either temporal or
 spatial headings, and going either forward (into the future) or backward
 (into the past) when computing the heading

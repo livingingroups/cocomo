@@ -1,5 +1,7 @@
 # Get directedness
 
+**\[experimental\]**
+
 Gets the directedness of a trajectory over a given time window, as a
 function of time.
 

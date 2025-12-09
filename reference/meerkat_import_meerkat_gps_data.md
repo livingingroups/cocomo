@@ -1,5 +1,7 @@
 # Import meerkat GPS data
 
+**\[experimental\]**
+
 \#Imports raw meerkat GPS data from Technosmart files (Gipsy 5 or
 Axy-Trek) assuming a standardized file folder structure of `input_dir`
 and standardized naming schemes as done in the meerkat group collaring

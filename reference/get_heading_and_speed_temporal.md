@@ -1,5 +1,7 @@
 # Get heading and speed over time (temporal)
 
+**\[stable\]**
+
 Gets the headings and speeds of an individual over time given a
 trajectory. Uses a temporal window `t_window` (in units of timesteps) to
 compute the headings and speeds, and can compute them based on future

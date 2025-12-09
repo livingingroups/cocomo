@@ -1,5 +1,7 @@
 # Get spatially discretized heading and speed over time
 
+**\[stable\]**
+
 Gets spatially discretized heading for a given individual trajectory
 This is defined as the unit vector pointing from the individual's
 current location at time `t` to its location after it mas moved a

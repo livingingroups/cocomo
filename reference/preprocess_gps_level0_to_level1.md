@@ -1,5 +1,7 @@
 # Preprocess GPS data (in matrix format) from level 0 to level 1
 
+**\[experimental\]**
+
 This function takes in a level 0 dataset (uncleaned location data in UTM
 coordinates) and performs minimal pre-processing to return a level 1
 dataset. See

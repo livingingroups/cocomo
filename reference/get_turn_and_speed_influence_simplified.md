@@ -1,5 +1,7 @@
 # Get simplified turn and speed influence
 
+**\[stable\]**
+
 Get the simplified turn and speed influence (movement and positional)
 between all pairs of individuals `i` and `j`, or, if `centroid = T` for
 all individuals `i` on the group centroid excluding `i`.

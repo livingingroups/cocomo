@@ -1,5 +1,7 @@
 # Get nearest neighbor distance
 
+**\[experimental\]**
+
 Gets the distance to an individual `i`'s nearest neighbor over time
 
 ## Usage

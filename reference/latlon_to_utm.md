@@ -1,5 +1,7 @@
 # Latitude / longitude to UTM conversion
 
+**\[experimental\]**
+
 Converts a matrix of lons and lats (lons first column, lats second
 column) to UTM eastings and northings (eastings first column, northings
 second column)

@@ -1,5 +1,28 @@
 # Check meerkat data availability sheets for any inconsistencies or errors
 
+**\[experimental\]**
+
+## Usage
+
+``` r
+meerkat_check_data_availability_sheet(
+  path_to_data_availability_sheet,
+  path_to_data_dir
+)
+```
+
+## Arguments
+
+- path_to_data_availability_sheet:
+
+  path to data availability sheet on the server (.csv)
+
+- path_to_data_dir:
+
+  path to the outer directory of the relevant deployment
+
+## Details
+
 Reads in a data availability sheet and checks for the following:
 
 1.  Flag any missing fields
@@ -26,27 +49,6 @@ Reads in a data availability sheet and checks for the following:
 2.  Finds files on the server that involve an individual from the group
     on a date included in the deployment, but aren't in the data
     availability sheet
-
-## Usage
-
-``` r
-meerkat_check_data_availability_sheet(
-  path_to_data_availability_sheet,
-  path_to_data_dir
-)
-```
-
-## Arguments
-
-- path_to_data_availability_sheet:
-
-  path to data availability sheet on the server (.csv)
-
-- path_to_data_dir:
-
-  path to the outer directory of the relevant deployment
-
-## Details
 
 Outputs everything into two csvs for manual checking:
 

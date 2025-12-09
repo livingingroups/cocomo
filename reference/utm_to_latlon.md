@@ -1,8 +1,10 @@
 # UTM to latitude / longitude conversion
 
-Converts a matrix of UTM eastings and northings (eastings first column,
-northings second column) to a matrix of lons and lats (lons first
-column, lats second column)
+**\[experimental\]**
+
+Converts a matricx of UTM eastings and northings (eastings first column,
+northings second olumn) to a matrix of lons and lats (lons first column,
+lats second column)
 
 ## Usage
 

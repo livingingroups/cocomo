@@ -1,5 +1,7 @@
 # Identify group splits and merges from multi-individual trajectory data
 
+**\[stable\]**
+
 Detects splits and merges (a.k.a. fissions and fusions) using
 "sticky-DBSCAN" method from Libera et al. 2023.
 

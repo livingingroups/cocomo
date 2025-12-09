@@ -1,5 +1,7 @@
 # Analyze split or merge event
 
+**\[experimental\]**
+
 Analyze (and, if `make_plot=T` make a visualization of) a fission-fusion
 event.
 

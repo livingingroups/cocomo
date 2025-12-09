@@ -1,8 +1,11 @@
 # Get group centroid
 
-Get the group's centroid (mean x and y position) over time. If
-specified, only compute if at least `min_inds_tracked` are tracked in a
-given time step.
+**\[stable\]**
+
+Get the group's centroid (mean x and y position) over time.
+
+If specified, only compute if at least `min_inds_tracked` are tracked in
+a given time step.
 
 ## Usage
 

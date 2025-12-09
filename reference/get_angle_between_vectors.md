@@ -1,5 +1,7 @@
 # Get angle between vectors in radians or degrees
 
+**\[experimental\]**
+
 Get the angle between two vectors specified by their end points using
 law of cosines. Vector 1 is defined as the vector pointing from the
 point `(x1_i, y1_i)` to `(x1_f, y1_f)` and vector 2 is defined as the

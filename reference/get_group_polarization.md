@@ -1,5 +1,7 @@
 # Get group polarization
 
+**\[experimental\]**
+
 Computes the polarization of the group at each time step `t`. The
 polarization is a measure of how aligned the group is, ranging from 0
 (completely unaligned) to 1 (completely aligned) The polarization is

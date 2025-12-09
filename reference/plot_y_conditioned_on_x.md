@@ -1,8 +1,6 @@
 # Plot a statistic of y conditioned on the value of x
 
-For paired measurements `(x,y)`, plot a specified statistic `stat` (e.g.
-the mean) of `y` for values of `x` within bins specified by the vector
-`bins`
+**\[experimental\]**
 
 ## Usage
 
@@ -89,6 +87,10 @@ of `y` for each bin as specified by `error_bar_range`) and `ns` (the
 number of data points in each bin)
 
 ## Details
+
+For paired measurements `(x,y)`, plot a specified statistic `stat` (e.g.
+the mean) of `y` for values of `x` within bins specified by the vector
+`bins`
 
 For example, if `stat = 'mean'`, the function will plot `vals[i]` vs.
 `bins[i]` where `vals[i]` is defined as

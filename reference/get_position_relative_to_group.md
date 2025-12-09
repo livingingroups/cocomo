@@ -1,5 +1,7 @@
 # Get positions relative to group
 
+**\[experimental\]**
+
 Get individual position relative to the group centroid and heading for
 all individuals.
 

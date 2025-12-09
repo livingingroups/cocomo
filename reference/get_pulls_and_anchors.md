@@ -1,5 +1,7 @@
 # Get pulls and anchors
 
+**\[experimental\]**
+
 Get successful ('pull') and failed ('anchor') dyadic interactions
 between individuals a and b.
 

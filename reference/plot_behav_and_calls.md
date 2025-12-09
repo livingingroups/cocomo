@@ -1,7 +1,8 @@
-# Plot individual behavior and calls during a time period specified by the user. Also include a summary of the behavior of the rest of the group.
+# Plot individual behavior and calls during a time period specified by the user.
 
-Plot individual behavior and calls during a time period specified by the
-user. Also include a summary of the behavior of the rest of the group.
+**\[experimental\]**
+
+Also include a summary of the behavior of the rest of the group.
 
 ## Usage
 
