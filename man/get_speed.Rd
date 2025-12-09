@@ -21,6 +21,8 @@ get_speed(x_i, y_i, seconds_per_timestep, t_window = 1, forward = T)
 Returns \code{speeds}: a time series of the speed of individual (a vector of the same length as x_i and y_i)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Gets an individual's speed over time, using a specified time step to compute the speed
 }
 \details{

@@ -1,5 +1,8 @@
 #' Plot pull or anchor event
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Plots a pull or anchor event, with the initiator colored blue and the responder colored red.
 #' Panels show the positions at `t1`,`t2`, and `t3` respectively.
 #'

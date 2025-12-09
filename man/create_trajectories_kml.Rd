@@ -52,6 +52,8 @@ create_trajectories_kml(
 Creates and saves a kml to the specified output_file_path which can be loaded into Google Earth to view animated trajectories
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 This function creates a KML file while can be loaded into Google Earth Pro to view trajectories of a group over time.
 }
 \section{Additional details on icon and line color specification}{

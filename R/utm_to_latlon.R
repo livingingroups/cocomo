@@ -1,8 +1,11 @@
 #'UTM to latitude / longitude conversion
 #'
-#'Converts a matrix of UTM eastings and northings (eastings first column,
-#'northings second column) to a matrix of lons and lats (lons first column,
-#'lats second column)
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' Converts a matricx of UTM eastings and northings (eastings first column,
+#' northings second olumn) to a matrix of lons and lats (lons first column,
+#' lats second column)
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author NOT YET CODE REVIEWED

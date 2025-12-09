@@ -2,8 +2,7 @@
 % Please edit documentation in R/plot_behav_and_calls.R
 \name{plot_behav_and_calls}
 \alias{plot_behav_and_calls}
-\title{Plot individual behavior and calls during a time period specified by the user.
-Also include a summary of the behavior of the rest of the group.}
+\title{Plot individual behavior and calls during a time period specified by the user.}
 \usage{
 plot_behav_and_calls(
   behavs,
@@ -41,7 +40,8 @@ plot_behav_and_calls(
 \item{behavs_to_plot}{vector of character strings indicating behavior types of plot (other behavior types will get lumped into an "other" category)}
 }
 \description{
-Plot individual behavior and calls during a time period specified by the user.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Also include a summary of the behavior of the rest of the group.
 }
 \author{

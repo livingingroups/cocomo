@@ -54,6 +54,8 @@ Returns a data frame  containing dyadic interactions between a and b.
 Contains columns: \code{t1}, \code{t2}, \code{t3}, \code{initiator}, \code{responder}, \code{type}, \code{disparity}, \code{strength},\code{disparity_additive}, and \code{strength_additive}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Create a list of time blocks using NAs in the dataset as seperation points, then run the \code{get_pulls_and_anchors} function on each of these blocks separately.
 }
 \details{

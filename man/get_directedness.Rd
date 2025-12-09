@@ -17,6 +17,8 @@ get_directedness(x_i, y_i, t_window)
 vector of directedness of the trajectory as a function of time
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Gets the directedness of a trajectory over a given time window, as a function of time.
 }
 \details{

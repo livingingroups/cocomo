@@ -1,6 +1,9 @@
 #' Get nearest neighbor distance
 #'
-#'Gets the distance to an individual `i`'s nearest neighbor over time
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' Gets the distance to an individual `i`'s nearest neighbor over time
 #'
 #' @author Ariana Strandburg-Peshkin
 #' @author NOT YET CODE REVIEWED

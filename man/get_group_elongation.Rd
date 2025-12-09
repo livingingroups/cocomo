@@ -19,6 +19,8 @@ Returns a list containing:
 \code{out$long_axis_angle}: a vector of length \code{n_times} giving the angle of the long axis over time
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Computes the elongation of the group at each time step \code{t} as well as the long axis vector.
 The elongation is a measure of how "line-link" vs "circle-like" the group is, ranging from 0 (completely circular) to 1 (completely elongated)
 The elongation is defined by first performing a PCA on the x/y data of the group. The axis of greatest variation is defined

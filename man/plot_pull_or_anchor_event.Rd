@@ -21,6 +21,8 @@ plot_pull_or_anchor_event(xs, ys, events, event_idx, ids = NULL)
 Returns a plot of the event with the initiator in blue and the responder in red
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Plots a pull or anchor event, with the initiator colored blue and the responder colored red.
 Panels show the positions at \code{t1},\code{t2}, and \code{t3} respectively.
 }
