@@ -38,6 +38,8 @@ spatial discretization around the time point
 vector of spatially discretized headings, computed at all times or at times t_idxs if specified (other times are then filled in with NAs)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Gets spatially discretized heading for a given individual trajectory
 This is defined as the unit vector pointing from the individual's current location at time \code{t} to
 its location after it mas moved a distance of at least \code{R}.

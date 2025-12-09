@@ -25,10 +25,11 @@ Returns a list containing \code{spat_ts} (the time points associated with each p
 \code{R} (radius used)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Gets spatially discretized trajectories from temporally discretized trajectories,
 using a certain "ruler length" R.
-}
-\details{
+
 TODO: Code doesn't deal well with strings of NAs within it - look into this.
 }
 \author{

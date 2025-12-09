@@ -1,5 +1,7 @@
 #' Make a visualization of individual positions and calls during a time period specified by the user.
 #'
+#' `r lifecycle::badge("experimental")`
+#'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author Marius Faiß (secondary author)
 #' @author NOT YET CODE REVIEWED

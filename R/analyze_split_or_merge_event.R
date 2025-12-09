@@ -1,7 +1,11 @@
 #' Analyze split or merge event
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Analyze (and, if `make_plot=T` make a visualization of) a fission-fusion event.
 #'
+#' @details
 #' This function takes in information about a fission or fusion event as well as
 #' tracking data to identify relevant time points in the fission or fusion event and compute relevant metrics about the event.
 #' First, the `start_time` and `end_time` of the event are determined based on

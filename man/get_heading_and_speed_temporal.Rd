@@ -29,6 +29,8 @@ Returns a list containing \verb{$heads}: a time series of the heading of the ind
 \verb{$dts}: time differences between each point (will be all the same value, but given as a vector for compatibility with spatial headings function)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Gets the headings and speeds of an individual over time given a trajectory.
 Uses a temporal window \code{t_window} (in units of timesteps) to compute the headings and speeds,
 and can compute them based on future movement (\code{forward = T}) or past movement (\code{forward = F}).

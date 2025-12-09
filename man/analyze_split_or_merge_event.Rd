@@ -86,6 +86,8 @@ The plot shows (top) dyadic distance over time with lines showing the identified
 and (bottom) a visualization of trajectories of the two subgroups.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Analyze (and, if \code{make_plot=T} make a visualization of) a fission-fusion event.
 }
 \details{

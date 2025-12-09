@@ -36,6 +36,8 @@ get_group_heading_and_speed(
 Returns the group heading over time, a vector of length \code{n_times}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Computes the group centroid heading over time using either temporal or spatial headings, and
 going either forward (into the future) or backward (into the past) when computing the heading
 }

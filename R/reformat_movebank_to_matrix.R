@@ -1,5 +1,8 @@
 #' Reformat Movebank to matrix format
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Takes in regularly sampled GPS data in Movebank format (i.e. data frame with specified columns - see below)
 #' and converts it into the standard matrix form used by the `cocomo` package.
 #'
