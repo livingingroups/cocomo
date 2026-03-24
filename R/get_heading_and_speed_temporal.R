@@ -1,5 +1,8 @@
 #' Get heading and speed over time (temporal)
 #'
+#' @description
+#' `r lifecycle::badge("stable")`
+#'
 #' Gets the headings and speeds of an individual over time given a trajectory.
 #' Uses a temporal window `t_window` (in units of timesteps) to compute the headings and speeds,
 #' and can compute them based on future movement (`forward = T`) or past movement (`forward = F`).

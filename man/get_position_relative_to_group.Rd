@@ -33,6 +33,8 @@ get_position_relative_to_group(
 Returns a list containing rel_xs and rel_ys matrices of each individual's position relative to the group centroid and heading
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Get individual position relative to the group centroid and heading for all individuals.
 }
 \details{

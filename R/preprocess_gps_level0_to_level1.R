@@ -1,9 +1,12 @@
 #' Preprocess GPS data (in matrix format) from level 0 to level 1
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' This function takes in a level 0 dataset (uncleaned location data in UTM coordinates) and performs minimal
 #' pre-processing to return a level 1 dataset. See [latlon_to_utm] to convert from lat/lon to UTM. 
 #' 
-#' 
+#' @details
 #' The function performs the following steps (in order):
 #' 
 #' 1. If `remove_isolated_points = T`, finds extreme distances `> max_dist_percentile` quantile (default 99.99%) or `< 1 - max_dist_percentile` of `xs` or `ys` for each individual and, if there are no other points from that individual within `max_isolated_point_dist` (default 1000 m) of that point, replaces them with `NA`s

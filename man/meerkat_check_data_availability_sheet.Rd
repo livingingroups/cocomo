@@ -15,6 +15,9 @@ meerkat_check_data_availability_sheet(
 \item{path_to_data_dir}{path to the outer directory of the relevant deployment}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+}
+\details{
 Reads in a data availability sheet and checks for the following:
 \enumerate{
 \item Flag any missing fields
@@ -34,8 +37,7 @@ Reads in a data availability sheet and checks for the following:
 \item Finds files on the server that involve an individual from the group on a
 date included in the deployment, but aren't in the data availability sheet
 }
-}
-\details{
+
 Outputs everything into two csvs for manual checking:
 \itemize{
 \item \code{path_to_data_availability_sheet}_check.csv: rows to check in data availability sheet

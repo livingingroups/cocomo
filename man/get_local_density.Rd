@@ -19,6 +19,8 @@ get_local_density(xs, ys, i, R)
 Vector of length \code{n_times} giving the local density around the focal individual (number of individuals within a radius R) at each time point
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Gets the number of individuals within a radius \code{R} of a focal individual \code{i} at each time point
 }
 \author{

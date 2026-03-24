@@ -1,7 +1,11 @@
 #' Parse Adobe Audition formatted time
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Parses a time from the `Start` or `Duration` column of an Audition label file to seconds
 #'
+#' @details
 #' The `Start` and `Duration` columns of Adobe Audition label files have a non-standard
 #' format. Within the first 10 minutes, they are formatted as M:SS.SSS. After 10 minutes
 #' they are formatted as MM:SS.SSS and after the first hour they are formatted as

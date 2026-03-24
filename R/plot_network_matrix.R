@@ -1,5 +1,8 @@
 #' Plot network matrix
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Plot a matrix with color representing the edge weights of a network
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)

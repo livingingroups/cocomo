@@ -48,6 +48,8 @@ meerkat_import_meerkat_gps_data(
 \item{timezone}{timezone to use (UTC)}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 #Imports raw meerkat GPS data from Technosmart files (Gipsy 5 or Axy-Trek) assuming a standardized
 file folder structure of \code{input_dir} and standardized naming schemes as done in the meerkat group collaring project.
 Outputs a file containing the xs, ys, and timestamps matrices as well as another file with the GPS data table in Movebank format

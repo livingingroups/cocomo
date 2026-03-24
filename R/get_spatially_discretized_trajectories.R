@@ -1,6 +1,9 @@
 #'Get spatially discretized trajectories
 #'
-#'Gets spatially discretized trajectories from temporally discretized trajectories,
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' Gets spatially discretized trajectories from temporally discretized trajectories,
 #' using a certain "ruler length" R.
 #'
 #' TODO: Code doesn't deal well with strings of NAs within it - look into this.

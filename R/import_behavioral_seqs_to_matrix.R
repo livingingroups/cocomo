@@ -1,5 +1,8 @@
 #' Import behavioral sequences (output from classifier) to matrix format
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Imports behavioral sequence data from a set of csv files and converts them to
 #' matrix format matching the `xs` and `ys` matrices used in the `cocomo` library
 #'

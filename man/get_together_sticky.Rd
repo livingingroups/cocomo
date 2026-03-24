@@ -7,5 +7,5 @@
 get_together_sticky(together_inner, together_outer)
 }
 \description{
-Get whether two individuals are together, using a "sticky" definition
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }

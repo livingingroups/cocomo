@@ -1,8 +1,12 @@
 #' Get simplified turn and speed influence
 #'
+#' @description
+#' `r lifecycle::badge("stable")`
+#'
 #' Get the simplified turn and speed influence (movement and positional) between all pairs of individuals
 #' `i` and `j`, or, if `centroid = T` for all individuals `i` on the group centroid excluding `i`.
 #'
+#' @details
 #' The simplified movement turn influence of individual `i` on individual `j` (`turn_influence_movement[i,j]`)
 #' is defined as the probability that `j` turns right in the future given that `i` moved
 #' right relative to `j`'s past heading at a speed above a threshold value `min_right_speed`,

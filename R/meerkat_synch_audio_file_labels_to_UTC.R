@@ -1,9 +1,13 @@
 #' Synch labels within audio file to UTC time
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Reads in a label file (in Audition format) and a synch file, gets synch points,
 #' and synchs all labels in the file to UTC. Outputs a table with an additional
 #' column specifying timestamp_UTC. Currently only designed to work with meerkat data.
 #'
+#' @details
 #' The label file should be in the format of Audition labels. The Name column must contain
 #' labels of the form 'synch H:MM:SS' or 'synch MM:SS' to specify the times of synch calls
 #' as heard on the talking clock.

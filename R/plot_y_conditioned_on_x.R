@@ -1,5 +1,7 @@
 #' Plot a statistic of y conditioned on the value of x
 #'
+#' `r lifecycle::badge("experimental")`
+#'
 #' For paired measurements `(x,y)`, plot a specified statistic `stat` (e.g. the mean) of
 #' `y` for values of `x` within bins specified by the vector `bins`
 #'

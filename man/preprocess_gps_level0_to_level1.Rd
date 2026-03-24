@@ -78,6 +78,8 @@ preprocess_gps_level0_to_level1(
 Returns a list containing new \code{xs} and \code{ys} matrices, and also saves them plus the \code{timestamps} and \code{ids} objects to an output file if specified
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 This function takes in a level 0 dataset (uncleaned location data in UTM coordinates) and performs minimal
 pre-processing to return a level 1 dataset. See \link{latlon_to_utm} to convert from lat/lon to UTM.
 }
