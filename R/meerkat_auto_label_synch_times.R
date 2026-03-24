@@ -75,6 +75,11 @@ meerkat_auto_label_synch_times <- function(label_file, labeled_synchs, outdir, m
                             seconds %/% 3600,
                             (seconds %% 3600) %/% 60,
                             seconds %% 60))})
+
+  #remove any negative synch times (can appear based on erroneous detections before clock starts)
+  synchs$time_lab[which(synchs$inferred_talking_clock_time <= 0)] <- ''
+
+  #construct new labels for synchs
   synchs$new_name <- paste0('synch ', synchs$time_lab)
 
   #add labeled synchs back into original table and save file
@@ -86,7 +91,7 @@ meerkat_auto_label_synch_times <- function(label_file, labeled_synchs, outdir, m
   base_filename <- tools::file_path_sans_ext(basename(label_file))
   outfile <- paste0(outdir, base_filename,'_autosync.csv')
 
-  write.table(x = labels, file = outfile, sep = '\t', quote = F)
+  write.table(x = labels, row.names = F,  file = outfile, sep = '\t', quote = F)
 
   invisible(outfile)
 
