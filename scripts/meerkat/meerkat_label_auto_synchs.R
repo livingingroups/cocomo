@@ -201,7 +201,19 @@ user_start_time <- Sys.time()
 #loop over all files and label 3 synchs per file
 idxs <- which(files_table$status == 'todo')
 
-if(length(idxs)>0){
+if(length(idxs)==0){
+  cat('This year is completed. Would you like to try to redo some files that could not be synched?')
+  redo <- readline('If you would like to redo some files that could not be synched, type "yes" ')
+  if(redo == 'yes'){
+    idxs <- which(files_table$status %in% c('toofewsynchs','couldnotsynch'))
+    if(length(idxs)==0){
+      cat('There are no files that were not synched (or flagged / not on meerkat)')
+    }
+  }
+}
+
+if(length(idxs) > 0){
+
   idxs <- sample(idxs) #shuffle the order to get some variety
 
   i <- 1
@@ -387,7 +399,8 @@ if(length(idxs)>0){
       }
     }
   }
+} else{
+  print('this year is completed')
 }
-print('this year is completed')
 
 
