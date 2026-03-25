@@ -1,7 +1,8 @@
 #Compare auto synch vs manual synch for a given file
 
 synch_info_file <- '/mnt/EAS_shared/meerkat/working/METADATA/2022_synch_info_all.csv'
-load('/mnt/EAS_shared/meerkat/working/processed/acoustic/synched_animal2vec_predictions/labeled_animal2vec_synchs_2022_old.RData')
+#load('/mnt/EAS_shared/meerkat/working/processed/acoustic/synched_animal2vec_predictions/old/labeled_animal2vec_synchs_2022_old.RData') #v2 model files (original)
+load("/mnt/EAS_shared/meerkat/working/processed/acoustic/synched_animal2vec_predictions/labeled_animal2vec_synchs_2022.RData") #v3 model files
 
 files <- files_table$pred_file[which(files_table$status=='done')]
 #files <- files[!grepl('SOUNDFOC',files)]
@@ -34,7 +35,7 @@ for(i in 1:length(files)){
 
   #find the relevant synch info from the synchs_all table, and auto label the rest of the synchs
   synchs_file <- synchs_all[which(basename(synchs_all$pred_file) == basename(auto_file)),]
-  outfile <- cocomo::meerkat_auto_label_synch_times(auto_file, labeled_synchs = synchs_file, outdir = '/mnt/EAS_ind/astrandburg/meerkat_synch_test/autosync_files/')
+  outfile <- meerkat_auto_label_synch_times(auto_file, labeled_synchs = synchs_file, outdir = '/mnt/EAS_ind/astrandburg/meerkat_synch_test/autosync_files/')
 
   #create a comparable file that has all the (non-synch) labels from the autosynched file but draws the synchs from the manually labeled files
   manual_labs <- read.csv(file = manual_synch_file, sep = '\t', header = T, quote = "")
@@ -115,6 +116,10 @@ axis(side = 2, at = 1:length(medians), labels = tools::file_path_sans_ext(basena
 abline(v=0,lwd=2)
 abline(v=c(-.2,.2),lty=2)
 abline(h=1:length(median_abs),lwd=0.2,col='gray')
+bads <- which(median_abs > 2)
+for(bad in bads){
+  abline(h=bad, lwd = 0.2, col = 'red')
+}
 
 synched_manual_but_not_auto <- which(synched_manual & !synched_auto)
 synched_auto_but_not_manual <- which(synched_auto & !synched_manual)
