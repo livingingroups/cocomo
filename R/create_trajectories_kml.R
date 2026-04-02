@@ -64,7 +64,7 @@ create_trajectories_kml <- function(lons, lats, timestamps, id_codes, t0, tf, ou
   }
 
   #get time indexes
-  tidxs <- seq(t0,tf,step)
+  tidxs <- seq(which(timestamps==t0), which(timestamps==tf), step)
 
   # START WRITING
   sink(output_file_path)
