@@ -1,7 +1,7 @@
 #'Get spatially discretized trajectories
 #'
 #' @description
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("stable")`
 #'
 #' Gets spatially discretized trajectories from temporally discretized trajectories
 #' by breaking down the trajectory into steps of minimum length `R`. 
@@ -12,7 +12,7 @@
 #' TODO: Code doesn't deal well with strings of NAs within it - look into this.
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
-#' @author NOT YET CODE REVIEWED
+#' @author Brock (reviewer)
 #'
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time
