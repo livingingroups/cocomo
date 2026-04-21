@@ -88,18 +88,18 @@ spat_t <- rbind(
 )
 spat_x <- rbind(
   c(0, 1.1, 2.2, 3.3, 3.4, 4.5, 5.6),
-  c(0, 1.1, 0, 1.1, 2.3, NA, NA)
+  c(0, 1.1, 0, 1.1, 2.2, NA, NA)
 )
 spat_y <- matrix(0, nrow(spat_x), ncol(spat_x))
 spat_y[is.na(spat_x)] <- NA
 
-if(FALSE) expect_equivalent(
+expect_equivalent(
   get_spatially_discretized_trajectories(x, y, 1, breaks=5, verbose = F),
   list(
     spat_ts = spat_t,
     spat_xs = spat_x,
     spat_ys = spat_y,
-    spat_breaks = rbind(5,3),
+    spat_breaks = rbind(c(1,5),c(1,3)),
     R = 1
   ),
   info = 'with breaks'

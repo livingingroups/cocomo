@@ -34,7 +34,7 @@ get_spatially_discretized_trajectories <- function(xs, ys, R, breaks = NULL, ver
   checkmate::assert_matrix(ys, mode = 'numeric', nrows = nrow(xs), ncol=ncol(xs))
   checkmate::assert_number(R, lower=0)
   checkmate::check_integerish(
-    breaks, lower=1, upper=ncol(xs), min.len = 1, max.len = ncol(xs), unique = TRUE, null.ok=TRUE
+    breaks, lower=1, upper=ncol(xs), min.len = 1, max.len = ncol(xs), unique = TRUE, sorted=TRUE, null.ok=TRUE
   )
   checkmate::check_flag(verbose)
 
@@ -46,6 +46,11 @@ get_spatially_discretized_trajectories <- function(xs, ys, R, breaks = NULL, ver
   #set breaks, if not yet set
   if(is.null(breaks)){
     breaks <- c(1, n_times + 1)
+  }
+
+  #add start point to breaks if needed
+  if(breaks[1] != 1){
+    breaks <- c(1, breaks)
   }
 
   #add end point to breaks if needed
