@@ -27,6 +27,7 @@ library(cocomo)
 #User specifies what year
 year <- readline('What year would you like to label? ')
 labeler <- readline('Please enter your name ')
+find_new <- readline('Would you like to search for new files (y/n)? ')
 
 #maximum drift per hour to allow (otherwise need to relabel synchs) - for edics, set to 15, for sorokas, set to 5
 if(year %in% c(2017, 2019, 2021)){
@@ -118,7 +119,7 @@ cat('\n')
 cat('You may quit at any time by pressing escape. Your progress will be saved\n')
 cat('Please note: it is a good idea to restart your R session periodically (e.g. once per day) when using this script. Otherwise it will build up many files in the tmp folder.\n')
 
-if(!file.exists(outfile)){
+if(!file.exists(outfile) | find_new %in% c('y','Y')){
 
   #SETUP (if not already done)
   #get prediction files
@@ -177,6 +178,22 @@ if(!file.exists(outfile)){
 
   #initialize user time to 0
   user_time <- 0
+
+  #if specified to find new files, check for the old files first and replace any labels that have already been done
+  if(find_new %in% c('y','Y')){
+    files_table_new <- files_table
+    load(outfile) #previously labeled files
+    existing_basenames <- basename(files_table$wav_file)
+    files_table_combined <- files_table #start with old table
+    #add any new rows
+    for(i in 1:nrow(files_table_new)){
+      wave_basename <- basename(files_table_new$wav_file[i])
+      if(!(wave_basename %in% existing_basenames)){
+        files_table_combined <- rbind(files_table_combined, files_table_new[i,])
+      }
+    }
+  }
+  files_table <- files_table_combined #rename files table
 
 } else{
   load(outfile)
