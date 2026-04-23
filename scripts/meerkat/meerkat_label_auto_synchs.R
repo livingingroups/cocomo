@@ -238,6 +238,22 @@ if(length(idxs) > 0){
     pred_file <- files_table$pred_file[idxs[i]]
     wav_file <- files_table$wav_file[idxs[i]]
 
+    #if wav file doesn't exist, set status to nowavfile and move on
+    if(!file.exists(wav_file)){
+      files_table$status[idxs[i]] <- 'nowavfile'
+      i <- i + 1
+      next
+    }
+
+    #if predictions file doesn't exist, set status to nopredfile and move on
+    if(!file.exists(pred_file)){
+      file_table$status[idxs[i]] <- 'nopredfile'
+      i <- i + 1
+      next
+    }
+
+
+
     #read in labels
     labels <- read.csv(pred_file, header = T, sep = '\t')
     synchs <- labels[which(labels$Name == 'synch'),]
