@@ -436,6 +436,7 @@ if(length(idxs) > 0){
   }
 } else{
   print('this year is completed')
+  save(list = c('synchs_all', 'files_table','user_time'), file = outfile)
 }
 
 
