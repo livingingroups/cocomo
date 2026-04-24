@@ -385,6 +385,7 @@ if(length(idxs) > 0){
           }
         }
       }
+      save(list = c('synchs_all', 'files_table','user_time'), file = outfile)
     }
 
     #if file is complete, check that synchs line up reasonably well
