@@ -1,4 +1,4 @@
-# Make a visualization of individual positions and calls during a time period specified by the user.
+# Make a visualization of individual positions and calls during a time period specified by the user. The visualization can either show all individuals in the provided data or can zoom in on one individual and show its behavior in detail.
 
 **\[experimental\]**
 
@@ -14,24 +14,28 @@ generate_movement_and_calls_visualization(
   end_time = NULL,
   time_step = 1,
   output_dir = NULL,
-  tail_time = 10,
-  call_persist_time = 5,
+  ind_names = NULL,
+  focus_ind = NULL,
+  zoom_radius = 400,
+  bg_color = "black",
+  satellite_map = TRUE,
+  utm_epsg = NULL,
+  auto_zoom_tiles = TRUE,
+  zoom_global = 15,
+  zoom_focus = NULL,
   colors_inds = NULL,
   colors_calls = NULL,
+  ind_point_size = 2,
+  call_point_size = 1,
   pchs_inds = NULL,
   pchs_calls = NULL,
-  show_legend_inds = T,
-  show_legend_calls = T,
+  tail_time = 10,
+  call_persist_time = 10,
+  show_legend_inds = TRUE,
+  sort_legend_inds = NULL,
+  show_legend_calls = FALSE,
   legend_loc = "topright",
-  show_time = T,
-  show_scalebar = T,
   scalebar_size = 100,
-  scalebar_loc = "bottomleft",
-  scalebar_offset = 20,
-  ind_names = NULL,
-  bg_color = "black",
-  ind_point_size = NULL,
-  call_point_size = NULL,
   events = NULL,
   highlighted_radius = 1000
 )
@@ -42,12 +46,14 @@ generate_movement_and_calls_visualization(
 - xs:
 
   matrix of dimensions `n_inds` x `n_times` where `xs[i,t]` gives the x
-  position (numeric) of individual `i` at time step `t`
+  position (numeric) of individual `i` at time step `t`, positions in
+  UTM format
 
 - ys:
 
-  matrix of dimensions `n_inds` x `n_times` where `xs[i,t]` gives the x
-  position (numeric) of individual `i` at time step `t`
+  matrix of dimensions `n_inds` x `n_times` where `ys[i,t]` gives the y
+  position (numeric) of individual `i` at time step `t`, positions in
+  UTM format
 
 - timestamps:
 
@@ -77,6 +83,74 @@ generate_movement_and_calls_visualization(
 
   directory in which to store the folder of outputted images
 
+- ind_names:
+
+  vector of names of the individuals
+
+- focus_ind:
+
+  name or index of a focal individual. This centers the frame on one
+  individual instead of producing a broad overview. When using name,
+  ind_names must be provided as well.
+
+- zoom_radius:
+
+  meters around the focal individual (UTM)
+
+- bg_color:
+
+  background color of the plot ("black", "white", etc.)
+
+- satellite_map:
+
+  use a satellite map as the background (T or F)
+
+- utm_epsg:
+
+  WGS 84 EPSG reference number to find the geographic location of the
+  satellite map tile, use https://epsg.io to find the reference number
+
+- auto_zoom_tiles:
+
+  choose satellite map zoom automatically when focusing on individual,
+  determines satellite map resolution
+
+- zoom_global:
+
+  zoom level for global tiles of the background satellite map,
+  determines satellite map resolution
+
+- zoom_focus:
+
+  optional explicit map zoom for focus tiles, determines satellite map
+  resolution
+
+- colors_inds:
+
+  vector of colors to use for each individual (length `n_inds`). Color
+  indices must match the individual index in calls , xs and ys
+
+- colors_calls:
+
+  vector of colors to use for each call type (alphabetical order by
+  call_type)
+
+- ind_point_size:
+
+  size of the individual points
+
+- call_point_size:
+
+  size of the points for calls
+
+- pchs_inds:
+
+  vector of plotting symbols for individuals
+
+- pchs_calls:
+
+  vector of plotting symbols for calls
+
 - tail_time:
 
   number of previous time steps to plot as a "tail" which trails the
@@ -87,26 +161,14 @@ generate_movement_and_calls_visualization(
   number of previous time steps to still show the calls (they will
   shrink linearly over time in size)
 
-- colors_inds:
-
-  vector of colors to use for each individual (length `n_inds`)
-
-- colors_calls:
-
-  vector of colors to use for each call type (alphabetical order by
-  call_type)
-
-- pchs_inds:
-
-  vector of plotting symbols for individuals
-
-- pchs_calls:
-
-  vector of plotting symbols for calls
-
 - show_legend_inds:
 
   whether to plot a legend showing the names of the individuals (T or F)
+
+- sort_legend_inds:
+
+  vector to sort the legend showing the names of the individuals (vector
+  containing the sort order by index)
 
 - show_legend_calls:
 
@@ -114,45 +176,12 @@ generate_movement_and_calls_visualization(
 
 - legend_loc:
 
-  location of the legend, either
-  `topleft','topright','bottomleft' or 'bottomright'`
-
-- show_time:
-
-  whether to show the timestamp or not (`T` or `F`)
-
-- show_scalebar:
-
-  whether to show a scalebar or not (`T` or `F`)
+  location of the individual legend, either 'topleft' or 'topright'.
+  Call legend will be opposite
 
 - scalebar_size:
 
-  number of meters for the scalebar
-
-- scalebar_loc:
-
-  location of the scale bar, either
-  `topleft','topright','bottomleft' or 'bottomright'`
-
-- scalebar_offset:
-
-  scalebar offset from the edge (fraction of entire width)
-
-- ind_names:
-
-  vector of names of the individuals
-
-- bg_color:
-
-  background color
-
-- ind_point_size:
-
-  size of the individual points
-
-- call_point_size:
-
-  size of the points for calls
+  number of meters for the scalebar, set to 0 to deactivate
 
 - events:
 
@@ -167,5 +196,7 @@ generate_movement_and_calls_visualization(
 ## Author
 
 Ariana Strandburg-Peshkin (primary author)
+
+Marius Faiß (secondary author)
 
 NOT YET CODE REVIEWED

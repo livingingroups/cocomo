@@ -148,7 +148,9 @@ recommended.
 
 - [`generate_movement_and_calls_visualization()`](https://livingingroups.github.io/cocomo/reference/generate_movement_and_calls_visualization.md)
   **\[experimental\]** : Make a visualization of individual positions
-  and calls during a time period specified by the user.
+  and calls during a time period specified by the user. The
+  visualization can either show all individuals in the provided data or
+  can zoom in on one individual and show its behavior in detail.
 
 - [`get_angle_between_vectors()`](https://livingingroups.github.io/cocomo/reference/get_angle_between_vectors.md)
   **\[experimental\]** : Get angle between vectors in radians or degrees
