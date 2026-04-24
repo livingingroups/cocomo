@@ -15,9 +15,13 @@
 #' @param max_drift maximum amount of drift allowed to still consider a synch call to be correctly positioned
 #'
 #' @returns Saves a new label file to the selected directory, with the original filename with _autosync.csv appended
-#' Also returns the name of the output file (invisibly)
+#' Also returns a string giving the output (either 'completed' or 'not_completed') and throws warnings if a file cannot be completed
 #' @export
 meerkat_auto_label_synch_times <- function(label_file, labeled_synchs, outdir, machine_labels = T, likeli_thresh = 0.6, max_drift = 1){
+
+  #get file name
+  base_filename <- tools::file_path_sans_ext(basename(label_file))
+  outfile <- paste0(outdir, base_filename,'_autosync.csv')
 
   #read labels
   labels <- read.csv2(file = label_file, header=T, sep = '\t', stringsAsFactors=F)
@@ -33,6 +37,11 @@ meerkat_auto_label_synch_times <- function(label_file, labeled_synchs, outdir, m
     synchs <- synchs[which(synchs$likeli > likeli_thresh),]
   }
 
+  if(nrow(synchs)==0){
+    warning(paste0('file could not be synched: ', outfile))
+    return('not_completed')
+  }
+
   #time into file in seconds
   synchs$start_sec <- sapply(X = synchs$Start, FUN = cocomo::parse_audition_time)
 
@@ -43,9 +52,20 @@ meerkat_auto_label_synch_times <- function(label_file, labeled_synchs, outdir, m
 
   #get rid of any synchs that are not close enough to the expected timeline
   synchs <- synchs[which(synchs$dt_next > 30 & synchs$dt_next > 30),] #remove close together synchs
+
+  if(nrow(synchs)==0){
+    warning(paste0('file could not be synched: ', outfile))
+    return('not_completed')
+  }
+
   synchs$offtimeline_next <- pmin(synchs$dt_next %% 90, 90 - synchs$dt_next %% 90)
   synchs$offtimeline_prev <- pmin(synchs$dt_prev %% 90, 90 - synchs$dt_prev %% 90)
   synchs <- synchs[which(synchs$offtimeline_next <= max_drift & synchs$offtimeline_prev <= max_drift),]
+
+  if(nrow(synchs)==0){
+    warning(paste0('file could not be synched: ', outfile))
+    return('not_completed')
+  }
 
   #get correct time difference between synchs, assuming 90 sec differences between them and missing some in middle
   synchs$file_time_since_first_synch <- (synchs$start_sec - synchs$start_sec[1])
@@ -79,6 +99,11 @@ meerkat_auto_label_synch_times <- function(label_file, labeled_synchs, outdir, m
   #remove any negative synch times (can appear based on erroneous detections before clock starts)
   synchs$time_lab[which(synchs$inferred_talking_clock_time <= 0)] <- ''
 
+  if(nrow(synchs)==0){
+    warning(paste0('file could not be synched: ', outfile))
+    return('not_completed')
+  }
+
   #construct new labels for synchs
   synchs$new_name <- paste0('synch ', synchs$time_lab)
 
@@ -88,12 +113,9 @@ meerkat_auto_label_synch_times <- function(label_file, labeled_synchs, outdir, m
   labels$Name[match(synchs_match_str,labels_match_str)] <- synchs$new_name
 
   #save output file
-  base_filename <- tools::file_path_sans_ext(basename(label_file))
-  outfile <- paste0(outdir, base_filename,'_autosync.csv')
-
   write.table(x = labels, row.names = F,  file = outfile, sep = '\t', quote = F)
 
-  invisible(outfile)
+  return('completed')
 
 }
 

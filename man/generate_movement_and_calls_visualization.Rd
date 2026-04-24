@@ -2,7 +2,9 @@
 % Please edit documentation in R/generate_movement_and_calls_visualization.R
 \name{generate_movement_and_calls_visualization}
 \alias{generate_movement_and_calls_visualization}
-\title{Make a visualization of individual positions and calls during a time period specified by the user.}
+\title{Make a visualization of individual positions and calls during a time period specified by the user.
+The visualization can either show all individuals in the provided data or can zoom in on one individual
+and show its behavior in detail.}
 \usage{
 generate_movement_and_calls_visualization(
   xs = NULL,
@@ -13,32 +15,36 @@ generate_movement_and_calls_visualization(
   end_time = NULL,
   time_step = 1,
   output_dir = NULL,
-  tail_time = 10,
-  call_persist_time = 5,
+  ind_names = NULL,
+  focus_ind = NULL,
+  zoom_radius = 400,
+  bg_color = "black",
+  satellite_map = TRUE,
+  utm_epsg = NULL,
+  auto_zoom_tiles = TRUE,
+  zoom_global = 15,
+  zoom_focus = NULL,
   colors_inds = NULL,
   colors_calls = NULL,
+  ind_point_size = 2,
+  call_point_size = 1,
   pchs_inds = NULL,
   pchs_calls = NULL,
-  show_legend_inds = T,
-  show_legend_calls = T,
+  tail_time = 10,
+  call_persist_time = 10,
+  show_legend_inds = TRUE,
+  sort_legend_inds = NULL,
+  show_legend_calls = FALSE,
   legend_loc = "topright",
-  show_time = T,
-  show_scalebar = T,
   scalebar_size = 100,
-  scalebar_loc = "bottomleft",
-  scalebar_offset = 20,
-  ind_names = NULL,
-  bg_color = "black",
-  ind_point_size = NULL,
-  call_point_size = NULL,
   events = NULL,
   highlighted_radius = 1000
 )
 }
 \arguments{
-\item{xs}{matrix of dimensions \code{n_inds} x \code{n_times} where \code{xs[i,t]} gives the x position (numeric) of individual \code{i} at time step \code{t}}
+\item{xs}{matrix of dimensions \code{n_inds} x \code{n_times} where \code{xs[i,t]} gives the x position (numeric) of individual \code{i} at time step \code{t}, positions in UTM format}
 
-\item{ys}{matrix of dimensions \code{n_inds} x \code{n_times} where \code{xs[i,t]} gives the x position (numeric) of individual \code{i} at time step \code{t}}
+\item{ys}{matrix of dimensions \code{n_inds} x \code{n_times} where \code{ys[i,t]} gives the y position (numeric) of individual \code{i} at time step \code{t}, positions in UTM format}
 
 \item{timestamps}{vector of timestamps (POSIXct), must have same dimensions as columns of \code{xs} and \code{ys} matrices}
 
@@ -52,41 +58,49 @@ generate_movement_and_calls_visualization(
 
 \item{output_dir}{directory in which to store the folder of outputted images}
 
-\item{tail_time}{number of previous time steps to plot as a "tail" which trails the point showing the current location}
+\item{ind_names}{vector of names of the individuals}
 
-\item{call_persist_time}{number of previous time steps to still show the calls (they will shrink linearly over time in size)}
+\item{focus_ind}{name or index of a focal individual. This centers the frame on one individual instead of producing a broad overview. When using name, ind_names must be provided as well.}
 
-\item{colors_inds}{vector of colors to use for each individual (length \code{n_inds})}
+\item{zoom_radius}{meters around the focal individual (UTM)}
+
+\item{bg_color}{background color of the plot ("black", "white", etc.)}
+
+\item{satellite_map}{use a satellite map as the background (T or F)}
+
+\item{utm_epsg}{WGS 84 EPSG reference number to find the geographic location of the satellite map tile, use https://epsg.io to find the reference number}
+
+\item{auto_zoom_tiles}{choose satellite map zoom automatically when focusing on individual, determines satellite map resolution}
+
+\item{zoom_global}{zoom level for global tiles of the background satellite map, determines satellite map resolution}
+
+\item{zoom_focus}{optional explicit map zoom for focus tiles, determines satellite map resolution}
+
+\item{colors_inds}{vector of colors to use for each individual (length \code{n_inds}). Color indices must match the individual index in calls , xs and ys}
 
 \item{colors_calls}{vector of colors to use for each call type (alphabetical order by call_type)}
+
+\item{ind_point_size}{size of the individual points}
+
+\item{call_point_size}{size of the points for calls}
 
 \item{pchs_inds}{vector of plotting symbols for individuals}
 
 \item{pchs_calls}{vector of plotting symbols for calls}
 
+\item{tail_time}{number of previous time steps to plot as a "tail" which trails the point showing the current location}
+
+\item{call_persist_time}{number of previous time steps to still show the calls (they will shrink linearly over time in size)}
+
 \item{show_legend_inds}{whether to plot a legend showing the names of the individuals (T or F)}
+
+\item{sort_legend_inds}{vector to sort the legend showing the names of the individuals (vector containing the sort order by index)}
 
 \item{show_legend_calls}{whether to plot a legend showing the names of the call types (T or F)}
 
-\item{legend_loc}{location of the legend, either \verb{topleft','topright','bottomleft' or 'bottomright'}}
+\item{legend_loc}{location of the individual legend, either 'topleft' or 'topright'. Call legend will be opposite}
 
-\item{show_time}{whether to show the timestamp or not (\code{T} or \code{F})}
-
-\item{show_scalebar}{whether to show a scalebar or not (\code{T} or \code{F})}
-
-\item{scalebar_size}{number of meters for the scalebar}
-
-\item{scalebar_loc}{location of the scale bar, either \verb{topleft','topright','bottomleft' or 'bottomright'}}
-
-\item{scalebar_offset}{scalebar offset from the edge (fraction of entire width)}
-
-\item{ind_names}{vector of names of the individuals}
-
-\item{bg_color}{background color}
-
-\item{ind_point_size}{size of the individual points}
-
-\item{call_point_size}{size of the points for calls}
+\item{scalebar_size}{number of meters for the scalebar, set to 0 to deactivate}
 
 \item{events}{data frame with columns \code{event_id}, \code{start_time_idx},\code{end_time_idx},\code{initiator}}
 
@@ -97,6 +111,8 @@ generate_movement_and_calls_visualization(
 }
 \author{
 Ariana Strandburg-Peshkin (primary author)
+
+Marius Faiß (secondary author)
 
 NOT YET CODE REVIEWED
 }

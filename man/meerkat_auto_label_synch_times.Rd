@@ -32,7 +32,7 @@ meerkat_auto_label_synch_times(
 }
 \value{
 Saves a new label file to the selected directory, with the original filename with _autosync.csv appended
-Also returns the name of the output file (invisibly)
+Also returns a string giving the output (either 'completed' or 'not_completed') and throws warnings if a file cannot be completed
 }
 \description{
 Auto label synch times
