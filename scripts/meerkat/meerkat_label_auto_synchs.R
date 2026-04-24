@@ -231,7 +231,9 @@ if(length(idxs)==0){
 
 if(length(idxs) > 0){
 
-  idxs <- sample(idxs) #shuffle the order to get some variety
+  if(length(idxs) > 1){
+    idxs <- sample(idxs) #shuffle the order to get some variety
+  }
 
   i <- 1
   while(i <= length(idxs)){
