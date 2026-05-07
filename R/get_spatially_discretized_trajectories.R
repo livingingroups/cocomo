@@ -1,15 +1,18 @@
 #'Get spatially discretized trajectories
 #'
 #' @description
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("stable")`
 #'
-#' Gets spatially discretized trajectories from temporally discretized trajectories,
-#' using a certain "ruler length" R.
+#' Gets spatially discretized trajectories from temporally discretized trajectories
+#' by breaking down the trajectory into steps of minimum length `R`. 
+#'
+#' Starting with the first point, this function identifies the next point that is
+#' at least distance R away and drops any points between the two.
 #'
 #' TODO: Code doesn't deal well with strings of NAs within it - look into this.
 #'
 #' @author Ariana Strandburg-Peshkin (primary author)
-#' @author NOT YET CODE REVIEWED
+#' @author Brock (reviewer)
 #'
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time
@@ -17,18 +20,24 @@
 #' @param breaks vector of indexes to breaks in the data (e.g. breaks between days)
 #' @param verbose whether to print progress while running
 #'
-#' @returns Returns a list containing `spat_ts` (the time points associated with each point along the spatially discretized trajectory),
-#' `spat_xs` (the x coordinates of each point along the spatially discretized trajectory),
-#' `spat_ys` (the y coordinates of each point along the spatially discretized trajectory),
-#' `spat_breaks` (indexes to starts of breaks in the new spatially discretized data),
-#' `R` (radius used)
+#' @returns Returns a list containing
+#'  - `spat_ts` (`N x t_times*`) indices associated with each point along the spatially discretized trajectory
+#' - `spat_xs` (`N x n_times*`) the x coordinates of each point along the spatially discretized trajectory
+#' - `spat_ys` (`N x n_times*`) the y coordinates of each point along the spatially discretized trajectory
+#' - `spat_breaks` indexes to starts of breaks in the new spatially discretized data
+#'  If `breaks` is NULL, spat_breaks is an N x 1 matrix of 1s.
+#' - `R` (radius used)
+#' where `n_times*` is the max (accross individuals) number of datapoints after filtering. (`n_times*` is less than or equal to `n_times``).
 #' @export
 get_spatially_discretized_trajectories <- function(xs, ys, R, breaks = NULL, verbose = T){
+  checkmate::assert_matrix(xs, mode = 'numeric')
+  checkmate::assert_matrix(ys, mode = 'numeric', nrows = nrow(xs), ncol=ncol(xs))
+  checkmate::assert_number(R, lower=0)
+  checkmate::check_integerish(
+    breaks, lower=1, upper=ncol(xs), min.len = 1, max.len = ncol(xs), unique = TRUE, sorted=TRUE, null.ok=TRUE
+  )
+  checkmate::check_flag(verbose)
 
-  #check matrix dimensions
-  if(nrow(xs) != nrow(ys) || ncol(xs) != ncol(ys)){
-    stop('xs and ys matrices must have same dimensions')
-  }
 
   #get dimensions
   n_inds <- nrow(xs)
@@ -37,6 +46,11 @@ get_spatially_discretized_trajectories <- function(xs, ys, R, breaks = NULL, ver
   #set breaks, if not yet set
   if(is.null(breaks)){
     breaks <- c(1, n_times + 1)
+  }
+
+  #add start point to breaks if needed
+  if(breaks[1] != 1){
+    breaks <- c(1, breaks)
   }
 
   #add end point to breaks if needed
