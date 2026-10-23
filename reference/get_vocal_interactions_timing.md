@@ -3,7 +3,7 @@
 **\[experimental\]**
 
 Carries out the analysis described in Demartsev et al. 2024 (doi:
-10.1098/rstb.2023.0188) \#It works as follows: Make a table of all calls
+10.1098/rstb.2023.0188) It works as follows: Make a table of all calls
 within a given call category (set of calls), identify the one who gave
 the call as the 'caller' For each call, identify all other individuals
 ('responders') who were present (calls labeled) on that day Also
