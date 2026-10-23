@@ -73,6 +73,9 @@
 - [`get_turn_and_speed_influence_simplified()`](https://livingingroups.github.io/cocomo/reference/get_turn_and_speed_influence_simplified.md)
   **\[stable\]** : Get simplified turn and speed influence
 
+- [`get_vocal_interactions_timing()`](https://livingingroups.github.io/cocomo/reference/get_vocal_interactions_timing.md)
+  **\[experimental\]** : Vocal interactions timing analysis
+
 - [`identify_splits_and_merges()`](https://livingingroups.github.io/cocomo/reference/identify_splits_and_merges.md)
   **\[stable\]** : Identify group splits and merges from
   multi-individual trajectory data
