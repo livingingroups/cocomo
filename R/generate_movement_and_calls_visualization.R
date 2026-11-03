@@ -1,9 +1,9 @@
-#' Make a visualization of individual positions and calls during a time period specified by the user. 
+#' Make a visualization of individual positions and calls during a time period specified by the user.
 #' The visualization can either show all individuals in the provided data or can zoom in on one individual
 #' and show its behavior in detail.
-#' 
+#'
 #' `r lifecycle::badge("experimental")`
-#' 
+#'
 #' @author Ariana Strandburg-Peshkin (primary author)
 #' @author Marius Faiß (secondary author)
 #' @author NOT YET CODE REVIEWED
@@ -40,17 +40,17 @@
 #' @param scalebar_size number of meters for the scalebar, set to 0 to deactivate
 #' @param events data frame with columns `event_id`, `start_time_idx`,`end_time_idx`,`initiator`
 #' @param highlighted_radius radius of the highlighted location (usually an epicenter from hyena whoop analysis)
-#' 
+#'
 #' @export
-generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, timestamps = NULL, calls = NULL, start_time = NULL, 
-                                                      end_time = NULL, time_step = 1, output_dir = NULL, ind_names = NULL, 
-                                                      focus_ind = NULL, zoom_radius = 400, bg_color = 'black', 
-                                                      satellite_map = TRUE, utm_epsg = NULL, auto_zoom_tiles = TRUE, 
-                                                      zoom_global = 15, zoom_focus = NULL, colors_inds = NULL, colors_calls = NULL, 
-                                                      ind_point_size = 2, call_point_size = 1, pchs_inds = NULL, 
-                                                      pchs_calls = NULL, tail_time = 10, call_persist_time = 10, 
-                                                      show_legend_inds = TRUE, sort_legend_inds = NULL, 
-                                                      show_legend_calls = FALSE, legend_loc = 'topright', scalebar_size = 100, 
+generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, timestamps = NULL, calls = NULL, start_time = NULL,
+                                                      end_time = NULL, time_step = 1, output_dir = NULL, ind_names = NULL,
+                                                      focus_ind = NULL, zoom_radius = 400, bg_color = 'black',
+                                                      satellite_map = TRUE, utm_epsg = NULL, auto_zoom_tiles = TRUE,
+                                                      zoom_global = 15, zoom_focus = NULL, colors_inds = NULL, colors_calls = NULL,
+                                                      ind_point_size = 2, call_point_size = 1, pchs_inds = NULL,
+                                                      pchs_calls = NULL, tail_time = 10, call_persist_time = 10,
+                                                      show_legend_inds = TRUE, sort_legend_inds = NULL,
+                                                      show_legend_calls = FALSE, legend_loc = 'topright', scalebar_size = 100,
                                                       events = NULL, highlighted_radius = 1000){
 
   # ---CHECKS---
@@ -337,7 +337,7 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
       ar <- yrange / xrange
       last_center_x <- cx_t
       last_center_y <- cy_t
-    } 
+    }
     # use global boundaries
     else {
       xmin <- gxmin; xmax <- gxmax; ymin <- gymin; ymax <- gymax
@@ -497,10 +497,10 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
       for (s in seq(1, 0.5, by = -0.05)) {
         test_cex <- legend_cex * s
         sz <- legend(call_legend_loc, legend = call_types, pch = pchs_calls,
-                     pt.bg = colors_calls, col = "white", text.col = text_color,
+                     pt.bg = colors_calls, col = colors_calls, text.col = text_color,
                      cex = test_cex, ncol = 1, y.intersp = 0.5,
                      bty = "n", plot = FALSE)
-        
+
         if (sz$rect$h <= max_h_user) {
           draw_cex <- test_cex
           break
@@ -508,7 +508,7 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
       }
 
       legend(call_legend_loc, legend = call_types, pch = pchs_calls,
-             pt.bg = colors_calls, col = "white", text.col = text_color,
+             pt.bg = colors_calls, col = colors_calls, text.col = text_color,
              cex = draw_cex, ncol = 1, y.intersp = 0.85,
              inset = 0.01, bty = "black")
     }
@@ -536,7 +536,8 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
                ys[cbind(calls_past$ind_idx, calls_past$time_idx)],
                bg = colors_calls[match(calls_past$call_type, call_types)],
                pch = pchs_calls[match(calls_past$call_type, call_types)],
-               cex = call_point_size, col = "white")
+               cex = call_point_size,
+               col = colors_calls[match(calls_past$call_type, call_types)])
       }
     }
 
@@ -547,14 +548,15 @@ generate_movement_and_calls_visualization <- function(xs = NULL, ys = NULL, time
                ys[cbind(calls_now$ind_idx, calls_now$time_idx)],
                bg = colors_calls[match(calls_now$call_type, call_types)],
                pch = pchs_calls[match(calls_now$call_type, call_types)],
-               cex = call_point_size, col = "white")
+               cex = call_point_size,
+               col = colors_calls[match(calls_past$call_type, call_types)])
       }
     }
 
     # plot scale bar
     if (scalebar_size > 0) {
       lines(c(scalebar_xmin, scalebar_xmax), c(scalebar_y, scalebar_y), col = text_color, lwd = scalebar_lwd)
-      text(labels = paste(scalebar_size, 'm'), x = scalebar_text_x, y = scalebar_text_y, col = text_color, 
+      text(labels = paste(scalebar_size, 'm'), x = scalebar_text_x, y = scalebar_text_y, col = text_color,
            cex = legend_cex)
     }
 
