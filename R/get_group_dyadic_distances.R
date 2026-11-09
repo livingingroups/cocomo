@@ -10,7 +10,7 @@
 #' @param xs `N x n_times` matrix giving x coordinates of each individual over time
 #' @param ys `N x n_times` matrix giving y coordinates of each individual over time
 #' @returns `N x N x n_times` `dyad_dists` array giving dyadic distance between all pairs of individuals at each time step
-#' `dyad_dists[i,j,t]` gives the distance between individuals `i` and `j` at time `t`
+#' `dyad_dists[i,j,t]` gives the distance between individuals `i` and `j` at time `t`. Note that distance between an individual and itself is defined as NA (not 0).
 #' @export
 get_group_dyadic_distances <- function(xs, ys){
 
